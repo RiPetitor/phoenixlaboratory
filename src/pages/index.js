@@ -10,20 +10,33 @@ import styles from './index.module.css';
 function HomepageHeader() {
   const {siteConfig} = useDocusaurusContext();
   return (
-    <header className={clsx('hero hero--primary', styles.heroBanner)}>
+    <header className={clsx('hero--primary', styles.heroBanner)}>
       <div className="container">
-        <Heading as="h1" className="hero__title">
+      <div className={clsx('right', styles.hero__logo)}>
+        <img src="img/phoenix.png" alt="Феникс" width={600} />
+        </div>
+        <Heading as="h1" className="hero__title white">
           {siteConfig.title}
         </Heading>
-        <p className="hero__subtitle">{siteConfig.tagline}</p>
+        <p className="hero__subtitle white">{siteConfig.tagline}</p>
         <div className={styles.buttons}>
           <Link
-            className="button button--secondary button--lg"
+            className="button button--golden button--lg"
             to="/docs/doces/intro">
             Документация
           </Link>
+          <Link
+            className="button button--golden button--lg"
+            to="/docs/learn/learn-intro">
+            Учебник
+          </Link>
+          <Link
+            className="button button--golden button--lg"
+            to="/blog">
+            Блог
+          </Link>
+          </div>
         </div>
-      </div>
     </header>
   );
 }

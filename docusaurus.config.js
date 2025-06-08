@@ -1,36 +1,37 @@
 // @ts-check
-// `@type` JSDoc annotations allow editor autocompletion and type checking
-// (when paired with `@ts-check`).
-// There are various equivalent ways to declare your Docusaurus config.
-// See: https://docusaurus.io/docs/api/docusaurus-config
+// Аннотации JSDoc `@type` позволяют автоматически выполнять редактирование и проверку типов
+// (в сочетании с `@ts-check`).
+// Существуют различные эквивалентные способы объявления конфигурации вашего Docusaurus.
+// Смотрите: https://docusaurus.io/docs/api/docusaurus-config
 
 import {themes as prismThemes} from 'prism-react-renderer';
 
-// This runs in Node.js - Don't use client-side code here (browser APIs, JSX...)
+// Это выполняется в Node.js - Здесь не используется клиентский код (API браузера, JSX...)
 
 /** @type {import('@docusaurus/types').Config} */
 const config = {
-  title: 'Добро пожаловать',
-  tagline: 'В мир знаний!',
+  title: 'Phoenix Labaratory',
+  tagline: 'Место, для изучения чего-то нового!',
+  //Иконка сайта
   favicon: 'img/fawicon.ico',
 
-  // Set the production url of your site here
+  // Укажите рабочий URL вашего сайта здесь
   url: 'https://phoenixlab.pages.dev',
-  // Set the /<baseUrl>/ pathname under which your site is served
-  // For GitHub pages deployment, it is often '/<projectName>/'
+  // Укажите /<baseUrl>/ путь, по которому будет доступен ваш сайт
+  // Для развертывания страниц на GitHub часто используется "/<Имя проекта>/"
   baseUrl: '/',
 
-  // GitHub pages deployment config.
-  // If you aren't using GitHub pages, you don't need these.
-  organizationName: 'phoenixlab', // Usually your GitHub org/user name.
-  projectName: 'LearnBook', // Usually your repo name.
+// Конфигурация развертывания страниц GitHub.
+// Если вы не используете страницы GitHub, они вам не нужны.
+  organizationName: 'phoenixlab', // Обычно это ваша организация на GitHub/имя пользователя.
+  projectName: 'LearnBook', // Обычно это имя вашего репозитория.
 
   onBrokenLinks: 'throw',
   onBrokenMarkdownLinks: 'warn',
 
-  // Even if you don't use internationalization, you can use this field to set
-  // useful metadata like html lang. For example, if your site is Chinese, you
-  // may want to replace "en" with "zh-Hans".
+// Даже если вы не используете интернационализацию, вы можете использовать это поле для задания
+// полезных метаданных, таких как язык html. Например, если ваш сайт на китайском, вы
+// можете захотеть заменить "en" на "zh-Hans".
   i18n: {
     defaultLocale: 'ru',
     locales: ['ru', 'en'],
@@ -43,10 +44,10 @@ const config = {
       ({
         docs: {
           sidebarPath: require.resolve('./sidebars.js'),
-          // Please change this to your repo.
-          // Remove this to remove the "edit this page" links.
+          // Пожалуйста, измените это на свой репозиторий.
+          // Удалите это, чтобы удалить ссылки "редактировать эту страницу".
           editUrl:
-            'https://github.com/facebook/docusaurus/tree/main/packages/create-docusaurus/templates/shared/',
+            'https://gitlab.com/phoenixlab2/project-phoenixlab',
         },
         blog: {
           showReadingTime: true,
@@ -54,11 +55,11 @@ const config = {
             type: ['rss', 'atom'],
             xslt: true,
           },
-          // Please change this to your repo.
-          // Remove this to remove the "edit this page" links.
+          // Пожалуйста, измените это на свой репозиторий.
+          // Удалите это, чтобы удалить ссылки "редактировать эту страницу"
           editUrl:
-            'https://github.com/facebook/docusaurus/tree/main/packages/create-docusaurus/templates/shared/',
-          // Useful options to enforce blogging best practices
+            'https://gitlab.com/phoenixlab2/project-phoenixlab',
+          // Полезные опции для внедрения лучших практик ведения блога
           onInlineTags: 'warn',
           onInlineAuthors: 'warn',
           onUntruncatedBlogPosts: 'warn',
@@ -105,8 +106,8 @@ const config = {
           {to: '/blog', label: 'Блог', position: 'left'}, // Блог
           {type: 'localeDropdown', position: 'right'}, // Кнопка с языками
           {
-            href: 'https://github.com/facebook/docusaurus',
-            label: 'GitHub',
+            href: 'https://gitlab.com/phoenixlab2/project-phoenixlab',
+            label: 'GitLab',
             position: 'right',
           },
         ],
