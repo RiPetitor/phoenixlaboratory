@@ -11,8 +11,8 @@
 
 ### 1. Клонирование репозитория
 ```bash
-git clone https://gitverse.ru/Phoenix97/PhoenixLab-site.git
-cd PhoenixLab-site
+git clone https://github.com/RiPetitor/phoenixlabaratory.git
+cd phoenixlabaratory
 ```
 
 ### 2. Установка зависимостей
@@ -44,7 +44,7 @@ npm run clear      # Очистка кэша Docusaurus
 ## Структура проекта
 
 ```
-PhoenixLab-site/
+phoenixlabaratory/
 ├── blog/              # Блог сайта
 ├── docs/              # Документация
 ├── src/

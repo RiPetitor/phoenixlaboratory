@@ -46,7 +46,7 @@ const config = {
           sidebarPath: require.resolve("./sidebars.js"),
           // Пожалуйста, измените это на свой репозиторий.
           // Удалите это, чтобы удалить ссылки "редактировать эту страницу".
-          editUrl: "https://gitverse.ru/Phoenix97/PhoenixLab-site",
+          editUrl: "https://github.com/RiPetitor/phoenixlabaratory",
         },
         blog: {
           showReadingTime: true,
@@ -56,7 +56,7 @@ const config = {
           },
           // Пожалуйста, измените это на свой репозиторий.
           // Удалите это, чтобы удалить ссылки "редактировать эту страницу"
-          editUrl: "https://gitverse.ru/Phoenix97/PhoenixLab-site",
+          editUrl: "https://github.com/RiPetitor/phoenixlabaratory",
           // Полезные опции для внедрения лучших практик ведения блога
           onInlineTags: "warn",
           onInlineAuthors: "warn",
@@ -102,8 +102,8 @@ const config = {
           { to: "/blog", label: "Блог", position: "left" }, // Блог
           { type: "localeDropdown", position: "right" }, // Кнопка с языками
           {
-            href: "https://gitverse.ru/Phoenix97/PhoenixLab-site",
-            label: "GitVerse",
+            href: "https://github.com/RiPetitor/phoenixlabaratory",
+            label: "GitHub",
             position: "right",
           },
         ],
@@ -140,8 +140,8 @@ const config = {
                 href: "https://t.me/myphoenixlife",
               },
               {
-                label: "GitVerse",
-                href: "https://gitverse.ru/Phoenix97/PhoenixLab-site",
+                label: "GitHub",
+                href: "https://github.com/RiPetitor/phoenixlabaratory",
               },
             ],
           },
