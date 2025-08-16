@@ -1,0 +1,353 @@
+---
+sidebar_position: 2
+---
+
+# Компилятор GCC. Первая программа на Windows
+
+## Что такое GCC
+
+**GCC (GNU Compiler Collection)** — набор компиляторов для различных языков программирования, включая C, C++, Fortran. Для Windows доступен через проекты MinGW-w64 и MSYS2.
+
+## Установка GCC на Windows
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+<Tabs>
+  <TabItem value="msys2" label="MSYS2 (Рекомендуется)" default>
+
+**Шаг 1:** Скачайте установщик с [msys2.org](https://www.msys2.org/)
+
+**Шаг 2:** Запустите установщик и следуйте инструкциям
+
+**Шаг 3:** После установки откройте MSYS2 UCRT64 и выполните:
+
+```bash
+pacman -S mingw-w64-ucrt-x86_64-gcc
+pacman -S mingw-w64-ucrt-x86_64-gdb
+```
+
+**Шаг 4:** Добавьте в PATH:
+```
+C:\msys64\ucrt64\bin
+```
+
+  </TabItem>
+  <TabItem value="mingw" label="MinGW-w64">
+
+**Шаг 1:** Скачайте установщик с [winlibs.com](https://winlibs.com/)
+
+**Шаг 2:** Распакуйте архив в `C:\mingw64`
+
+**Шаг 3:** Добавьте в переменную окружения PATH:
+```
+C:\mingw64\bin
+```
+
+  </TabItem>
+  <TabItem value="tdm" label="TDM-GCC">
+
+**Шаг 1:** Скачайте TDM-GCC с [tdm-gcc.tdragon.net](https://jmeubank.github.io/tdm-gcc/)
+
+**Шаг 2:** Запустите установщик
+
+**Шаг 3:** Выберите компоненты (обязательно gcc-core)
+
+**Шаг 4:** PATH добавляется автоматически
+
+  </TabItem>
+</Tabs>
+
+Проверка установки:
+```cmd
+gcc --version
+```
+
+## Настройка переменной PATH
+
+### Через графический интерфейс
+
+1. Откройте "Свойства системы" (Win + Pause)
+2. "Дополнительные параметры системы"
+3. "Переменные среды"
+4. В разделе "Системные переменные" найдите PATH
+5. Нажмите "Изменить" и добавьте путь к `bin` папке
+
+### Через PowerShell (администратор)
+
+```powershell
+[Environment]::SetEnvironmentVariable("Path",
+    $env:Path + ";C:\msys64\ucrt64\bin",
+    [EnvironmentVariableTarget]::Machine)
+```
+
+## Первая программа
+
+```c title="hello.c" showLineNumbers
+#include <stdio.h>
+#include <windows.h>
+
+int main(void) {
+    // Установка кодировки для кириллицы
+    SetConsoleCP(65001);
+    SetConsoleOutputCP(65001);
+
+    printf("Привет, Windows!\n");
+    printf("Компилятор: GCC %d.%d.%d\n",
+           __GNUC__, __GNUC_MINOR__, __GNUC_PATCHLEVEL__);
+
+    return 0;
+}
+```
+
+## Компиляция и запуск
+
+### Командная строка (cmd)
+
+```cmd
+gcc hello.c -o hello.exe
+hello.exe
+```
+
+### PowerShell
+
+```powershell
+gcc hello.c -o hello.exe
+.\hello.exe
+```
+
+### Makefile для Windows
+
+```makefile title="Makefile"
+CC = gcc
+CFLAGS = -Wall -std=c11
+TARGET = hello.exe
+
+$(TARGET): hello.c
+	$(CC) $(CFLAGS) hello.c -o $(TARGET)
+
+clean:
+	del $(TARGET)
+
+run: $(TARGET)
+	$(TARGET)
+```
+
+Использование:
+```cmd
+mingw32-make
+mingw32-make run
+mingw32-make clean
+```
+
+## Флаги компиляции GCC
+
+| Флаг | Описание | Пример |
+|------|----------|--------|
+| `-o` | Имя выходного файла | `gcc hello.c -o program.exe` |
+| `-Wall` | Все предупреждения | `gcc -Wall hello.c` |
+| `-Wextra` | Дополнительные предупреждения | `gcc -Wextra hello.c` |
+| `-g` | Отладочная информация | `gcc -g hello.c` |
+| `-O2` | Оптимизация уровня 2 | `gcc -O2 hello.c` |
+| `-std=c11` | Стандарт C11 | `gcc -std=c11 hello.c` |
+| `-static` | Статическая линковка | `gcc -static hello.c` |
+| `-m32` / `-m64` | 32/64-битная сборка | `gcc -m64 hello.c` |
+
+## Работа с библиотеками Windows
+
+### Подключение Windows API
+
+```c title="winapi_example.c" showLineNumbers
+#include <stdio.h>
+#include <windows.h>
+
+int main(void) {
+    // Получение информации о системе
+    SYSTEM_INFO sysInfo;
+    GetSystemInfo(&sysInfo);
+
+    printf("Процессоров: %u\n", sysInfo.dwNumberOfProcessors);
+    printf("Тип процессора: %u\n", sysInfo.dwProcessorType);
+    printf("Размер страницы: %u байт\n", sysInfo.dwPageSize);
+
+    // Показ MessageBox
+    MessageBox(NULL, "Hello from GCC!", "GCC on Windows", MB_OK);
+
+    return 0;
+}
+```
+
+Компиляция:
+```cmd
+gcc winapi_example.c -o winapi_example.exe -luser32
+```
+
+:::tip Совет
+Флаг `-luser32` подключает библиотеку User32.dll для функции MessageBox
+:::
+
+## Отличия GCC на Windows от Linux
+
+| Аспект | Windows | Linux |
+|--------|---------|-------|
+| Исполняемый файл | `.exe` | без расширения |
+| Разделитель путей | `\` (обратный слеш) | `/` (прямой слеш) |
+| Библиотеки | `.dll` / `.lib` | `.so` / `.a` |
+| Системные вызовы | Windows API | POSIX |
+| Кодировка консоли | CP866 / CP1251 / UTF-8 | UTF-8 |
+| Переносы строк | `\r\n` (CRLF) | `\n` (LF) |
+
+## Решение проблем с кодировкой
+
+<details>
+<summary>**Проблема:** Кириллица отображается неправильно</summary>
+
+**Решение 1:** Установка кодировки UTF-8
+```c
+#include <windows.h>
+SetConsoleCP(65001);
+SetConsoleOutputCP(65001);
+```
+
+**Решение 2:** Использование wide characters
+```c
+#include <wchar.h>
+#include <locale.h>
+
+int main(void) {
+    setlocale(LC_ALL, "");
+    wprintf(L"Привет, мир!\n");
+    return 0;
+}
+```
+
+**Решение 3:** Изменение кодировки консоли
+```cmd
+chcp 65001
+```
+
+</details>
+
+## Создание DLL библиотеки
+
+```c title="mylib.c"
+#include <stdio.h>
+
+__declspec(dllexport) void say_hello(const char* name) {
+    printf("Hello, %s from DLL!\n", name);
+}
+
+__declspec(dllexport) int add(int a, int b) {
+    return a + b;
+}
+```
+
+```c title="main.c"
+#include <stdio.h>
+
+__declspec(dllimport) void say_hello(const char* name);
+__declspec(dllimport) int add(int a, int b);
+
+int main(void) {
+    say_hello("Windows");
+    printf("2 + 3 = %d\n", add(2, 3));
+    return 0;
+}
+```
+
+Компиляция:
+```cmd
+:: Создание DLL
+gcc -shared -o mylib.dll mylib.c
+
+:: Компиляция программы с DLL
+gcc main.c -o main.exe -L. -lmylib
+```
+
+:::caution Важно
+При запуске программы `mylib.dll` должна находиться в той же папке или в PATH
+:::
+
+## Интеграция с IDE
+
+### Visual Studio Code
+
+1. Установите расширение "C/C++"
+2. Создайте файл `.vscode/tasks.json`:
+
+```json title=".vscode/tasks.json"
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "type": "cppbuild",
+            "label": "GCC Build",
+            "command": "gcc",
+            "args": [
+                "-g",
+                "-Wall",
+                "${file}",
+                "-o",
+                "${fileDirname}\\${fileBasenameNoExtension}.exe"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
+        }
+    ]
+}
+```
+
+### Code::Blocks
+
+1. Settings → Compiler
+2. Выберите "GNU GCC Compiler"
+3. Укажите путь к компилятору в "Toolchain executables"
+
+## Полезные утилиты
+
+| Утилита | Описание | Пример использования |
+|---------|----------|---------------------|
+| `gcc -v` | Подробная информация о компиляции | `gcc -v hello.c` |
+| `gcc -dumpversion` | Версия GCC | `gcc -dumpversion` |
+| `gcc -dumpmachine` | Целевая платформа | `gcc -dumpmachine` |
+| `objdump` | Анализ объектных файлов | `objdump -d hello.exe` |
+| `nm` | Список символов | `nm hello.exe` |
+| `ldd` (MSYS2) | Зависимости | `ldd hello.exe` |
+| `gdb` | Отладчик | `gdb hello.exe` |
+
+## Практическое задание
+
+<details>
+<summary>**Задание:** Создайте программу, которая выведет в консоли "Hello, World!"</summary>
+
+<details>
+<summary>Показать решение</summary>
+
+```c
+#include <stdio.h>
+
+int main() {
+
+    printf("Hello, World!");
+
+    return 0;
+}
+```
+
+Компиляция:
+```cmd
+gcc hello.c -o hello.exe
+hello.exe
+```
+
+</details>
+</details>
+
+## Дополнительные материалы
+
+- [MSYS2 Documentation](https://www.msys2.org/docs/what-is-msys2/) - Официальная документация MSYS2
+- [MinGW-w64](http://mingw-w64.org/) - Сайт проекта MinGW-w64
+- [GCC Documentation](https://gcc.gnu.org/onlinedocs/) - Официальная документация GCC
+- [Windows API Index](https://docs.microsoft.com/en-us/windows/win32/apiindex/windows-api-list) - Справочник Windows API

@@ -1,0 +1,506 @@
+---
+sidebar_position: 4
+---
+
+# Компилятор GCC. Первая программа на Linux
+
+## Что такое GCC
+
+GCC (GNU Compiler Collection) — набор компиляторов, разработанный в рамках проекта GNU. Является стандартным компилятором в большинстве Linux-дистрибутивов.
+
+## Установка GCC
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+<Tabs>
+  <TabItem value="ubuntu" label="Ubuntu/Debian" default>
+
+```bash
+sudo apt update
+sudo apt install build-essential
+```
+
+Пакет `build-essential` включает: gcc, g++, make, libc-dev
+
+  </TabItem>
+  <TabItem value="fedora" label="Fedora/RHEL">
+
+```bash
+sudo dnf groupinstall "Development Tools"
+# или отдельно
+sudo dnf install gcc gcc-c++ make
+```
+
+  </TabItem>
+  <TabItem value="arch" label="Arch Linux">
+
+```bash
+sudo pacman -S base-devel
+# или отдельно
+sudo pacman -S gcc make
+```
+
+  </TabItem>
+  <TabItem value="opensuse" label="openSUSE">
+
+```bash
+sudo zypper install -t pattern devel_basis
+# или отдельно
+sudo zypper install gcc make
+```
+
+  </TabItem>
+</Tabs>
+
+Проверка установки:
+```bash
+gcc --version
+which gcc
+```
+
+## Первая программа
+
+```c title="hello.c" showLineNumbers
+#include <stdio.h>
+#include <unistd.h>
+#include <sys/utsname.h>
+
+int main(void) {
+    printf("Hello, Linux!\n");
+
+    // Информация о компиляторе
+    printf("GCC version: %d.%d.%d\n",
+           __GNUC__, __GNUC_MINOR__, __GNUC_PATCHLEVEL__);
+
+    // Информация о системе
+    struct utsname system_info;
+    if (uname(&system_info) == 0) {
+        printf("System: %s %s\n",
+               system_info.sysname, system_info.release);
+    }
+
+    return 0;
+}
+```
+
+## Компиляция и запуск
+
+### Базовая компиляция
+
+```bash
+gcc hello.c -o hello
+./hello
+```
+
+### Этапы компиляции
+
+```bash
+# 1. Препроцессинг
+gcc -E hello.c -o hello.i
+
+# 2. Компиляция в ассемблер
+gcc -S hello.c -o hello.s
+
+# 3. Ассемблирование
+gcc -c hello.c -o hello.o
+
+# 4. Линковка
+gcc hello.o -o hello
+```
+
+:::tip Совет
+Используйте флаг `-save-temps` чтобы сохранить все промежуточные файлы:
+```bash
+gcc -save-temps hello.c -o hello
+```
+:::
+
+## Основные флаги GCC
+
+| Флаг | Описание | Пример |
+|------|----------|--------|
+| `-o` | Имя выходного файла | `gcc hello.c -o program` |
+| `-Wall` | Основные предупреждения | `gcc -Wall hello.c` |
+| `-Wextra` | Дополнительные предупреждения | `gcc -Wextra hello.c` |
+| `-Werror` | Предупреждения как ошибки | `gcc -Werror hello.c` |
+| `-g` | Отладочная информация | `gcc -g hello.c` |
+| `-O0` | Без оптимизации (по умолчанию) | `gcc -O0 hello.c` |
+| `-O2` | Оптимизация уровня 2 | `gcc -O2 hello.c` |
+| `-O3` | Максимальная оптимизация | `gcc -O3 hello.c` |
+| `-std=c11` | Стандарт C11 | `gcc -std=c11 hello.c` |
+| `-pedantic` | Строгое соответствие стандарту | `gcc -pedantic hello.c` |
+
+## Makefile для проекта
+
+```makefile title="Makefile"
+CC = gcc
+CFLAGS = -Wall -Wextra -std=c11
+TARGET = program
+SOURCES = main.c utils.c
+OBJECTS = $(SOURCES:.c=.o)
+
+# Основная цель
+$(TARGET): $(OBJECTS)
+	$(CC) $(OBJECTS) -o $(TARGET)
+
+# Правило для .o файлов
+%.o: %.c
+	$(CC) $(CFLAGS) -c $< -o $@
+
+# Отладочная версия
+debug: CFLAGS += -g -O0 -DDEBUG
+debug: clean $(TARGET)
+
+# Релизная версия
+release: CFLAGS += -O2 -DNDEBUG
+release: clean $(TARGET)
+
+# Запуск программы
+run: $(TARGET)
+	./$(TARGET)
+
+# Очистка
+clean:
+	rm -f $(OBJECTS) $(TARGET)
+
+# Полная очистка
+distclean: clean
+	rm -f *.i *.s
+
+.PHONY: clean distclean run debug release
+```
+
+Использование:
+```bash
+# Обычная сборка
+make
+
+# Отладочная версия
+make debug
+
+# Релизная версия
+make release
+
+# Запуск
+make run
+
+# Очистка
+make clean
+```
+
+## Работа с библиотеками
+
+### Математическая библиотека
+
+```c title="math_example.c" showLineNumbers
+#include <stdio.h>
+#include <math.h>
+
+int main(void) {
+    double x = 2.0;
+
+    printf("sqrt(%.1f) = %.4f\n", x, sqrt(x));
+    printf("sin(%.1f) = %.4f\n", x, sin(x));
+    printf("log(%.1f) = %.4f\n", x, log(x));
+
+    return 0;
+}
+```
+
+Компиляция с библиотекой:
+```bash
+gcc math_example.c -o math_example -lm
+```
+
+### Создание статической библиотеки
+
+```c title="mylib.c"
+#include "mylib.h"
+
+int add(int a, int b) {
+    return a + b;
+}
+
+int multiply(int a, int b) {
+    return a * b;
+}
+```
+
+```c title="mylib.h"
+#ifndef MYLIB_H
+#define MYLIB_H
+
+int add(int a, int b);
+int multiply(int a, int b);
+
+#endif
+```
+
+Создание библиотеки:
+```bash
+# Компиляция в объектный файл
+gcc -c mylib.c -o mylib.o
+
+# Создание статической библиотеки
+ar rcs libmylib.a mylib.o
+
+# Использование библиотеки
+gcc main.c -L. -lmylib -o program
+```
+
+### Создание динамической библиотеки
+
+```bash
+# Компиляция с PIC (Position Independent Code)
+gcc -fPIC -c mylib.c -o mylib.o
+
+# Создание .so файла
+gcc -shared mylib.o -o libmylib.so
+
+# Использование
+gcc main.c -L. -lmylib -o program
+
+# Запуск (нужно указать путь к библиотеке)
+LD_LIBRARY_PATH=. ./program
+```
+
+## Отладка с GDB
+
+### Компиляция для отладки
+
+```bash
+gcc -g -O0 program.c -o program
+```
+
+### Основные команды GDB
+
+```bash
+# Запуск отладчика
+gdb ./program
+
+# Команды в GDB:
+break main          # Точка останова на main
+break file.c:10     # Точка останова на строке 10
+run                 # Запуск программы
+next               # Следующая строка
+step               # Шаг с заходом в функции
+print variable     # Вывод значения переменной
+continue           # Продолжить выполнение
+quit               # Выход
+```
+
+:::note Подсказка
+Используйте `gdb -tui program` для текстового интерфейса с отображением кода
+:::
+
+## Профилирование с gprof
+
+```bash
+# Компиляция с профилированием
+gcc -pg program.c -o program
+
+# Запуск программы (создаст gmon.out)
+./program
+
+# Анализ результатов
+gprof program gmon.out > analysis.txt
+```
+
+## Проверка утечек памяти с Valgrind
+
+```c title="memory_test.c" showLineNumbers
+#include <stdio.h>
+#include <stdlib.h>
+
+int main(void) {
+    int *arr = malloc(10 * sizeof(int));
+
+    // Используем память
+    for (int i = 0; i < 10; i++) {
+        arr[i] = i * i;
+    }
+
+    // Забыли освободить - утечка!
+    // free(arr);
+
+    return 0;
+}
+```
+
+Проверка:
+```bash
+gcc -g memory_test.c -o memory_test
+valgrind --leak-check=full ./memory_test
+```
+
+## Оптимизация кода
+
+### Флаги оптимизации
+
+| Флаг | Описание | Когда использовать |
+|------|----------|--------------------|
+| `-O0` | Без оптимизации | Отладка |
+| `-O1` | Базовая оптимизация | Быстрая компиляция |
+| `-O2` | Рекомендуемая | Продакшн |
+| `-O3` | Агрессивная | Критичная производительность |
+| `-Os` | Оптимизация размера | Встраиваемые системы |
+| `-Ofast` | Максимальная скорость | Нарушает стандарты |
+
+### Пример влияния оптимизации
+
+```c title="optimize_test.c"
+#include <stdio.h>
+#include <time.h>
+
+int main(void) {
+    clock_t start = clock();
+
+    long long sum = 0;
+    for (int i = 0; i < 1000000000; i++) {
+        sum += i;
+    }
+
+    clock_t end = clock();
+    double cpu_time = ((double)(end - start)) / CLOCKS_PER_SEC;
+
+    printf("Sum: %lld\n", sum);
+    printf("Time: %.3f seconds\n", cpu_time);
+
+    return 0;
+}
+```
+
+Сравнение:
+```bash
+gcc -O0 optimize_test.c -o test_O0 && time ./test_O0
+gcc -O2 optimize_test.c -o test_O2 && time ./test_O2
+gcc -O3 optimize_test.c -o test_O3 && time ./test_O3
+```
+
+## Кросс-компиляция
+
+```bash
+# Установка тулчейна для ARM
+sudo apt install gcc-arm-linux-gnueabihf
+
+# Компиляция для ARM
+arm-linux-gnueabihf-gcc hello.c -o hello_arm
+
+# Проверка типа файла
+file hello_arm
+```
+
+## Практическое задание
+
+<details>
+<summary>**Задание:** Создайте программу для подсчёта слов в текстовом файле</summary>
+
+**Требования:**
+1. Программа принимает имя файла как аргумент
+2. Подсчитывает количество строк, слов и символов
+3. Выводит статистику как утилита `wc`
+4. Обрабатывает ошибки открытия файла
+
+<details>
+<summary>Показать решение</summary>
+
+```c
+#include <stdio.h>
+#include <stdlib.h>
+#include <ctype.h>
+
+int main(int argc, char *argv[]) {
+    // Проверка аргументов
+    if (argc != 2) {
+        fprintf(stderr, "Использование: %s <файл>\n", argv[0]);
+        return 1;
+    }
+
+    // Открытие файла
+    FILE *file = fopen(argv[1], "r");
+    if (file == NULL) {
+        perror("Ошибка открытия файла");
+        return 1;
+    }
+
+    // Счётчики
+    int lines = 0;
+    int words = 0;
+    int chars = 0;
+    int in_word = 0;
+    int c;
+
+    // Чтение файла посимвольно
+    while ((c = fgetc(file)) != EOF) {
+        chars++;
+
+        // Подсчёт строк
+        if (c == '\n') {
+            lines++;
+        }
+
+        // Подсчёт слов
+        if (isspace(c)) {
+            in_word = 0;
+        } else if (!in_word) {
+            in_word = 1;
+            words++;
+        }
+    }
+
+    // Если файл не заканчивается переводом строки
+    if (chars > 0 && c != '\n') {
+        lines++;
+    }
+
+    fclose(file);
+
+    // Вывод результатов
+    printf("  %d  %d  %d %s\n", lines, words, chars, argv[1]);
+
+    return 0;
+}
+```
+
+Компиляция и тестирование:
+```bash
+# Компиляция
+gcc -Wall wordcount.c -o wordcount
+
+# Создание тестового файла
+echo "Hello World
+This is a test file
+With multiple lines" > test.txt
+
+# Запуск программы
+./wordcount test.txt
+
+# Сравнение с утилитой wc
+wc test.txt
+```
+
+</details>
+</details>
+
+## Полезные команды и утилиты
+
+| Команда | Описание |
+|---------|----------|
+| `gcc --version` | Версия компилятора |
+| `gcc -v` | Подробная информация о компиляции |
+| `gcc -dumpmachine` | Целевая архитектура |
+| `gcc -dumpspecs` | Спецификации компилятора |
+| `ldd program` | Зависимости программы |
+| `nm program` | Символы в программе |
+| `objdump -d program` | Дизассемблер |
+| `size program` | Размер секций |
+| `strip program` | Удаление символов |
+| `strace ./program` | Трассировка системных вызовов |
+
+## Дополнительные материалы
+
+- [GCC Documentation](https://gcc.gnu.org/onlinedocs/) - Официальная документация
+- [GNU Make Manual](https://www.gnu.org/software/make/manual/) - Руководство по Make
+- [GDB Documentation](https://www.gnu.org/software/gdb/documentation/) - Документация отладчика
+- [Valgrind Manual](https://valgrind.org/docs/manual/) - Руководство по Valgrind

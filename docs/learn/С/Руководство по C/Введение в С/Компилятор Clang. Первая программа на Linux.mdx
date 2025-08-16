@@ -1,0 +1,184 @@
+---
+sidebar_position: 5
+---
+
+# Компилятор Clang. Первая программа на Linux
+
+## Что такое Clang
+
+**Clang** — современный компилятор для языков C, C++ и Objective-C, часть проекта LLVM. Основные преимущества:
+- Быстрая компиляция
+- Понятные сообщения об ошибках
+- Совместимость с GCC
+- Кроссплатформенность
+
+## Установка Clang
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+<Tabs>
+  <TabItem value="ubuntu" label="Ubuntu/Debian" default>
+
+```bash
+sudo apt update
+sudo apt install clang
+```
+
+  </TabItem>
+  <TabItem value="fedora" label="Fedora/RHEL">
+
+```bash
+sudo dnf install clang
+```
+
+  </TabItem>
+  <TabItem value="arch" label="Arch Linux">
+
+```bash
+sudo pacman -S clang
+```
+
+  </TabItem>
+</Tabs>
+
+Проверка установки:
+```bash
+clang --version
+```
+
+## Первая программа
+
+```c title="hello.c" showLineNumbers
+#include <stdio.h>
+
+int main(void) {
+    printf("Hello, Linux!\n");
+    return 0;
+}
+```
+
+## Компиляция и запуск
+
+### Базовая компиляция
+
+```bash
+clang hello.c -o hello
+./hello
+```
+
+### Флаги компиляции
+
+| Флаг | Описание | Пример |
+|------|----------|--------|
+| `-o` | Имя выходного файла | `clang hello.c -o program` |
+| `-Wall` | Все предупреждения | `clang -Wall hello.c` |
+| `-g` | Отладочная информация | `clang -g hello.c` |
+| `-O2` | Оптимизация | `clang -O2 hello.c` |
+| `-std=c11` | Стандарт C11 | `clang -std=c11 hello.c` |
+
+## Процесс компиляции
+
+```mermaid
+graph LR
+    A[hello.c] -->|Препроцессор| B[hello.i]
+    B -->|Компилятор| C[hello.s]
+    C -->|Ассемблер| D[hello.o]
+    D -->|Линковщик| E[hello]
+    style A fill:#f9f,stroke:#333
+    style E fill:#9f9,stroke:#333
+```
+
+:::tip Совет
+Можно посмотреть промежуточные этапы:
+- Препроцессинг: `clang -E hello.c`
+- Ассемблерный код: `clang -S hello.c`
+- Объектный файл: `clang -c hello.c`
+:::
+
+## Отличия Clang от GCC
+
+| Характеристика | Clang | GCC |
+|----------------|-------|-----|
+| Скорость компиляции | ✅ Быстрее | Медленнее |
+| Сообщения об ошибках | ✅ Понятные, с подсветкой | Менее наглядные |
+| Потребление памяти | ✅ Меньше | Больше |
+| Оптимизация кода | Хорошая | ✅ Иногда лучше |
+
+## Практическое задание
+
+<details>
+<summary>**Задание:** Напишите программу, которая выводит информацию о системе</summary>
+
+**Подсказка:** Используйте функцию `uname()` из `<sys/utsname.h>`
+
+<details>
+<summary>Показать решение</summary>
+
+```c
+#include <stdio.h>
+#include <sys/utsname.h>
+
+int main(void) {
+    struct utsname system_info;
+
+    if (uname(&system_info) == 0) {
+        printf("System: %s\n", system_info.sysname);
+        printf("Node: %s\n", system_info.nodename);
+        printf("Release: %s\n", system_info.release);
+        printf("Version: %s\n", system_info.version);
+        printf("Machine: %s\n", system_info.machine);
+    }
+
+    return 0;
+}
+```
+
+Компиляция и запуск:
+```bash
+clang system_info.c -o system_info
+./system_info
+```
+
+</details>
+</details>
+
+## Полезные команды
+
+- `clang --help` — справка по командам
+- `man clang` — подробная документация
+- `clang -v hello.c` — подробный вывод процесса компиляции
+- `ldd hello` — просмотр зависимостей программы
+
+:::caution Важно
+Всегда используйте флаг `-Wall` при разработке для выявления потенциальных проблем в коде.
+:::
+
+## Типичные ошибки компиляции
+
+### Ошибка: undefined reference
+
+```bash
+/tmp/hello-abc123.o: In function `main':
+hello.c:(.text+0x15): undefined reference to `some_function'
+```
+
+**Причина:** Функция объявлена, но не определена или не подключена библиотека.
+
+**Решение:** Проверьте подключение библиотек (`-l` флаг) или реализацию функции.
+
+### Ошибка: implicit declaration
+
+```bash
+hello.c:4:5: warning: implicit declaration of function 'printf'
+```
+
+**Причина:** Не подключён нужный заголовочный файл.
+
+**Решение:** Добавьте `#include <stdio.h>`
+
+## Дополнительные материалы
+
+- [Официальная документация Clang](https://clang.llvm.org/docs/) - Полная документация компилятора
+- [LLVM Project](https://llvm.org/) - Инфраструктура компилятора
+- [Clang Format](https://clang.llvm.org/docs/ClangFormat.html) - Автоматическое форматирование кода

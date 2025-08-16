@@ -1,0 +1,458 @@
+---
+sidebar_position: 3
+---
+
+# Компилятор Clang. Первая программа на Windows
+
+## Что такое Clang на Windows
+
+**Clang** — современный компилятор C/C++, часть проекта LLVM. На Windows может использовать как собственный бэкенд, так и MinGW для совместимости с GCC.
+
+## Установка Clang на Windows
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+<Tabs>
+  <TabItem value="llvm" label="LLVM официальный (Рекомендуется)" default>
+
+**Шаг 1:** Скачайте установщик с [releases.llvm.org](https://github.com/llvm/llvm-project/releases)
+
+Выберите файл: `LLVM-<version>-win64.exe`
+
+**Шаг 2:** Запустите установщик
+
+**Шаг 3:** При установке выберите "Add LLVM to the system PATH"
+
+**Шаг 4:** Перезапустите терминал
+
+  </TabItem>
+  <TabItem value="msys2" label="MSYS2 + Clang">
+
+**Шаг 1:** Установите MSYS2 (если ещё не установлен)
+
+**Шаг 2:** Откройте MSYS2 UCRT64 и выполните:
+
+```bash
+pacman -S mingw-w64-ucrt-x86_64-clang
+pacman -S mingw-w64-ucrt-x86_64-lld
+```
+
+**Шаг 3:** Добавьте в PATH:
+```
+C:\msys64\ucrt64\bin
+```
+
+  </TabItem>
+  <TabItem value="visual-studio" label="Visual Studio">
+
+**Шаг 1:** Установите Visual Studio 2022 Community
+
+**Шаг 2:** В установщике выберите:
+- "Разработка классических приложений на C++"
+- В дополнительных компонентах: "Clang compiler for Windows"
+
+**Шаг 3:** Используйте через Developer Command Prompt
+
+  </TabItem>
+</Tabs>
+
+Проверка установки:
+```cmd
+clang --version
+```
+
+## Первая программа
+
+```c title="hello.c" showLineNumbers
+#include <stdio.h>
+#include <stdlib.h>
+
+int main(void) {
+    printf("Hello, Windows!\n");
+    printf("Compiler: Clang %d.%d.%d\n",
+           __clang_major__, __clang_minor__, __clang_patchlevel__);
+
+    // Информация о системе
+    printf("Platform: ");
+    #ifdef _WIN32
+        printf("Windows 32-bit\n");
+    #endif
+    #ifdef _WIN64
+        printf("Windows 64-bit\n");
+    #endif
+
+    return 0;
+}
+```
+
+## Компиляция и запуск
+
+### Базовая компиляция
+
+```cmd
+clang hello.c -o hello.exe
+hello.exe
+```
+
+### С дополнительными флагами
+
+```cmd
+clang -Wall -std=c11 hello.c -o hello.exe
+```
+
+:::tip Совет
+Clang по умолчанию создаёт файл `a.exe` если не указать `-o`. Всегда указывайте имя выходного файла!
+:::
+
+## Режимы совместимости Clang
+
+| Режим | Описание | Команда |
+|-------|----------|---------|
+| **MSVC** | Совместимость с Visual Studio | `clang-cl hello.c` |
+| **MinGW** | Совместимость с GCC | `clang --target=x86_64-w64-mingw32 hello.c` |
+| **Native** | Нативный режим LLVM | `clang hello.c` |
+
+## Флаги компиляции
+
+| Флаг | Описание | Пример |
+|------|----------|--------|
+| `-o` | Имя выходного файла | `clang hello.c -o program.exe` |
+| `-Wall` | Все предупреждения | `clang -Wall hello.c` |
+| `-Weverything` | ВСЕ возможные предупреждения | `clang -Weverything hello.c` |
+| `-g` | Отладочная информация | `clang -g hello.c` |
+| `-O2` | Оптимизация | `clang -O2 hello.c` |
+| `-std=c11` | Стандарт C11 | `clang -std=c11 hello.c` |
+| `-v` | Подробный вывод | `clang -v hello.c` |
+| `--target` | Целевая платформа | `clang --target=x86_64-pc-windows hello.c` |
+
+## Работа с кодировкой
+
+```c title="encoding.c" showLineNumbers
+#include <stdio.h>
+#include <locale.h>
+#include <windows.h>
+
+int main(void) {
+    // Установка UTF-8 для консоли Windows
+    SetConsoleCP(65001);
+    SetConsoleOutputCP(65001);
+
+    printf("Привет, мир!\n");
+    printf("Это текст на русском языке.\n");
+
+    // Математические символы
+    printf("Математика: π ≈ 3.14159\n");
+    printf("Символы: α, β, γ, δ, ε\n");
+
+    return 0;
+}
+```
+
+Компиляция с правильной кодировкой:
+```cmd
+clang -fexec-charset=UTF-8 encoding.c -o encoding.exe
+```
+
+## Цветной вывод в консоль
+
+```c title="colors.c" showLineNumbers
+#include <stdio.h>
+#include <windows.h>
+
+// ANSI escape коды для цветов
+#define RED     "\033[31m"
+#define GREEN   "\033[32m"
+#define YELLOW  "\033[33m"
+#define BLUE    "\033[34m"
+#define RESET   "\033[0m"
+
+int main(void) {
+    // Включаем поддержку ANSI в Windows 10+
+    HANDLE hOut = GetStdHandle(STD_OUTPUT_HANDLE);
+    DWORD dwMode = 0;
+    GetConsoleMode(hOut, &dwMode);
+    dwMode |= 0x0004; // ENABLE_VIRTUAL_TERMINAL_PROCESSING
+    SetConsoleMode(hOut, dwMode);
+
+    printf(RED "Красный текст\n" RESET);
+    printf(GREEN "Зелёный текст\n" RESET);
+    printf(YELLOW "Жёлтый текст\n" RESET);
+    printf(BLUE "Синий текст\n" RESET);
+
+    return 0;
+}
+```
+
+## Создание простого Makefile
+
+```makefile title="Makefile"
+CC = clang
+CFLAGS = -Wall -std=c11
+TARGET = program.exe
+SOURCES = hello.c
+
+$(TARGET): $(SOURCES)
+	$(CC) $(CFLAGS) $(SOURCES) -o $(TARGET)
+
+clean:
+	del $(TARGET) 2>nul
+
+run: $(TARGET)
+	$(TARGET)
+
+debug: CFLAGS += -g
+debug: $(TARGET)
+
+release: CFLAGS += -O2
+release: $(TARGET)
+```
+
+Использование:
+```cmd
+:: Обычная сборка
+make
+
+:: Отладочная версия
+make debug
+
+:: Оптимизированная версия
+make release
+
+:: Запуск
+make run
+
+:: Очистка
+make clean
+```
+
+## Диагностика ошибок в Clang
+
+### Пример с ошибками
+
+```c title="errors.c"
+#include <stdio.h>
+
+int main() {
+    int x = 10
+    int y = 20;
+
+    if (x = y) {
+        printf("x равен y\n");
+    }
+
+    int arr[3] = {1, 2, 3};
+    printf("%d\n", arr[5]);
+
+    return 0;
+}
+```
+
+### Вывод Clang
+
+```
+errors.c:4:15: error: expected ';' after expression
+    int x = 10
+              ^
+              ;
+errors.c:7:11: warning: using the result of an assignment as a condition
+    if (x = y) {
+        ~~^~~
+       (  )
+errors.c:7:11: note: use '==' to turn this assignment into an equality comparison
+    if (x = y) {
+          ^
+          ==
+```
+
+:::note Особенность
+Clang показывает точное место ошибки и предлагает исправления!
+:::
+
+## Статический анализ кода
+
+Clang имеет встроенный статический анализатор:
+
+```cmd
+clang --analyze hello.c
+```
+
+Пример кода с потенциальными проблемами:
+
+```c title="analyze.c" showLineNumbers
+#include <stdio.h>
+#include <stdlib.h>
+
+int main(void) {
+    int *ptr = malloc(sizeof(int) * 10);
+
+    // Забыли проверить на NULL
+    ptr[0] = 42;
+
+    // Забыли освободить память
+    // free(ptr);
+
+    return 0;
+}
+```
+
+Анализатор найдёт:
+- Возможное разыменование NULL
+- Утечку памяти
+
+## Сравнение Clang и GCC на Windows
+
+| Аспект | Clang | GCC (MinGW) |
+|--------|-------|-------------|
+| Сообщения об ошибках | ✅ Цветные, с подсказками | Текстовые |
+| Скорость компиляции | ✅ Быстрее | Медленнее |
+| Совместимость с MSVC | ✅ Есть режим clang-cl | Нет |
+| Статический анализ | ✅ Встроенный | Требует плагины |
+| Размер установки | ~500 MB | ~100 MB ✅ |
+| Оптимизация | Хорошая | Хорошая |
+
+## Практическое задание
+
+<details>
+<summary>**Задание:** Создайте простой калькулятор для двух чисел</summary>
+
+**Требования:**
+1. Программа запрашивает два числа
+2. Показывает меню с операциями (+, -, *, /)
+3. Выводит результат
+4. Обрабатывает деление на ноль
+
+<details>
+<summary>Показать решение</summary>
+
+```c
+#include <stdio.h>
+#include <stdlib.h>
+
+int main(void) {
+    double num1, num2, result;
+    char operation;
+
+    printf("=== Простой калькулятор ===\n\n");
+
+    printf("Введите первое число: ");
+    if (scanf("%lf", &num1) != 1) {
+        printf("Ошибка: введите число!\n");
+        return 1;
+    }
+
+    printf("Введите второе число: ");
+    if (scanf("%lf", &num2) != 1) {
+        printf("Ошибка: введите число!\n");
+        return 1;
+    }
+
+    printf("\nВыберите операцию:\n");
+    printf("+ : Сложение\n");
+    printf("- : Вычитание\n");
+    printf("* : Умножение\n");
+    printf("/ : Деление\n");
+    printf("\nВаш выбор: ");
+
+    scanf(" %c", &operation);  // Пробел перед %c важен!
+
+    switch(operation) {
+        case '+':
+            result = num1 + num2;
+            printf("\n%.2f + %.2f = %.2f\n", num1, num2, result);
+            break;
+
+        case '-':
+            result = num1 - num2;
+            printf("\n%.2f - %.2f = %.2f\n", num1, num2, result);
+            break;
+
+        case '*':
+            result = num1 * num2;
+            printf("\n%.2f * %.2f = %.2f\n", num1, num2, result);
+            break;
+
+        case '/':
+            if (num2 == 0) {
+                printf("\nОшибка: деление на ноль!\n");
+            } else {
+                result = num1 / num2;
+                printf("\n%.2f / %.2f = %.2f\n", num1, num2, result);
+            }
+            break;
+
+        default:
+            printf("\nОшибка: неверная операция!\n");
+            break;
+    }
+
+    printf("\nНажмите Enter для выхода...");
+    getchar();  // Считываем оставшийся символ новой строки
+    getchar();  // Ждём нажатия Enter
+
+    return 0;
+}
+```
+
+Компиляция и запуск:
+```cmd
+clang -Wall calculator.c -o calculator.exe
+calculator.exe
+```
+
+</details>
+</details>
+
+## Настройка VS Code для Clang
+
+Создайте файл `.vscode/tasks.json`:
+
+```json title=".vscode/tasks.json"
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "type": "cppbuild",
+            "label": "Clang Build",
+            "command": "clang",
+            "args": [
+                "-g",
+                "-Wall",
+                "-std=c11",
+                "${file}",
+                "-o",
+                "${fileDirname}\\${fileBasenameNoExtension}.exe"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "problemMatcher": ["$gcc"],
+            "detail": "Компиляция с Clang"
+        }
+    ]
+}
+```
+
+:::tip Горячие клавиши
+`Ctrl+Shift+B` — запуск сборки в VS Code
+:::
+
+## Полезные команды Clang
+
+| Команда | Описание |
+|---------|----------|
+| `clang --version` | Версия компилятора |
+| `clang --help` | Справка по флагам |
+| `clang -print-targets` | Доступные платформы |
+| `clang -print-search-dirs` | Пути поиска |
+| `clang -### hello.c` | Показать команды компиляции |
+| `clang -ftime-report hello.c` | Время компиляции |
+| `clang -Xclang -ast-dump hello.c` | AST дерево |
+
+## Дополнительные материалы
+
+- [LLVM Releases](https://releases.llvm.org/) - Скачать последнюю версию
+- [Clang Documentation](https://clang.llvm.org/docs/) - Официальная документация
+- [Clang Format](https://clang.llvm.org/docs/ClangFormat.html) - Автоформатирование кода
+- [Clang Tidy](https://clang.llvm.org/extra/clang-tidy/) - Линтер и рефакторинг
