@@ -16,7 +16,7 @@ const config = {
   favicon: "img/fawicon.ico",
 
   // Укажите рабочий URL вашего сайта здесь
-  url: "https://phoenixlab.pages.dev",
+  url: "https://nextgenos.tech/",
   // Укажите /<baseUrl>/ путь, по которому будет доступен ваш сайт
   // Для развертывания страниц на GitHub часто используется "/<Имя проекта>/"
   baseUrl: "/",
@@ -24,7 +24,7 @@ const config = {
   // Конфигурация развертывания страниц GitHub.
   // Если вы не используете страницы GitHub, они вам не нужны.
   organizationName: "phoenixlab", // Обычно это ваша организация на GitHub/имя пользователя.
-  projectName: "LearnBook", // Обычно это имя вашего репозитория.
+  projectName: "phoenixlabaratory", // Обычно это имя вашего репозитория.
 
   onBrokenLinks: "throw",
   onBrokenMarkdownLinks: "warn",
