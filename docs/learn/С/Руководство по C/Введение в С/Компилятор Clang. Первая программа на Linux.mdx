@@ -105,44 +105,6 @@ graph LR
 | Потребление памяти | ✅ Меньше | Больше |
 | Оптимизация кода | Хорошая | ✅ Иногда лучше |
 
-## Практическое задание
-
-<details>
-<summary>**Задание:** Напишите программу, которая выводит информацию о системе</summary>
-
-**Подсказка:** Используйте функцию `uname()` из `<sys/utsname.h>`
-
-<details>
-<summary>Показать решение</summary>
-
-```c
-#include <stdio.h>
-#include <sys/utsname.h>
-
-int main(void) {
-    struct utsname system_info;
-
-    if (uname(&system_info) == 0) {
-        printf("System: %s\n", system_info.sysname);
-        printf("Node: %s\n", system_info.nodename);
-        printf("Release: %s\n", system_info.release);
-        printf("Version: %s\n", system_info.version);
-        printf("Machine: %s\n", system_info.machine);
-    }
-
-    return 0;
-}
-```
-
-Компиляция и запуск:
-```bash
-clang system_info.c -o system_info
-./system_info
-```
-
-</details>
-</details>
-
 ## Полезные команды
 
 - `clang --help` — справка по командам
