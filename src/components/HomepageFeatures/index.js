@@ -1,49 +1,64 @@
-import clsx from 'clsx';
-import Heading from '@theme/Heading';
-import styles from './styles.module.css';
+import clsx from "clsx";
+import Heading from "@theme/Heading";
+import styles from "./styles.module.css";
 
 const FeatureList = [
   {
-    title: 'Изучай!',
-    Svg: require('@site/static/img/undraw_docusaurus_mountain.svg').default,
+    title: "Изучай!",
+    Img: require("@site/static/img/book.png").default,
     description: (
       <>
-        Данный сайт спроектирован для того, чтобы вы изучали его!
-        Не стесняйтесь получать новые знания или повторять уже пройденное!
+        Данный сайт спроектирован для того, чтобы вы изучали его! Не стесняйтесь
+        получать новые знания или повторять уже пройденное!
       </>
     ),
   },
   {
-    title: 'Сосредоточьтесь на том, что важно!',
-    Svg: require('@site/static/img/undraw_docusaurus_tree.svg').default,
+    title: "Сосредоточьтесь на том, что важно!",
+    Img: require("@site/static/img/lampa.png").default,
     description: (
       <>
-        Мы специально разделили <code>Документацию</code>, <code>Учебник</code> и <code>Блог</code>, 
-        чтобы вы выбрали то, что истинно важно для вас на данный момент! 
+        Мы специально разделили <code>Документацию</code>, <code>Обучение</code>{" "}
+        и <code>Блог</code>, чтобы вы выбрали то, что истинно важно для вас на
+        данный момент!
       </>
     ),
   },
   {
-    title: 'Мы работает для вас!',
-    Svg: require('@site/static/img/undraw_docusaurus_react.svg').default,
+    title: "Мы работает для вас!",
+    Img: require("@site/static/img/ruka.png").default,
     description: (
       <>
-        Мы работаем для того, чтобы у вас под рукой всегда была актуальная информация по нашему продукту,
-        а так же место для изучения материала, спасибо, что выбираете нас!
+        Мы работаем для того, чтобы у вас под рукой всегда была актуальная
+        информация по нашему продукту, а так же место для изучения материала,
+        спасибо, что выбираете нас!
       </>
     ),
   },
 ];
 
-function Feature({Svg, title, description}) {
+function Feature({ Img, title, description }) {
+  const isSpecialImage = title === "Изучай!" || Img.includes("book.png");
+
   return (
-    <div className={clsx('col col--4')}>
-      <div className="text--center">
-        <Svg className={styles.featureSvg} role="img" />
-      </div>
-      <div className="text--center padding-horiz--md">
-        <Heading as="h3">{title}</Heading>
-        <p>{description}</p>
+    <div className={clsx("col col--4")}>
+      <div className={styles.featureCard}>
+        <div className={styles.iconContainer}>
+          <img
+            src={Img}
+            className={clsx(
+              styles.featureIcon,
+              isSpecialImage && styles.featureIconLarge,
+            )}
+            alt={title}
+          />
+        </div>
+        <div className={styles.cardContent}>
+          <Heading as="h3" className={styles.cardTitle}>
+            {title}
+          </Heading>
+          <p className={styles.cardDescription}>{description}</p>
+        </div>
       </div>
     </div>
   );

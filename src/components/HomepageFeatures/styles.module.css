@@ -1,11 +1,80 @@
-.features {
-  display: flex;
-  align-items: center;
-  padding: 2rem 0;
-  width: 100%;
+.featureCard {
+    background: #2b2b2b; /* Темный фон */
+    border-radius: 12px;
+    padding: 2rem;
+    height: 100%;
+    transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease;
+    border: 1px solid #404040;
 }
 
-.featureSvg {
-  height: 200px;
-  width: 200px;
+.featureCard:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+}
+
+.iconContainer {
+    display: flex;
+    justify-content: flex-start;
+    margin-bottom: 1.5rem;
+}
+
+.featureIcon {
+    width: 60px;
+    height: 60px;
+    object-fit: contain;
+}
+
+.featureIconLarge {
+    width: 35%;
+    height: 50%;
+    object-fit: contain;
+}
+
+.cardContent {
+    text-align: left;
+}
+
+.cardTitle {
+    color: #ffffff !important;
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+}
+
+.cardDescription {
+    color: #b4b4b4;
+    line-height: 1.6;
+    font-size: 0.95rem;
+}
+
+.cardDescription code {
+    background: #404040;
+    color: #ffffff;
+    padding: 2px 6px;
+    border-radius: 4px;
+}
+
+/* Для темной темы Docusaurus */
+[data-theme="dark"] .featureCard {
+    background: #2b2b2b;
+    border-color: #404040;
+}
+
+[data-theme="light"] .featureCard {
+    background: #f8f9fa;
+    border-color: #e9ecef;
+}
+
+[data-theme="light"] .cardTitle {
+    color: #2b2b2b !important;
+}
+
+[data-theme="light"] .cardDescription {
+    color: #6c757d;
+}
+
+[data-theme="light"] .featureIcon {
+    filter: none; /* Убираем инверсию для светлой темы */
 }

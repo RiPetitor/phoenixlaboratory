@@ -1,19 +1,19 @@
-import clsx from 'clsx';
-import Link from '@docusaurus/Link';
-import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
-import Layout from '@theme/Layout';
-import HomepageFeatures from '@site/src/components/HomepageFeatures';
+import clsx from "clsx";
+import Link from "@docusaurus/Link";
+import useDocusaurusContext from "@docusaurus/useDocusaurusContext";
+import Layout from "@theme/Layout";
+import HomepageFeatures from "@site/src/components/HomepageFeatures";
 
-import Heading from '@theme/Heading';
-import styles from './index.module.css';
+import Heading from "@theme/Heading";
+import styles from "./index.module.css";
 
 function HomepageHeader() {
-  const {siteConfig} = useDocusaurusContext();
+  const { siteConfig } = useDocusaurusContext();
   return (
-    <header className={clsx('hero--primary', styles.heroBanner)}>
+    <header className={clsx("hero--primary", styles.heroBanner)}>
       <div className="container">
-      <div className={clsx('right', styles.hero__logo)}>
-        <img src="img/phoenix.png" alt="Феникс" width={600} />
+        <div className={clsx("right", styles.hero__logo)}>
+          <img src="img/phoenix.png" alt="Феникс" width={600} />
         </div>
         <Heading as="h1" className="hero__title white">
           {siteConfig.title}
@@ -22,31 +22,32 @@ function HomepageHeader() {
         <div className={styles.buttons}>
           <Link
             className="button button--golden button--lg"
-            to="/docs/doces/intro">
+            to="/docs/doces/intro"
+          >
             Документация
           </Link>
           <Link
             className="button button--golden button--lg"
-            to="/docs/learn/learn-intro">
-            Учебник
+            to="/docs/learn/intro"
+          >
+            Обучение
           </Link>
-          <Link
-            className="button button--golden button--lg"
-            to="/blog">
+          <Link className="button button--golden button--lg" to="/blog">
             Блог
           </Link>
-          </div>
         </div>
+      </div>
     </header>
   );
 }
 
 export default function Home() {
-  const {siteConfig} = useDocusaurusContext();
+  const { siteConfig } = useDocusaurusContext();
   return (
     <Layout
       title={`${siteConfig.title}`}
-      description="Description will go into a meta tag in <head />">
+      description="Description will go into a meta tag in <head />"
+    >
       <HomepageHeader />
       <main>
         <HomepageFeatures />

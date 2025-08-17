@@ -4,34 +4,25 @@
  */
 
 .heroBanner {
-  padding: 4rem 0;
-  text-align: left;
-  position: relative;
-  overflow: hidden;
+    padding: 4rem 0;
+    text-align: left;
+    position: relative;
+    overflow: hidden;
 }
 
-@media screen and (max-width: 996px) {
-  .heroBanner {
-    padding: 2rem;
-  }
+.heroBanner .container {
+    position: relative;
+    max-width: calc(120% - 500px); /* оставляем место для картинки */
+}
+
+.hero__logo img {
+    max-width: 600px;
+    width: 100%;
+    height: auto;
 }
 
 .buttons {
-  display: flex;
-  align-items: left;
-  justify-content: left;
-}
-
-@media (max-width: 768px) {
-  .heroBanner {
-  padding: 4rem 0;
-  text-align: center;
-  position: relative;
-  overflow: hidden;
-}
-  .buttons {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
+    display: flex;
+    align-items: left;
+    justify-content: left;
 }

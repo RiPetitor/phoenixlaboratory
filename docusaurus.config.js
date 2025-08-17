@@ -34,7 +34,7 @@ const config = {
   // можете захотеть заменить "en" на "zh-Hans".
   i18n: {
     defaultLocale: "ru",
-    locales: ["ru", "en"],
+    locales: ["ru"],
   },
 
   presets: [
@@ -97,7 +97,7 @@ const config = {
             type: "docSidebar",
             sidebarId: "learnSidebar",
             position: "left",
-            label: "Учебник",
+            label: "Обучение",
           },
           { to: "/blog", label: "Блог", position: "left" }, // Блог
           { type: "localeDropdown", position: "right" }, // Кнопка с языками
@@ -119,8 +119,8 @@ const config = {
                 to: "/docs/doces/intro",
               },
               {
-                label: "Учебник",
-                to: "/docs/learn/learn-intro",
+                label: "Обучение",
+                to: "/docs/learn/intro",
               },
               {
                 label: "Блог",
@@ -146,7 +146,7 @@ const config = {
             ],
           },
         ],
-        copyright: `Copyright © ${new Date().getFullYear()} PhoenixLab. Создано с ❤️`,
+        copyright: `Copyright © ${new Date().getFullYear()} PhoenixLab. Создано с ❤️ для изучения нового!`,
       },
       prism: {
         theme: prismThemes.github,
