@@ -27,8 +27,8 @@
 }
 
 .featureIconLarge {
-    width: 35%;
-    height: 50%;
+    width: 27%;
+    height: 40%;
     object-fit: contain;
 }
 
@@ -77,4 +77,10 @@
 
 [data-theme="light"] .featureIcon {
     filter: none; /* Убираем инверсию для светлой темы */
+}
+
+@media (max-width: 1024px) {
+    .featureIconLarge {
+        width: 10%;
+    }
 }

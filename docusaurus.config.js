@@ -10,7 +10,7 @@ import { themes as prismThemes } from "prism-react-renderer";
 
 /** @type {import('@docusaurus/types').Config} */
 const config = {
-  title: "Phoenix Labaratory",
+  title: "Phoenix Laboratory",
   tagline: "Место, для изучения чего-то нового!",
   //Иконка сайта
   favicon: "img/fawicon.ico",
@@ -24,7 +24,7 @@ const config = {
   // Конфигурация развертывания страниц GitHub.
   // Если вы не используете страницы GitHub, они вам не нужны.
   organizationName: "phoenixlab", // Обычно это ваша организация на GitHub/имя пользователя.
-  projectName: "phoenixlabaratory", // Обычно это имя вашего репозитория.
+  projectName: "phoenixlaboratory", // Обычно это имя вашего репозитория.
 
   onBrokenLinks: "throw",
   onBrokenMarkdownLinks: "warn",
@@ -46,7 +46,7 @@ const config = {
           sidebarPath: require.resolve("./sidebars.js"),
           // Пожалуйста, измените это на свой репозиторий.
           // Удалите это, чтобы удалить ссылки "редактировать эту страницу".
-          editUrl: "https://github.com/RiPetitor/phoenixlabaratory",
+          editUrl: "https://github.com/RiPetitor/phoenixlaboratory",
         },
         blog: {
           showReadingTime: true,
@@ -56,7 +56,7 @@ const config = {
           },
           // Пожалуйста, измените это на свой репозиторий.
           // Удалите это, чтобы удалить ссылки "редактировать эту страницу"
-          editUrl: "https://github.com/RiPetitor/phoenixlabaratory",
+          editUrl: "https://github.com/RiPetitor/phoenixlaboratory",
           // Полезные опции для внедрения лучших практик ведения блога
           onInlineTags: "warn",
           onInlineAuthors: "warn",
@@ -102,7 +102,7 @@ const config = {
           { to: "/blog", label: "Блог", position: "left" }, // Блог
           { type: "localeDropdown", position: "right" }, // Кнопка с языками
           {
-            href: "https://github.com/RiPetitor/phoenixlabaratory",
+            href: "https://github.com/RiPetitor/phoenixlaboratory",
             label: "GitHub",
             position: "right",
           },
@@ -141,7 +141,7 @@ const config = {
               },
               {
                 label: "GitHub",
-                href: "https://github.com/RiPetitor/phoenixlabaratory",
+                href: "https://github.com/RiPetitor/phoenixlaboratory",
               },
             ],
           },

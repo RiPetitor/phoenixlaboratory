@@ -111,29 +111,51 @@
 
 /* Адаптация для больших экранов */
 @media (max-width: 1600px) {
-    .right img {
-        top: 50%;
-        max-width: 500px;
-        right: 0px;
+    .footer__items,
+    .footer__item,
+    .footer__link-item {
+        text-align: left;
+        margin-left: 16%; /* отступ от левого края */
     }
 }
 
 @media (max-width: 1400px) {
     .right img {
-        max-width: 450px;
+        right: -50px;
+    }
+
+    .footer__items,
+    .footer__item,
+    .footer__link-item {
+        text-align: left;
+        margin-left: 16%; /* отступ от левого края */
     }
 }
 
 @media (max-width: 1200px) {
     .right img {
-        max-width: 400px;
+        right: -100px;
+    }
+
+    .footer__items,
+    .footer__item,
+    .footer__link-item {
+        text-align: left;
+        margin-left: 15%; /* отступ от левого края */
     }
 }
 
 /* Центрирование кнопок и скрытие картинки на разрешении 1024px */
 @media (max-width: 1024px) {
     .right img {
-        display: none;
+        display: block;
+        position: relative;
+        top: auto;
+        right: auto;
+        transform: none;
+        margin: 2rem auto 0 auto;
+        max-width: 300px;
+        pointer-events: auto;
     }
 
     .white {
@@ -142,9 +164,7 @@
 
     /* Центрирование всех кнопок */
     .button {
-        display: block;
-        margin: 10px auto;
-        width: fit-content;
+        display: none;
     }
 
     /* Альтернативный способ для контейнера с кнопками */
@@ -155,6 +175,12 @@
     .buttons-container .button {
         display: inline-block;
         margin: 5px;
+    }
+
+    .footer__items,
+    .footer__item,
+    .footer__link-item {
+        margin-left: 17%; /* отступ от левого края */
     }
 }
 
@@ -178,7 +204,6 @@
     .footer__items,
     .footer__item,
     .footer__link-item {
-        text-align: left;
-        margin-left: 4rem; /* отступ от левого края */
+        margin-left: 16%; /* отступ от левого края */
     }
 }
