@@ -11,8 +11,8 @@
 
 ### 1. Клонирование репозитория
 ```bash
-git clone https://github.com/RiPetitor/phoenixlabaratory.git
-cd phoenixlabaratory
+git clone https://github.com/RiPetitor/phoenixlaboratory.git
+cd phoenixlaboratory
 ```
 
 ### 2. Установка зависимостей
