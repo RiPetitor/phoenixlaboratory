@@ -3,7 +3,6 @@ import Link from "@docusaurus/Link";
 import useDocusaurusContext from "@docusaurus/useDocusaurusContext";
 import Layout from "@theme/Layout";
 import HomepageFeatures from "@site/src/components/HomepageFeatures";
-
 import Heading from "@theme/Heading";
 import styles from "./index.module.css";
 
@@ -20,20 +19,20 @@ function HomepageHeader() {
         </Heading>
         <p className="hero__subtitle white">{siteConfig.tagline}</p>
         <div className={styles.buttons}>
-          <Link
-            className="button button--golden button--lg"
-            to="/docs/doces/intro"
-          >
-            Документация
+          <Link className="corner-button" to="/docs/doces/intro">
+            <span>Документация</span>
+            <i className="left-border"></i>
+            <i className="right-border"></i>
           </Link>
-          <Link
-            className="button button--golden button--lg"
-            to="/docs/learn/intro"
-          >
-            Обучение
+          <Link className="corner-button" to="/docs/learn/intro">
+            <span>Обучение</span>
+            <i className="left-border"></i>
+            <i className="right-border"></i>
           </Link>
-          <Link className="button button--golden button--lg" to="/blog">
-            Блог
+          <Link className="corner-button" to="/blog">
+            <span>Блог</span>
+            <i className="left-border"></i>
+            <i className="right-border"></i>
           </Link>
         </div>
       </div>

@@ -1,4 +1,4 @@
-/**
+/*
  * Any CSS included here will be global. The classic template
  * bundles Infima by default. Infima is a CSS framework designed to
  * work well for content-centric websites.
@@ -6,77 +6,178 @@
 
 /* You can override the default Infima variables here. */
 :root {
-    /* Основной цвет — Императорский красный */
-    --ifm-color-primary: #9e1a1a;
-    --ifm-color-primary-dark: #6b1010;
-    --ifm-color-primary-darker: #500a0a;
-    --ifm-color-primary-darkest: #380707;
-    /* Светлые оттенки для кнопок и хайлайтов */
-    --ifm-color-primary-light: #c43f3f;
-    --ifm-color-primary-lighter: #d46e6e;
-    --ifm-color-primary-lightest: #e29d9d;
-    /* Нейтральные фоны и текст */
-    --ifm-background-color: #fdfaf6; /* Цвет слоновой кости */
-    --ifm-background-color-alt: #f5f0ec;
-    --ifm-font-color: #1c1c1c;
-    /* Для кода и подсветки строк */
-    --docusaurus-highlighted-code-line-bg: rgba(200, 100, 100, 0.1);
+    --ifm-color-primary: #25c2a0;
 }
 
 /* For readability concerns, you should choose a lighter palette in dark mode. */
 [data-theme="dark"] {
-    --ifm-color-primary: #ff0000;
-    --ifm-color-primary-dark: #4242cf;
-    --ifm-color-primary-darker: #ff0000;
-    --ifm-color-primary-darkest: #1b1b1f;
-    --ifm-color-primary-light: #2121ba;
-    --ifm-color-primary-lighter: #1b1b1f;
-    --ifm-color-primary-lightest: #1b1b1f;
-    --ifm-background-color: #121212;
-    --ifm-background-color-alt: #1a1a1a;
-    --ifm-font-color: #e0e0e0;
-    --docusaurus-highlighted-code-line-bg: rgba(100, 0, 0, 0.2);
+    --ifm-color-primary: #e5e5e5;
+    --ifm-link-hover-color: rgb(123, 104, 238);
+    --ifm-navbar-link-hover-color: rgb(218, 165, 32);
 }
-
-/* Стили кнопок */
-.button {
-    display: inline-block;
-    padding: 10px 20px;
-    font-family: "Georgia", serif; /* Шрифт с засечками */
-    font-size: 16px;
-    font-weight: bold;
-    text-align: center;
-    text-decoration: none;
-    color: #fff; /* Белый текст */
-    border: 2px solid #d4af37; /* Золотая обводка */
-    background-color: #9e1a1a; /* Императорский красный */
-    transition: all 0.3s ease; /* Плавная анимация при наведении */
-    margin: 0 5px;
-    border-radius: 5px;
-}
-
-.button:hover {
-    background-color: #d4af37; /* Золотой при наведении */
-    color: #2d5f2e; /* Малахитовый текст */
-}
-
-.button--golden {
-    border: 2px solid #d4af37;
-    background-color: #fff8f0; /* Слоновая кость */
-    color: #2d5f2e; /* Малахитовый */
-}
-
-.button--golden:hover {
-    background-color: #d4af37;
-    color: #fff;
-}
+/* =================================
+   ОСНОВНЫЕ СТИЛИ
+   ================================= */
 
 /* Текст */
+
 .white {
     color: white;
 }
 
-/* Стили для картинки */
+[data-theme="dark"] {
+    --ifm-font-color: #e5e5e5;
+}
+
+/* =================================
+   СТИЛИ КНОПОК С УГЛОВЫМИ ЭЛЕМЕНТАМИ
+   ================================= */
+
+.corner-button {
+    display: inline-block;
+    position: relative;
+    width: 180px;
+    height: 50px;
+    background: #232323;
+    text-decoration: none;
+    text-transform: uppercase;
+    text-align: center;
+    line-height: 50px;
+    color: #daa520;
+    font-size: 14px;
+    font-family:
+        -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    letter-spacing: 2px;
+    transition: all 0.3s ease;
+    margin: 10px 15px;
+}
+
+.corner-button span {
+    position: relative;
+    z-index: 2;
+    display: block;
+    width: 100%;
+    height: 100%;
+}
+
+/* Верхние границы */
+.corner-button::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 15px;
+    height: 2px;
+    background: #daa520;
+    transition: width 0.7s ease;
+}
+
+.corner-button::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 15px;
+    height: 2px;
+    background: #daa520;
+    transition: width 0.7s ease;
+}
+
+/* Нижние границы */
+.corner-button span::before {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 15px;
+    height: 2px;
+    background: #daa520;
+    transition: width 0.7s ease;
+}
+
+.corner-button span::after {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    width: 15px;
+    height: 2px;
+    background: #daa520;
+    transition: width 0.7s ease;
+}
+
+/* Левые вертикальные линии */
+.corner-button .left-border::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 2px;
+    height: 15px;
+    background: #daa520;
+    transition: height 0.7s ease;
+}
+
+.corner-button .left-border::after {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 2px;
+    height: 15px;
+    background: #daa520;
+    transition: height 0.7s ease;
+}
+
+/* Правые вертикальные линии */
+.corner-button .right-border::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 2px;
+    height: 15px;
+    background: #daa520;
+    transition: height 0.7s ease;
+}
+
+.corner-button .right-border::after {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    width: 2px;
+    height: 15px;
+    background: #daa520;
+    transition: height 0.7s ease;
+}
+
+/* Эффекты при наведении */
+.corner-button:hover {
+    color: #ffed4e;
+    text-decoration: none;
+}
+
+.corner-button:hover::before,
+.corner-button:hover::after,
+.corner-button:hover span::before,
+.corner-button:hover span::after {
+    width: calc(50% - 1px);
+    background: #ffed4e;
+}
+
+.corner-button:hover .left-border::before,
+.corner-button:hover .left-border::after,
+.corner-button:hover .right-border::before,
+.corner-button:hover .right-border::after {
+    height: 50%;
+    background: #ffed4e;
+}
+
+/* =================================
+   СТИЛИ КАРТИНКИ
+   ================================= */
+
 .right img {
     position: absolute;
     top: 50%;
@@ -89,64 +190,65 @@
     pointer-events: none;
 }
 
-/* Footer */
+/* =================================
+   СТИЛИ ФУТЕРА
+   ================================= */
+
 .footer {
-    text-align: left;
-}
-
-.footer__title {
-    text-align: center;
-}
-
-.footer__items,
-.footer__item,
-.footer__link-item {
-    text-align: left;
-    margin-left: 5rem; /* отступ от левого края */
+    padding: 20px 0;
+    background-color: transparent;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .footer__copyright {
     text-align: center;
+    font-size: 14px;
+    color: #fdfaf6;
+    margin: 0;
+    padding: 0;
 }
 
-/* Адаптация для больших экранов */
+/* Скрываем все остальные элементы футера */
+.footer__links,
+.footer__title,
+.footer__items,
+.footer__item,
+.footer__link-item {
+    display: none;
+}
+
+/* =================================
+   МЕДИА-ЗАПРОСЫ
+   ================================= */
 @media (max-width: 1600px) {
-    .footer__items,
-    .footer__item,
-    .footer__link-item {
-        text-align: left;
-        margin-left: 16%; /* отступ от левого края */
+    .right img {
+        right: -50px;
     }
 }
 
+/* Большие экраны (1400px и меньше) */
 @media (max-width: 1400px) {
     .right img {
         right: -50px;
     }
-
-    .footer__items,
-    .footer__item,
-    .footer__link-item {
-        text-align: left;
-        margin-left: 16%; /* отступ от левого края */
-    }
 }
 
+/* Средние экраны (1200px и меньше) */
 @media (max-width: 1200px) {
     .right img {
         right: -100px;
     }
-
-    .footer__items,
-    .footer__item,
-    .footer__link-item {
-        text-align: left;
-        margin-left: 15%; /* отступ от левого края */
-    }
 }
 
-/* Центрирование кнопок и скрытие картинки на разрешении 1024px */
+/* Планшеты (1024px и меньше) */
 @media (max-width: 1024px) {
+    /* Скрываем кнопки */
+    .corner-button,
+    .button {
+        display: none !important;
+    }
+
+    /* Показываем картинку по центру */
     .right img {
         display: block;
         position: relative;
@@ -158,52 +260,24 @@
         pointer-events: auto;
     }
 
+    /* Центрируем текст */
     .white {
         text-align: center;
-    }
-
-    /* Центрирование всех кнопок */
-    .button {
-        display: none;
-    }
-
-    /* Альтернативный способ для контейнера с кнопками */
-    .buttons-container {
-        text-align: center;
-    }
-
-    .buttons-container .button {
-        display: inline-block;
-        margin: 5px;
-    }
-
-    .footer__items,
-    .footer__item,
-    .footer__link-item {
-        margin-left: 17%; /* отступ от левого края */
     }
 }
 
-/* Показываем картинку на мобильных устройствах */
+/* Мобильные устройства (768px и меньше) */
 @media (max-width: 768px) {
+    .corner-button {
+        width: 160px;
+        height: 45px;
+        line-height: 45px;
+        font-size: 18px;
+        letter-spacing: 3px;
+        display: none !important; /* Скрываем на мобильных */
+    }
+
     .right img {
-        display: block;
-        position: relative;
-        top: auto;
-        right: auto;
-        transform: none;
-        margin: 2rem auto 0 auto;
-        max-width: 300px;
-        pointer-events: auto;
-    }
-
-    .white {
-        text-align: center;
-    }
-
-    .footer__items,
-    .footer__item,
-    .footer__link-item {
-        margin-left: 16%; /* отступ от левого края */
+        max-width: 250px;
     }
 }

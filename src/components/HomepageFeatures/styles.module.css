@@ -79,8 +79,11 @@
     filter: none; /* Убираем инверсию для светлой темы */
 }
 
+@media (max-width: 1600px) {
+}
+
 @media (max-width: 1024px) {
     .featureIconLarge {
-        width: 10%;
+        width: 14%;
     }
 }

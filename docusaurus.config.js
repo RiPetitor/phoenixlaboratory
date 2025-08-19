@@ -75,11 +75,11 @@ const config = {
       // Настройка стартовой темы
       colorMode: {
         defaultMode: "dark",
-        disableSwitch: false,
+        disableSwitch: true,
         respectPrefersColorScheme: false,
       },
       // Replace with your project's social card
-      image: "img/docusaurus-social-card.jpg",
+      image: "img/phoenix.png",
       navbar: {
         title: "PhoenixLab",
         logo: {
@@ -100,7 +100,7 @@ const config = {
             label: "Обучение",
           },
           { to: "/blog", label: "Блог", position: "left" }, // Блог
-          { type: "localeDropdown", position: "right" }, // Кнопка с языками
+          // { type: "localeDropdown", position: "right" }, // Кнопка с языками (Убрано на не определенный срок, не удалять!)
           {
             href: "https://github.com/RiPetitor/phoenixlaboratory",
             label: "GitHub",
@@ -110,42 +110,6 @@ const config = {
       },
       footer: {
         style: "dark",
-        links: [
-          {
-            title: "Главное",
-            items: [
-              {
-                label: "Документация",
-                to: "/docs/doces/intro",
-              },
-              {
-                label: "Обучение",
-                to: "/docs/learn/intro",
-              },
-              {
-                label: "Блог",
-                to: "/blog",
-              },
-            ],
-          },
-          {
-            title: "Следите за нами!",
-            items: [
-              {
-                label: "ВКонтакте",
-                href: "https://vk.com/ntscphoenix",
-              },
-              {
-                label: "Telegram",
-                href: "https://t.me/myphoenixlife",
-              },
-              {
-                label: "GitHub",
-                href: "https://github.com/RiPetitor/phoenixlaboratory",
-              },
-            ],
-          },
-        ],
         copyright: `Copyright © ${new Date().getFullYear()} PhoenixLab. Создано с ❤️ для изучения нового!`,
       },
       prism: {
