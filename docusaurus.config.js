@@ -46,7 +46,7 @@ const config = {
           sidebarPath: require.resolve("./sidebars.js"),
           // Пожалуйста, измените это на свой репозиторий.
           // Удалите это, чтобы удалить ссылки "редактировать эту страницу".
-          editUrl: "https://github.com/RiPetitor/phoenixlaboratory",
+          editUrl: "https://github.com/RiPetitor/phoenixlaboratory/edit/main",
         },
         blog: {
           showReadingTime: true,
@@ -54,9 +54,6 @@ const config = {
             type: ["rss", "atom"],
             xslt: true,
           },
-          // Пожалуйста, измените это на свой репозиторий.
-          // Удалите это, чтобы удалить ссылки "редактировать эту страницу"
-          editUrl: "https://github.com/RiPetitor/phoenixlaboratory",
           // Полезные опции для внедрения лучших практик ведения блога
           onInlineTags: "warn",
           onInlineAuthors: "warn",
