@@ -1,6 +1,13 @@
 import clsx from "clsx";
 import Heading from "@theme/Heading";
 import styles from "./styles.module.css";
+import Link from "@docusaurus/Link";
+
+const CodeLink = ({ to, children }) => (
+  <Link to={to}>
+    <code>{children}</code>
+  </Link>
+);
 
 const FeatureList = [
   {
@@ -18,9 +25,11 @@ const FeatureList = [
     Img: require("@site/static/img/lampa.png").default,
     description: (
       <>
-        Мы специально разделили <code>Документацию</code>, <code>Обучение</code>{" "}
-        и <code>Блог</code>, чтобы вы выбрали то, что истинно важно для вас на
-        данный момент!
+        Мы специально разделили{" "}
+        <CodeLink to="/docs/doces/intro">Документацию</CodeLink>,{" "}
+        <CodeLink to="/docs/learn/intro">Обучение</CodeLink> и{" "}
+        <CodeLink to="/blog">Блог</CodeLink>, чтобы вы выбрали то, что истинно
+        важно для вас на данный момент!
       </>
     ),
   },
