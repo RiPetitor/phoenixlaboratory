@@ -1,0 +1,260 @@
+---
+sidebar_position: 3
+---
+
+# Типы данных
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+## Что такое тип данных
+
+Тип данных определяет, какие значения может хранить переменная и какие операции с ней можно выполнять.
+
+```c
+int age = 25;        // Целое число
+float price = 9.99;  // Дробное число
+char letter = 'A';   // Символ
+```
+
+## Целочисленные типы
+
+### int - основной целый тип
+
+```c
+int students = 30;
+int temperature = -5;
+int zero = 0;
+
+printf("Студентов: %d\n", students);
+```
+
+### char - символьный тип
+
+```c
+char grade = 'A';
+char symbol = '@';
+char digit = '5';  // Символ, не число!
+
+printf("Оценка: %c\n", grade);
+```
+
+<Tabs>
+<TabItem value="letters" label="Буквы" default>
+
+```c
+char firstLetter = 'H';
+char lastLetter = 'Z';
+printf("%c%c\n", firstLetter, lastLetter);  // HZ
+```
+
+</TabItem>
+<TabItem value="numbers" label="Цифры как символы">
+
+```c
+char digit1 = '1';
+char digit2 = '9';
+printf("Символы: %c и %c\n", digit1, digit2);
+```
+
+</TabItem>
+<TabItem value="special" label="Специальные символы">
+
+```c
+char space = ' ';
+char newline = '\n';
+char tab = '\t';
+```
+
+</TabItem>
+</Tabs>
+
+## Дробные типы
+
+### float - одинарная точность
+
+```c
+float price = 19.99;
+float weight = 75.5;
+float result = 3.14159;
+
+printf("Цена: %.2f рублей\n", price);  // Два знака после запятой
+```
+
+### double - двойная точность
+
+```c
+double pi = 3.141592653589793;
+double distance = 384400.0;  // Расстояние до Луны в км
+
+printf("Число π: %.10f\n", pi);
+```
+
+## Размеры и диапазоны
+
+| Тип | Размер | Диапазон | Пример |
+|-----|--------|----------|---------|
+| `char` | 1 байт | -128 до 127 | `'A'`, `'5'`, `'@'` |
+| `int` | 4 байта | ±2 млрд | `1000`, `-50`, `0` |
+| `float` | 4 байта | ±3.4×10³⁸ | `3.14`, `-0.5` |
+| `double` | 8 байт | ±1.7×10³⁰⁸ | `3.141592653` |
+
+## Модификаторы типов
+
+### unsigned - только положительные числа
+
+```c
+unsigned int population = 1000000;  // Только положительные
+unsigned char byte = 255;           // От 0 до 255
+
+printf("Население: %u\n", population);
+```
+
+### short и long - изменение размера
+
+```c
+short int smallNumber = 100;        // Меньше обычного int
+long int bigNumber = 2000000000L;   // Больше обычного int
+
+printf("Маленькое: %hd\n", smallNumber);
+printf("Большое: %ld\n", bigNumber);
+```
+
+## Выбор правильного типа
+
+:::tip Рекомендации
+- `int` — для обычных целых чисел (возраст, количество)
+- `float` — для простых дробных чисел (цены, проценты)
+- `double` — для точных вычислений (научные расчеты)
+- `char` — для одиночных символов
+- `unsigned` — когда нужны только положительные числа
+:::
+
+## Преобразование типов
+
+### Автоматическое преобразование
+
+```c
+int whole = 5;
+float decimal = 2.3;
+float result = whole + decimal;  // int автоматически стал float
+
+printf("Результат: %.1f\n", result);  // 7.3
+```
+
+### Явное преобразование
+
+```c
+float number = 9.7;
+int rounded = (int)number;  // Принудительное преобразование
+
+printf("Было: %.1f, стало: %d\n", number, rounded);  // 9.7 → 9
+```
+
+## Практический пример
+
+```c
+#include <stdio.h>
+#include <stdbool.h>
+
+int main() {
+    // Разные типы для разных задач
+    char grade = 'B';
+    int points = 85;
+    float percentage = 85.5;
+    double precise = 85.523456789;
+    bool passed = true;
+
+    printf("=== Результаты экзамена ===\n");
+    printf("Оценка: %c\n", grade);
+    printf("Баллы: %d\n", points);
+    printf("Проценты: %.1f%%\n", percentage);
+    printf("Точное значение: %.6f\n", precise);
+    printf("Сдал экзамен: %s\n", passed ? "Да" : "Нет");
+
+    // Демонстрация размеров
+    printf("\n=== Размеры типов ===\n");
+    printf("char: %zu байт\n", sizeof(char));
+    printf("int: %zu байт\n", sizeof(int));
+    printf("float: %zu байт\n", sizeof(float));
+    printf("double: %zu байт\n", sizeof(double));
+
+    return 0;
+}
+```
+
+## Логический тип
+
+### bool - истина или ложь
+
+```c
+#include <stdbool.h>  // Нужно подключить для bool
+
+bool isStudent = true;
+bool hasLicense = false;
+
+if (isStudent) {
+    printf("Студенческая скидка применена\n");
+}
+```
+
+## Спецификаторы формата
+
+Каждому типу соответствует свой спецификатор для вывода:
+
+| Тип | Спецификатор | Пример |
+|-----|--------------|---------|
+| `int` | `%d` | `printf("%d", 42);` |
+| `unsigned int` | `%u` | `printf("%u", 100u);` |
+| `float` | `%f` | `printf("%.2f", 3.14);` |
+| `double` | `%lf` | `printf("%.3lf", 3.141592);` |
+| `char` | `%c` | `printf("%c", 'A');` |
+
+```c
+int age = 25;
+float height = 175.5;
+char initial = 'И';
+
+printf("Возраст: %d лет\n", age);
+printf("Рост: %.1f см\n", height);
+printf("Инициал: %c\n", initial);
+```
+
+## Частые ошибки
+
+:::warning Типичные проблемы
+
+```c
+// ❌ Неправильный спецификатор
+float number = 3.14;
+printf("%d", number);  // Выведет мусор!
+
+// ✅ Правильно
+printf("%f", number);
+
+// ❌ Потеря точности
+float bigNumber = 123456789.0;
+printf("%.0f\n", bigNumber);  // Может быть неточно
+
+// ✅ Используйте double для больших чисел
+double preciseNumber = 123456789.0;
+```
+:::
+
+## Специальные символы
+
+| Символ | Код | Описание |
+|--------|-----|----------|
+| `'\n'` | Новая строка | Перенос на следующую строку |
+| `'\t'` | Табуляция | Отступ |
+| `'\0'` | Нулевой символ | Конец строки |
+| `'\\'` | Обратный слеш | Сам символ \ |
+| `'\''` | Одинарная кавычка | Сам символ ' |
+
+```c
+printf("Первая строка\nВторая строка\n");
+printf("Имя:\tВозраст\n");
+printf("Анна\t25\n");
+```
+
+Правильный выбор типа данных — основа эффективных программ на языке Си.
