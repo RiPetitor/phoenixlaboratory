@@ -1,0 +1,367 @@
+---
+sidebar_position: 10
+---
+
+# Преобразование типов
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+## Что такое преобразование типов
+
+Преобразование типов — это изменение типа данных переменной или значения. В языке Си это происходит автоматически или принудительно.
+
+```c
+int whole = 5;
+float decimal = whole;  // int автоматически стал float (5.0)
+```
+
+## Автоматическое преобразование
+
+Компилятор сам преобразует типы при необходимости.
+
+### Расширяющие преобразования
+
+<Tabs>
+<TabItem value="safe" label="Безопасные преобразования" default>
+
+```c
+#include <stdio.h>
+
+int main() {
+    char small = 65;      // 1 байт
+    int medium = small;   // 4 байта - расширение
+    float big = medium;   // Еще больше места
+
+    printf("char: %d\n", small);    // 65
+    printf("int: %d\n", medium);    // 65
+    printf("float: %.0f\n", big);   // 65
+
+    return 0;
+}
+```
+
+</TabItem>
+<TabItem value="promotion" label="Продвижение типов">
+
+```c
+char a = 10;
+char b = 20;
+int result = a + b;  // char автоматически становится int
+
+printf("Результат сложения char: %d\n", result);  // 30
+
+// Смешанные вычисления
+int whole = 7;
+float fraction = 2.5;
+float mixed = whole + fraction;  // int → float
+
+printf("7 + 2.5 = %.1f\n", mixed);  // 9.5
+```
+
+</TabItem>
+</Tabs>
+
+### Иерархия автоматических преобразований
+
+```
+char → int → long → float → double
+```
+
+```c
+char letter = 'A';       // 65 в ASCII
+int number = letter;     // char → int
+float decimal = number;  // int → float
+double precise = decimal; // float → double
+
+printf("char 'A': %c (%d)\n", letter, letter);
+printf("int: %d\n", number);
+printf("float: %.1f\n", decimal);
+printf("double: %.1f\n", precise);
+```
+
+## Явное преобразование (приведение типов)
+
+Принудительное изменение типа с помощью оператора приведения.
+
+### Синтаксис приведения
+
+```c
+(новый_тип)значение
+```
+
+### Сужающие преобразования
+
+<Tabs>
+<TabItem value="float-to-int" label="float → int" default>
+
+```c
+#include <stdio.h>
+
+int main() {
+    float price = 19.95;
+    int rounded = (int)price;  // Дробная часть отбрасывается
+
+    printf("Исходная цена: %.2f\n", price);
+    printf("Округленная: %d\n", rounded);  // 19
+
+    // Потеря точности
+    float precise = 123.789;
+    int truncated = (int)precise;
+
+    printf("%.3f → %d\n", precise, truncated);  // 123.789 → 123
+
+    return 0;
+}
+```
+
+</TabItem>
+<TabItem value="int-to-char" label="int → char">
+
+```c
+int ascii = 65;
+char character = (char)ascii;
+
+printf("Число %d как символ: '%c'\n", ascii, character);  // 'A'
+
+// Потенциальная проблема с большими числами
+int big = 300;
+char overflow = (char)big;  // Значение обрезается!
+
+printf("300 как char: %d\n", overflow);  // Непредсказуемое значение
+```
+
+</TabItem>
+</Tabs>
+
+## Практические применения
+
+### Правильное деление
+
+```c
+#include <stdio.h>
+
+int main() {
+    int total = 7;
+    int count = 2;
+
+    // Целочисленное деление
+    int intResult = total / count;
+    printf("Целочисленное деление: %d / %d = %d\n", total, count, intResult);
+
+    // Точное деление
+    float floatResult = (float)total / count;
+    printf("Точное деление: %d / %d = %.2f\n", total, count, floatResult);
+
+    return 0;
+}
+```
+
+### Округление чисел
+
+```c
+#include <stdio.h>
+
+int main() {
+    float numbers[] = {3.2, 3.7, -2.3, -2.8};
+    int size = 4;
+
+    for (int i = 0; i < size; i++) {
+        float original = numbers[i];
+
+        // Простое отбрасывание дробной части
+        int truncated = (int)original;
+
+        // "Округление" к ближайшему целому
+        int rounded = (int)(original + 0.5);  // Для положительных чисел
+
+        printf("%.1f → усечение: %d, округление: %d\n",
+               original, truncated, rounded);
+    }
+
+    return 0;
+}
+```
+
+## Преобразования в выражениях
+
+### Смешанная арифметика
+
+```c
+#include <stdio.h>
+
+int main() {
+    int students = 25;
+    int totalSlices = 3;
+
+    printf("Студентов: %d, пицц: %d\n", students, totalSlices);
+
+    // Неправильно: целочисленное деление
+    float wrongAverage = totalSlices / students;
+    printf("Неправильное среднее: %.3f\n", wrongAverage);  // 0.000
+
+    // Правильно: хотя бы один операнд float
+    float correctAverage = (float)totalSlices / students;
+    printf("Правильное среднее: %.3f\n", correctAverage);  // 0.120
+
+    return 0;
+}
+```
+
+### Вычисления с процентами
+
+```c
+#include <stdio.h>
+
+int main() {
+    int correctAnswers = 17;
+    int totalQuestions = 20;
+
+    // Вычисление процента правильных ответов
+    float percentage = ((float)correctAnswers / totalQuestions) * 100;
+
+    printf("Правильных ответов: %d из %d\n", correctAnswers, totalQuestions);
+    printf("Процент успеха: %.1f%%\n", percentage);
+
+    // Определение оценки
+    char grade;
+    if (percentage >= 90) {
+        grade = 'A';
+    } else if (percentage >= 80) {
+        grade = 'B';
+    } else if (percentage >= 70) {
+        grade = 'C';
+    } else {
+        grade = 'F';
+    }
+
+    printf("Оценка: %c\n", grade);
+
+    return 0;
+}
+```
+
+## Опасности преобразований
+
+### Потеря данных
+
+<Tabs>
+<TabItem value="precision-loss" label="Потеря точности" default>
+
+```c
+#include <stdio.h>
+
+int main() {
+    double precise = 3.141592653589793;
+    float less_precise = (float)precise;
+
+    printf("double:  %.15f\n", precise);
+    printf("float:   %.15f\n", less_precise);
+    printf("Потеряно: %.15f\n", precise - less_precise);
+
+    return 0;
+}
+```
+
+</TabItem>
+<TabItem value="overflow" label="Переполнение">
+
+```c
+int bigNumber = 300;
+char smallType = (char)bigNumber;  // Переполнение!
+
+printf("300 как char: %d\n", smallType);  // Непредсказуемое значение
+
+// Безопасная проверка
+if (bigNumber >= -128 && bigNumber <= 127) {
+    char safe = (char)bigNumber;
+    printf("Безопасное преобразование: %d\n", safe);
+} else {
+    printf("Число %d слишком большое для char\n", bigNumber);
+}
+```
+
+</TabItem>
+</Tabs>
+
+### Знаковые и беззнаковые типы
+
+```c
+#include <stdio.h>
+
+int main() {
+    int negative = -10;
+    unsigned int positive = (unsigned int)negative;
+
+    printf("Отрицательное число: %d\n", negative);
+    printf("Как беззнаковое: %u\n", positive);  // Очень большое число!
+
+    // Правильное преобразование
+    unsigned int correct = (negative < 0) ? 0 : (unsigned int)negative;
+    printf("Безопасное преобразование: %u\n", correct);
+
+    return 0;
+}
+```
+
+## Полезные техники
+
+### Проверка результата преобразования
+
+```c
+#include <stdio.h>
+
+int main() {
+    float userInput = 25.7;
+
+    printf("Пользователь ввел: %.1f\n", userInput);
+
+    // Проверяем, есть ли дробная часть
+    int wholePart = (int)userInput;
+    float fractionalPart = userInput - wholePart;
+
+    if (fractionalPart > 0) {
+        printf("Предупреждение: дробная часть %.1f будет потеряна\n",
+               fractionalPart);
+        printf("Целая часть: %d\n", wholePart);
+    } else {
+        printf("Точное целое число: %d\n", wholePart);
+    }
+
+    return 0;
+}
+```
+
+## Частые ошибки
+
+:::warning Типичные проблемы
+
+```c
+// ❌ Забыть о целочисленном делении
+float avg = sum / count;  // Если оба int, результат может быть 0
+
+// ✅ Правильно
+float avg = (float)sum / count;
+
+// ❌ Неконтролируемое переполнение
+char value = (char)1000;  // Переполнение!
+
+// ✅ Проверка границ
+if (input >= CHAR_MIN && input <= CHAR_MAX) {
+    char value = (char)input;
+}
+
+// ❌ Потеря знака
+unsigned int result = (unsigned int)(-50);  // Станет большим положительным!
+```
+
+:::
+
+:::tip Лучшие практики
+- Используйте явное приведение для ясности кода
+- Проверяйте границы при сужающих преобразованиях
+- Будьте осторожны со знаковыми/беззнаковыми преобразованиями
+- При делении приводите хотя бы один операнд к float/double
+:::
+
+Понимание преобразований типов помогает избежать потери данных и неожиданных результатов в вычислениях.

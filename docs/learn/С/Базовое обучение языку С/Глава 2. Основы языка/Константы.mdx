@@ -1,0 +1,260 @@
+---
+sidebar_position: 5
+---
+
+# Константы
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+## Что такое константа
+
+Константа — это значение, которое не изменяется во время выполнения программы. Как переменная, но только для чтения.
+
+```c
+const int MAX_STUDENTS = 30;  // Нельзя изменить
+int current = 15;             // Можно изменить
+```
+
+## Способы создания констант
+
+### Ключевое слово const
+
+<Tabs>
+<TabItem value="basic" label="Основное использование" default>
+
+```c
+const int DAYS_IN_WEEK = 7;
+const float PI = 3.14159;
+const char GRADE_A = 'A';
+
+printf("Дней в неделе: %d\n", DAYS_IN_WEEK);
+printf("Число π: %.3f\n", PI);
+```
+
+</TabItem>
+<TabItem value="initialization" label="Обязательная инициализация">
+
+```c
+// ✅ Правильно
+const int SIZE = 100;
+
+// ❌ Ошибка компиляции
+const int ERROR_CODE;  // Нет начального значения!
+```
+
+</TabItem>
+</Tabs>
+
+### Директива #define
+
+```c
+#include <stdio.h>
+
+#define MAX_LENGTH 50
+#define COMPANY_NAME "TechCorp"
+#define VERSION 2.1
+
+int main() {
+    printf("Максимальная длина: %d\n", MAX_LENGTH);
+    printf("Компания: %s\n", COMPANY_NAME);
+    printf("Версия: %.1f\n", VERSION);
+
+    return 0;
+}
+```
+
+## Различия между const и #define
+
+| Аспект | `const` | `#define` |
+|--------|---------|-----------|
+| **Время обработки** | Во время компиляции | До компиляции (препроцессор) |
+| **Тип данных** | Имеет тип | Простая замена текста |
+| **Область видимости** | Соблюдает блоки `{}` | Глобальная |
+| **Отладка** | Видна в отладчике | Заменяется до компиляции |
+
+<Tabs>
+<TabItem value="const-example" label="const" default>
+
+```c
+int main() {
+    const int limit = 100;
+    // limit имеет тип int и область видимости этой функции
+    printf("Лимит: %d\n", limit);
+    return 0;
+}
+```
+
+</TabItem>
+<TabItem value="define-example" label="#define">
+
+```c
+#define LIMIT 100
+// LIMIT заменяется на 100 везде в коде
+
+int main() {
+    printf("Лимит: %d\n", LIMIT);  // Становится printf("Лимит: %d\n", 100);
+    return 0;
+}
+```
+
+</TabItem>
+</Tabs>
+
+## Литеральные константы
+
+Значения, записанные прямо в коде:
+
+### Целочисленные литералы
+
+```c
+int decimal = 42;        // Десятичное
+int octal = 052;         // Восьмеричное (начинается с 0)
+int hex = 0x2A;          // Шестнадцатеричное (начинается с 0x)
+long bigNumber = 123L;   // Long-константа
+```
+
+### Дробные литералы
+
+```c
+float simple = 3.14;           // Обычная запись
+float scientific = 1.23e-4;    // Научная запись (0.000123)
+double precise = 3.141592653;  // Двойная точность
+```
+
+### Символьные литералы
+
+```c
+char letter = 'M';      // Обычный символ
+char newline = '\n';    // Управляющий символ
+char quote = '\'';      // Экранированная кавычка
+```
+
+## Перечисления (enum)
+
+Создают именованные константы для связанных значений:
+
+```c
+#include <stdio.h>
+
+enum Status {
+    PENDING = 1,    // 1
+    APPROVED,       // 2 (автоматически)
+    REJECTED        // 3 (автоматически)
+};
+
+int main() {
+    enum Status orderStatus = APPROVED;
+
+    printf("Статус заказа: %d\n", orderStatus);  // 2
+
+    if (orderStatus == APPROVED) {
+        printf("Заказ одобрен!\n");
+    }
+
+    return 0;
+}
+```
+
+## Практическое применение
+
+### Настройки программы
+
+```c
+#include <stdio.h>
+
+// Конфигурация через #define
+#define APP_NAME "StudentDB"
+#define VERSION "1.0"
+#define MAX_RECORDS 1000
+
+// Константы через const
+const float TAX_RATE = 0.13;
+const int MIN_AGE = 18;
+
+int main() {
+    printf("=== %s v%s ===\n", APP_NAME, VERSION);
+    printf("Максимум записей: %d\n", MAX_RECORDS);
+    printf("Налоговая ставка: %.0f%%\n", TAX_RATE * 100);
+    printf("Минимальный возраст: %d лет\n", MIN_AGE);
+
+    return 0;
+}
+```
+
+### Математические константы
+
+```c
+#include <stdio.h>
+
+#define PI 3.14159265359
+#define E 2.71828182846
+
+int main() {
+    float radius = 5.0;
+    float area = PI * radius * radius;
+
+    printf("Радиус круга: %.1f\n", radius);
+    printf("Площадь круга: %.2f\n", area);
+
+    return 0;
+}
+```
+
+## Правила именования констант
+
+:::tip Соглашения о стиле
+- Используйте **ЗАГЛАВНЫЕ_БУКВЫ** для констант
+- Разделяйте слова подчеркиваниями
+- Выбирайте понятные имена
+:::
+
+```c
+// ✅ Хорошие имена
+#define MAX_FILE_SIZE 1024
+#define DEFAULT_PORT 8080
+#define ERROR_MESSAGE "Ошибка ввода"
+
+const int SCREEN_WIDTH = 1920;
+const float GRAVITY = 9.81;
+
+// ❌ Плохие имена
+#define X 100        // Непонятно что это
+#define data 50      // Нарушение стиля
+```
+
+## Ошибки при работе с константами
+
+:::warning Частые проблемы
+
+```c
+// ❌ Попытка изменить константу
+const int SIZE = 10;
+SIZE = 20;  // Ошибка компиляции!
+
+// ❌ Константа без инициализации
+const float VALUE;  // Ошибка!
+
+// ❌ Неправильное использование #define
+#define WRONG 3.14;  // Лишняя точка с запятой!
+```
+
+:::
+
+## Когда использовать константы
+
+1. **Магические числа** — заменяйте непонятные числа константами
+2. **Конфигурация** — настройки программы
+3. **Математические значения** — π, e, физические константы
+4. **Ограничения** — максимальные размеры, лимиты
+
+```c
+// Вместо магических чисел
+if (score >= 90) {  // Что означает 90?
+
+// Используйте константы
+const int EXCELLENT_GRADE = 90;
+if (score >= EXCELLENT_GRADE) {  // Понятно!
+```
+
+Константы делают код более читаемым и легким для изменения — вместо поиска всех вхождений числа достаточно изменить одно определение.

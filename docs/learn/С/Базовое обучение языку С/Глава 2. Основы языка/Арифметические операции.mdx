@@ -1,0 +1,321 @@
+---
+sidebar_position: 6
+---
+
+# Арифметические операции
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+## Основные арифметические операторы
+
+Язык Си предоставляет стандартный набор операторов для математических вычислений.
+
+| Оператор | Операция | Пример | Результат |
+|----------|----------|---------|-----------|
+| `+` | Сложение | `5 + 3` | `8` |
+| `-` | Вычитание | `10 - 4` | `6` |
+| `*` | Умножение | `7 * 2` | `14` |
+| `/` | Деление | `15 / 3` | `5` |
+| `%` | Остаток от деления | `17 % 5` | `2` |
+
+### Простые примеры
+
+```c
+#include <stdio.h>
+
+int main() {
+    int a = 10;
+    int b = 3;
+
+    printf("a + b = %d\n", a + b);  // 13
+    printf("a - b = %d\n", a - b);  // 7
+    printf("a * b = %d\n", a * b);  // 30
+    printf("a / b = %d\n", a / b);  // 3
+    printf("a %% b = %d\n", a % b); // 1
+
+    return 0;
+}
+```
+
+## Особенности операций
+
+### Целочисленное деление
+
+<Tabs>
+<TabItem value="integer" label="Деление целых чисел" default>
+
+```c
+int result1 = 7 / 2;     // 3 (дробная часть отбрасывается)
+int result2 = 10 / 3;    // 3
+int result3 = 5 / 10;    // 0
+
+printf("7 / 2 = %d\n", result1);
+printf("10 / 3 = %d\n", result2);
+printf("5 / 10 = %d\n", result3);
+```
+
+</TabItem>
+<TabItem value="float" label="Деление дробных чисел">
+
+```c
+float result1 = 7.0 / 2.0;   // 3.500000
+float result2 = 7 / 2.0;     // 3.500000 (один float = результат float)
+float result3 = (float)7 / 2; // 3.500000 (явное преобразование)
+
+printf("7.0 / 2.0 = %.3f\n", result1);
+printf("7 / 2.0 = %.3f\n", result2);
+printf("(float)7 / 2 = %.3f\n", result3);
+```
+
+</TabItem>
+</Tabs>
+
+### Операция остатка (%)
+
+```c
+int hours = 25;
+int days = hours / 24;       // 1 день
+int remaining = hours % 24;  // 1 час остаток
+
+printf("%d часов = %d дней и %d часов\n", hours, days, remaining);
+// 25 часов = 1 дней и 1 часов
+```
+
+:::info Важно знать
+Операция `%` работает только с целыми числами. Для дробных чисел используйте функцию `fmod()`.
+:::
+
+## Приоритет операций
+
+Операции выполняются в определенном порядке:
+
+1. **Скобки** `()`
+2. **Умножение, деление, остаток** `* / %`
+3. **Сложение, вычитание** `+ -`
+
+```c
+int result1 = 2 + 3 * 4;      // 14 (не 20!)
+int result2 = (2 + 3) * 4;    // 20
+int result3 = 10 - 6 / 2;     // 7 (не 2!)
+
+printf("2 + 3 * 4 = %d\n", result1);
+printf("(2 + 3) * 4 = %d\n", result2);
+printf("10 - 6 / 2 = %d\n", result3);
+```
+
+## Сокращенные операторы присваивания
+
+### Базовые сокращения
+
+<Tabs>
+<TabItem value="basic" label="Основные операторы" default>
+
+```c
+int number = 10;
+
+number += 5;    // number = number + 5;  (15)
+number -= 3;    // number = number - 3;  (12)
+number *= 2;    // number = number * 2;  (24)
+number /= 4;    // number = number / 4;  (6)
+number %= 5;    // number = number % 5;  (1)
+
+printf("Итоговое значение: %d\n", number);
+```
+
+</TabItem>
+<TabItem value="practical" label="Практический пример">
+
+```c
+int score = 100;
+int bonus = 15;
+
+printf("Начальный счет: %d\n", score);
+
+score += bonus;  // Добавляем бонус
+printf("После бонуса: %d\n", score);
+
+score -= 10;     // Штраф
+printf("После штрафа: %d\n", score);
+
+score *= 2;      // Удваиваем
+printf("Финальный счет: %d\n", score);
+```
+
+</TabItem>
+</Tabs>
+
+## Операторы инкремента и декремента
+
+### Увеличение и уменьшение на 1
+
+```c
+int counter = 5;
+
+printf("Исходное значение: %d\n", counter);
+
+counter++;  // Увеличить на 1 (постфиксная форма)
+printf("После counter++: %d\n", counter);
+
+++counter;  // Увеличить на 1 (префиксная форма)
+printf("После ++counter: %d\n", counter);
+
+counter--;  // Уменьшить на 1
+printf("После counter--: %d\n", counter);
+```
+
+### Различие между префиксной и постфиксной формами
+
+<Tabs>
+<TabItem value="postfix" label="Постфиксная (++i)" default>
+
+```c
+int a = 5;
+int result = a++;  // Сначала используем a, потом увеличиваем
+
+printf("a = %d, result = %d\n", a, result);  // a = 6, result = 5
+```
+
+</TabItem>
+<TabItem value="prefix" label="Префиксная (i++)">
+
+```c
+int b = 5;
+int result = ++b;  // Сначала увеличиваем b, потом используем
+
+printf("b = %d, result = %d\n", b, result);  // b = 6, result = 6
+```
+
+</TabItem>
+</Tabs>
+
+## Смешанные вычисления
+
+### Операции с разными типами
+
+```c
+int whole = 5;
+float decimal = 2.3;
+float result = whole + decimal;  // int автоматически преобразуется в float
+
+printf("5 + 2.3 = %.1f\n", result);  // 7.3
+```
+
+### Явное преобразование типов
+
+```c
+int numerator = 7;
+int denominator = 2;
+
+// Целочисленное деление
+int intResult = numerator / denominator;  // 3
+
+// Дробное деление
+float floatResult = (float)numerator / denominator;  // 3.5
+
+printf("Целочисленное: %d\n", intResult);
+printf("Дробное: %.1f\n", floatResult);
+```
+
+## Математические вычисления
+
+### Простой калькулятор
+
+```c
+#include <stdio.h>
+
+int main() {
+    float num1 = 15.5;
+    float num2 = 4.2;
+
+    printf("=== КАЛЬКУЛЯТОР ===\n");
+    printf("Первое число: %.1f\n", num1);
+    printf("Второе число: %.1f\n", num2);
+    printf("------------------\n");
+    printf("Сумма: %.2f\n", num1 + num2);
+    printf("Разность: %.2f\n", num1 - num2);
+    printf("Произведение: %.2f\n", num1 * num2);
+    printf("Частное: %.2f\n", num1 / num2);
+
+    return 0;
+}
+```
+
+### Вычисление площади и периметра
+
+```c
+#include <stdio.h>
+
+#define PI 3.14159
+
+int main() {
+    float radius = 7.5;
+
+    float area = PI * radius * radius;
+    float circumference = 2 * PI * radius;
+
+    printf("=== КРУГ ===\n");
+    printf("Радиус: %.1f см\n", radius);
+    printf("Площадь: %.2f см²\n", area);
+    printf("Длина окружности: %.2f см\n", circumference);
+
+    return 0;
+}
+```
+
+## Частые ошибки
+
+:::danger Типичные проблемы
+
+```c
+// ❌ Деление на ноль
+int result = 10 / 0;  // Ошибка выполнения!
+
+// ❌ Потеря точности при делении
+int a = 7, b = 2;
+float wrong = a / b;     // 3.000000 (целочисленное деление)
+float correct = (float)a / b;  // 3.500000
+
+// ❌ Переполнение
+int big = 2000000000;
+int overflow = big + big;  // Переполнение!
+```
+
+:::
+
+:::tip Полезные советы
+- Используйте скобки для ясности: `(a + b) * c`
+- При делении целых чисел помните о потере дробной части
+- Проверяйте деление на ноль в важных вычислениях
+- Используйте подходящий тип данных для результата
+:::
+
+## Практическое задание
+
+Создайте программу для расчета стоимости покупки:
+
+```c
+#include <stdio.h>
+
+#define TAX_RATE 0.20  // НДС 20%
+
+int main() {
+    float price = 1500.0;      // Цена товара
+    int quantity = 3;          // Количество
+
+    float subtotal = price * quantity;
+    float tax = subtotal * TAX_RATE;
+    float total = subtotal + tax;
+
+    printf("=== РАСЧЕТ ПОКУПКИ ===\n");
+    printf("Цена за единицу: %.2f руб.\n", price);
+    printf("Количество: %d шт.\n", quantity);
+    printf("Сумма без налога: %.2f руб.\n", subtotal);
+    printf("НДС (%.0f%%): %.2f руб.\n", TAX_RATE * 100, tax);
+    printf("Итого к оплате: %.2f руб.\n", total);
+
+    return 0;
+}
+```
+
+Арифметические операции — основа всех вычислений в программах на языке Си.
