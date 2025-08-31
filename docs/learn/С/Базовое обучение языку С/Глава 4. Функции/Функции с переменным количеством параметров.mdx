@@ -1,0 +1,792 @@
+---
+sidebar_position: 13
+---
+
+# Функции с переменным количеством параметров
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+## Что такое функции с переменным количеством параметров
+
+Функции с переменным количеством параметров (variadic functions) могут принимать различное количество аргументов при каждом вызове.
+
+```c
+printf("Число: %d\n", 42);                    // 2 аргумента
+printf("Числа: %d %d %d\n", 1, 2, 3);        // 4 аргумента
+printf("Данные: %s %d %.2f\n", "текст", 5, 3.14); // 4 аргумента
+```
+
+## Объявление variadic функций
+
+### Синтаксис с многоточием
+
+<Tabs>
+<TabItem value="syntax" label="Базовый синтаксис" default>
+
+```c
+#include <stdio.h>
+#include <stdarg.h>  // Обязательно для работы с переменными аргументами
+
+// Функция суммирования переменного количества чисел
+int sum(int count, ...) {  // count — количество аргументов, ... — переменные аргументы
+    va_list args;          // Список аргументов
+    va_start(args, count); // Инициализируем список после параметра count
+
+    int total = 0;
+    for (int i = 0; i < count; i++) {
+        int value = va_arg(args, int);  // Получаем следующий аргумент типа int
+        total += value;
+    }
+
+    va_end(args);  // Завершаем работу со списком
+    return total;
+}
+
+int main() {
+    printf("Сумма 2 чисел: %d\n", sum(2, 10, 20));
+    printf("Сумма 4 чисел: %d\n", sum(4, 1, 2, 3, 4));
+    printf("Сумма 6 чисел: %d\n", sum(6, 5, 10, 15, 20, 25, 30));
+
+    return 0;
+}
+```
+
+</TabItem>
+<TabItem value="requirements" label="Обязательные элементы">
+
+```c
+#include <stdio.h>
+#include <stdarg.h>
+
+// Обязательные компоненты variadic функции:
+void printNumbers(int count, ...) {
+    // 1. Минимум один фиксированный параметр (count)
+    // 2. Многоточие (...) в конце списка параметров
+    // 3. Включение <stdarg.h>
+
+    va_list args;              // 4. Объявление va_list
+    va_start(args, count);     // 5. Инициализация va_start()
+
+    printf("Числа: ");
+    for (int i = 0; i < count; i++) {
+        int num = va_arg(args, int);  // 6. Извлечение аргументов va_arg()
+        printf("%d ", num);
+    }
+    printf("\n");
+
+    va_end(args);              // 7. Завершение va_end()
+}
+
+int main() {
+    printNumbers(3, 100, 200, 300);
+    printNumbers(5, 1, 2, 3, 4, 5);
+
+    return 0;
+}
+```
+
+</TabItem>
+</Tabs>
+
+## Основные макросы stdarg.h
+
+### Работа с переменными аргументами
+
+| Макрос | Назначение |
+|--------|------------|
+| `va_list` | Тип для хранения списка аргументов |
+| `va_start(list, last_param)` | Инициализация списка аргументов |
+| `va_arg(list, type)` | Получение следующего аргумента указанного типа |
+| `va_end(list)` | Завершение работы со списком |
+
+```c
+#include <stdio.h>
+#include <stdarg.h>
+
+// Функция вычисления среднего арифметического
+double average(int count, ...) {
+    if (count <= 0) return 0.0;
+
+    va_list numbers;
+    va_start(numbers, count);
+
+    double sum = 0.0;
+    printf("Вычисляем среднее из %d чисел:\n", count);
+
+    for (int i = 0; i < count; i++) {
+        int value = va_arg(numbers, int);
+        sum += value;
+        printf("Число %d: %d (сумма: %.0f)\n", i + 1, value, sum);
+    }
+
+    va_end(numbers);
+
+    double result = sum / count;
+    printf("Среднее арифметическое: %.2f\n", result);
+
+    return result;
+}
+
+int main() {
+    printf("=== ТЕСТ 1 ===\n");
+    average(3, 10, 20, 30);
+
+    printf("\n=== ТЕСТ 2 ===\n");
+    average(5, 85, 92, 78, 95, 88);
+
+    return 0;
+}
+```
+
+## Смешанные типы параметров
+
+### Функции с разными типами аргументов
+
+<Tabs>
+<TabItem value="mixed-types" label="Разные типы в одной функции" default>
+
+```c
+#include <stdio.h>
+#include <stdarg.h>
+
+// Функция печати форматированной информации
+void printInfo(char *format, ...) {
+    va_list args;
+    va_start(args, format);
+
+    printf("=== ИНФОРМАЦИЯ ===\n");
+
+    // Обрабатываем формат строку
+    for (int i = 0; format[i] != '\0'; i++) {
+        if (format[i] == 'd') {
+            int intVal = va_arg(args, int);
+            printf("Целое число: %d\n", intVal);
+        } else if (format[i] == 'f') {
+            double doubleVal = va_arg(args, double);  // float продвигается до double
+            printf("Дробное число: %.2f\n", doubleVal);
+        } else if (format[i] == 's') {
+            char *strVal = va_arg(args, char*);
+            printf("Строка: %s\n", strVal);
+        } else if (format[i] == 'c') {
+            int charVal = va_arg(args, int);  // char продвигается до int
+            printf("Символ: '%c'\n", (char)charVal);
+        }
+    }
+
+    va_end(args);
+    printf("==================\n");
+}
+
+int main() {
+    printInfo("dfs", 42, 3.14, "Привет");
+    printf("\n");
+    printInfo("sdfc", "Текст", 100, 2.71, 'A');
+
+    return 0;
+}
+```
+
+</TabItem>
+<TabItem value="logger" label="Система логирования">
+
+```c
+#include <stdio.h>
+#include <stdarg.h>
+
+// Уровни логирования
+typedef enum {
+    LOG_INFO,
+    LOG_WARNING,
+    LOG_ERROR
+} LogLevel;
+
+void logMessage(LogLevel level, char *module, char *format, ...) {
+    char *levelNames[] = {"INFO", "WARN", "ERROR"};
+    char *levelSymbols[] = {"ℹ️", "⚠️", "❌"};
+
+    printf("[%s] %s %s: ", levelSymbols[level], levelNames[level], module);
+
+    // Обрабатываем переменные аргументы как printf
+    va_list args;
+    va_start(args, format);
+
+    // Простая обработка форматной строки
+    for (int i = 0; format[i] != '\0'; i++) {
+        if (format[i] == '%' && format[i + 1] != '\0') {
+            i++;  // Пропускаем %
+            switch (format[i]) {
+                case 'd': {
+                    int val = va_arg(args, int);
+                    printf("%d", val);
+                    break;
+                }
+                case 's': {
+                    char *val = va_arg(args, char*);
+                    printf("%s", val);
+                    break;
+                }
+                case 'f': {
+                    double val = va_arg(args, double);
+                    printf("%.2f", val);
+                    break;
+                }
+                default:
+                    printf("?");
+            }
+        } else {
+            printf("%c", format[i]);
+        }
+    }
+
+    va_end(args);
+    printf("\n");
+}
+
+int main() {
+    printf("Система логирования:\n");
+
+    logMessage(LOG_INFO, "AUTH", "Пользователь %s вошел в систему", "admin");
+    logMessage(LOG_WARNING, "DB", "Медленный запрос: %d мс", 1500);
+    logMessage(LOG_ERROR, "NET", "Соединение разорвано через %d секунд", 30);
+    logMessage(LOG_INFO, "CALC", "Результат вычисления: %f", 3.14159);
+
+    return 0;
+}
+```
+
+</TabItem>
+</Tabs>
+
+## Практические примеры
+
+### Универсальный калькулятор
+
+```c
+#include <stdio.h>
+#include <stdarg.h>
+
+// Функция для сложения любого количества чисел
+int addMany(int count, ...) {
+    va_list args;
+    va_start(args, count);
+
+    int result = 0;
+    printf("Складываем %d чисел: ", count);
+
+    for (int i = 0; i < count; i++) {
+        int value = va_arg(args, int);
+        result += value;
+        printf("%d", value);
+        if (i < count - 1) printf(" + ");
+    }
+
+    va_end(args);
+    printf(" = %d\n", result);
+
+    return result;
+}
+
+// Функция для умножения любого количества чисел
+int multiplyMany(int count, ...) {
+    va_list args;
+    va_start(args, count);
+
+    int result = 1;
+    printf("Умножаем %d чисел: ", count);
+
+    for (int i = 0; i < count; i++) {
+        int value = va_arg(args, int);
+        result *= value;
+        printf("%d", value);
+        if (i < count - 1) printf(" × ");
+    }
+
+    va_end(args);
+    printf(" = %d\n", result);
+
+    return result;
+}
+
+// Поиск максимума среди переменного количества аргументов
+int findMax(int count, ...) {
+    if (count <= 0) return 0;
+
+    va_list args;
+    va_start(args, count);
+
+    int max = va_arg(args, int);  // Первый аргумент как начальное значение
+    printf("Ищем максимум среди: %d", max);
+
+    for (int i = 1; i < count; i++) {
+        int value = va_arg(args, int);
+        printf(", %d", value);
+        if (value > max) {
+            max = value;
+        }
+    }
+
+    va_end(args);
+    printf(" → максимум: %d\n", max);
+
+    return max;
+}
+
+int main() {
+    printf("=== УНИВЕРСАЛЬНЫЙ КАЛЬКУЛЯТОР ===\n");
+
+    addMany(3, 10, 20, 30);
+    addMany(5, 1, 2, 3, 4, 5);
+
+    printf("\n");
+
+    multiplyMany(3, 2, 3, 4);
+    multiplyMany(4, 1, 2, 3, 4);
+
+    printf("\n");
+
+    findMax(4, 15, 42, 8, 73);
+    findMax(6, 100, 50, 200, 75, 125, 90);
+
+    return 0;
+}
+```
+
+## Создание собственной printf
+
+### Упрощенная версия printf
+
+<Tabs>
+<TabItem value="simple-printf" label="Простая реализация" default>
+
+```c
+#include <stdio.h>
+#include <stdarg.h>
+
+void myPrintf(char *format, ...) {
+    va_list args;
+    va_start(args, format);
+
+    for (int i = 0; format[i] != '\0'; i++) {
+        if (format[i] == '%' && format[i + 1] != '\0') {
+            i++;  // Пропускаем %
+
+            switch (format[i]) {
+                case 'd': {
+                    int value = va_arg(args, int);
+                    printf("%d", value);
+                    break;
+                }
+                case 'f': {
+                    double value = va_arg(args, double);
+                    printf("%.2f", value);
+                    break;
+                }
+                case 's': {
+                    char *value = va_arg(args, char*);
+                    printf("%s", value);
+                    break;
+                }
+                case 'c': {
+                    int value = va_arg(args, int);  // char продвигается до int
+                    printf("%c", (char)value);
+                    break;
+                }
+                case '%': {
+                    printf("%%");
+                    break;
+                }
+                default:
+                    printf("?");  // Неизвестный спецификатор
+            }
+        } else {
+            printf("%c", format[i]);  // Обычный символ
+        }
+    }
+
+    va_end(args);
+}
+
+int main() {
+    printf("Тестирование собственной printf:\n");
+
+    myPrintf("Целое: %d\n", 42);
+    myPrintf("Дробное: %f\n", 3.14159);
+    myPrintf("Строка: %s\n", "Привет!");
+    myPrintf("Символ: %c\n", 'A');
+    myPrintf("Смешанное: %s %d %.2f %c\n", "Результат", 100, 99.95, '!');
+    myPrintf("Процент: 100%%\n");
+
+    return 0;
+}
+```
+
+</TabItem>
+<TabItem value="enhanced" label="Расширенная версия">
+
+```c
+#include <stdio.h>
+#include <stdarg.h>
+
+// Расширенная функция вывода с подсчетом символов
+int myPrintfExtended(char *format, ...) {
+    va_list args;
+    va_start(args, format);
+
+    int charCount = 0;
+
+    for (int i = 0; format[i] != '\0'; i++) {
+        if (format[i] == '%' && format[i + 1] != '\0') {
+            i++;
+
+            switch (format[i]) {
+                case 'd': {
+                    int value = va_arg(args, int);
+                    int printed = printf("%d", value);
+                    charCount += printed;
+                    break;
+                }
+                case 's': {
+                    char *value = va_arg(args, char*);
+                    int printed = printf("%s", value);
+                    charCount += printed;
+                    break;
+                }
+                default: {
+                    printf("?");
+                    charCount++;
+                }
+            }
+        } else {
+            printf("%c", format[i]);
+            charCount++;
+        }
+    }
+
+    va_end(args);
+    return charCount;  // Возвращаем количество напечатанных символов
+}
+
+int main() {
+    printf("Расширенная версия с подсчетом символов:\n");
+
+    int count1 = myPrintfExtended("Число %d и строка %s", 42, "тест");
+    printf(" ← напечатано %d символов\n", count1);
+
+    int count2 = myPrintfExtended("Простой текст");
+    printf(" ← напечатано %d символов\n", count2);
+
+    return 0;
+}
+```
+
+</TabItem>
+</Tabs>
+
+## Функции-строители
+
+### Создание динамических запросов
+
+```c
+#include <stdio.h>
+#include <stdarg.h>
+
+// Функция создания SQL-подобного запроса
+void buildQuery(char *table, int fieldCount, ...) {
+    printf("SELECT ");
+
+    va_list fields;
+    va_start(fields, fieldCount);
+
+    for (int i = 0; i < fieldCount; i++) {
+        char *fieldName = va_arg(fields, char*);
+        printf("%s", fieldName);
+        if (i < fieldCount - 1) {
+            printf(", ");
+        }
+    }
+
+    va_end(fields);
+    printf(" FROM %s;\n", table);
+}
+
+// Функция создания отчета с переменным количеством данных
+void generateReport(char *title, char *format, ...) {
+    printf("=== %s ===\n", title);
+
+    va_list data;
+    va_start(data, format);
+
+    for (int i = 0; format[i] != '\0'; i++) {
+        switch (format[i]) {
+            case 'i': {  // integer
+                int value = va_arg(data, int);
+                printf("• Целое значение: %d\n", value);
+                break;
+            }
+            case 'f': {  // float
+                double value = va_arg(data, double);
+                printf("• Дробное значение: %.2f\n", value);
+                break;
+            }
+            case 's': {  // string
+                char *value = va_arg(data, char*);
+                printf("• Текстовое значение: %s\n", value);
+                break;
+            }
+        }
+    }
+
+    va_end(data);
+    printf("====================\n");
+}
+
+int main() {
+    printf("Построение запросов:\n");
+
+    buildQuery("users", 3, "name", "age", "email");
+    buildQuery("products", 4, "id", "title", "price", "category");
+
+    printf("\nГенерация отчетов:\n");
+
+    generateReport("ПРОДАЖИ", "iff", 150, 15750.50, 89.5);
+    generateReport("СОТРУДНИКИ", "sis", "Анна Петрова", 28, "Менеджер");
+
+    return 0;
+}
+```
+
+## Обработка ошибок в variadic функциях
+
+### Безопасная работа с аргументами
+
+<Tabs>
+<TabItem value="validation" label="Проверка корректности" default>
+
+```c
+#include <stdio.h>
+#include <stdarg.h>
+
+// Безопасная функция сложения с проверками
+int safeSumInRange(int count, int minValue, int maxValue, ...) {
+    if (count <= 0) {
+        printf("Ошибка: количество аргументов должно быть больше 0\n");
+        return 0;
+    }
+
+    va_list args;
+    va_start(args, maxValue);
+
+    int sum = 0;
+    int validCount = 0;
+
+    printf("Суммируем числа в диапазоне [%d, %d]:\n", minValue, maxValue);
+
+    for (int i = 0; i < count; i++) {
+        int value = va_arg(args, int);
+
+        if (value >= minValue && value <= maxValue) {
+            sum += value;
+            validCount++;
+            printf("✅ %d - принят\n", value);
+        } else {
+            printf("❌ %d - вне диапазона\n", value);
+        }
+    }
+
+    va_end(args);
+
+    printf("Обработано: %d из %d чисел\n", validCount, count);
+    printf("Сумма: %d\n", sum);
+
+    return sum;
+}
+
+int main() {
+    printf("Безопасное суммирование:\n");
+
+    safeSumInRange(6, 10, 50, 15, 25, 5, 45, 60, 30);
+
+    printf("\n");
+
+    safeSumInRange(4, 0, 100, 50, 150, 75, 25);
+
+    return 0;
+}
+```
+
+</TabItem>
+<TabItem value="error-handling" label="Обработка типов">
+
+```c
+#include <stdio.h>
+#include <stdarg.h>
+
+// Функция с контролем типов через специальные маркеры
+void printTypedData(char *types, ...) {
+    va_list args;
+    va_start(args, types);
+
+    printf("Вывод типизированных данных:\n");
+
+    for (int i = 0; types[i] != '\0'; i++) {
+        printf("Аргумент %d: ", i + 1);
+
+        switch (types[i]) {
+            case 'i': {  // integer
+                int value = va_arg(args, int);
+                printf("(int) %d\n", value);
+                break;
+            }
+            case 'f': {  // float
+                double value = va_arg(args, double);
+                printf("(float) %.3f\n", value);
+                break;
+            }
+            case 's': {  // string
+                char *value = va_arg(args, char*);
+                if (value != NULL) {
+                    printf("(string) \"%s\"\n", value);
+                } else {
+                    printf("(string) NULL\n");
+                }
+                break;
+            }
+            default: {
+                printf("Неизвестный тип: '%c'\n", types[i]);
+                // Пропускаем неизвестный аргумент (опасно!)
+                va_arg(args, int);  // Предполагаем int
+            }
+        }
+    }
+
+    va_end(args);
+}
+
+int main() {
+    printf("Тестирование типизированного вывода:\n");
+
+    printTypedData("ifs", 42, 3.14159, "Строка");
+
+    printf("\n");
+
+    printTypedData("sif", "Текст", 100, 2.71828);
+
+    return 0;
+}
+```
+
+</TabItem>
+</Tabs>
+
+## Ограничения и особенности
+
+### Важные правила работы
+
+```c
+#include <stdio.h>
+#include <stdarg.h>
+
+// Демонстрация продвижения типов
+void showTypePromotion(int count, ...) {
+    va_list args;
+    va_start(args, count);
+
+    printf("Демонстрация продвижения типов:\n");
+
+    for (int i = 0; i < count; i++) {
+        // char и short автоматически продвигаются до int
+        // float автоматически продвигается до double
+
+        printf("Аргумент %d: ", i + 1);
+
+        if (i == 0) {  // Ожидаем char, но получаем int
+            int promotedChar = va_arg(args, int);
+            printf("char → int: %d ('%c')\n", promotedChar, (char)promotedChar);
+        } else if (i == 1) {  // Ожидаем float, но получаем double
+            double promotedFloat = va_arg(args, double);
+            printf("float → double: %f\n", promotedFloat);
+        } else {  // Обычный int
+            int normalInt = va_arg(args, int);
+            printf("int: %d\n", normalInt);
+        }
+    }
+
+    va_end(args);
+}
+
+int main() {
+    char ch = 'A';
+    float fl = 3.14f;
+    int num = 42;
+
+    showTypePromotion(3, ch, fl, num);
+
+    return 0;
+}
+```
+
+:::warning Важные ограничения
+- **Минимум один фиксированный параметр** — нужен для va_start()
+- **Многоточие только в конце** — ... должно быть последним
+- **Продвижение типов** — char/short → int, float → double
+- **Ответственность программиста** — контроль количества и типов аргументов
+- **Нет проверки типов** — va_arg() верит программисту
+:::
+
+:::danger Частые ошибки
+
+```c
+// ❌ Неправильное количество вызовов va_arg()
+void badFunction(int count, ...) {
+    va_list args;
+    va_start(args, count);
+
+    // Если count = 2, но мы вызовем va_arg() 3 раза - неопределенное поведение!
+    for (int i = 0; i < count + 1; i++) {  // +1 - ошибка!
+        int value = va_arg(args, int);
+    }
+
+    va_end(args);
+}
+
+// ❌ Неправильный тип в va_arg()
+void wrongType(int count, ...) {
+    va_list args;
+    va_start(args, count);
+
+    // Если передали int, но просим float
+    float value = va_arg(args, float);  // Неопределенное поведение!
+
+    va_end(args);
+}
+
+// ❌ Забыть va_end()
+void forgetEnd(int count, ...) {
+    va_list args;
+    va_start(args, count);
+
+    int value = va_arg(args, int);
+    // Забыли va_end(args); - утечка ресурсов!
+}
+```
+
+:::
+
+:::tip Лучшие практики
+- **Всегда используйте va_end()** после va_start()
+- **Документируйте ожидаемые типы** аргументов
+- **Передавайте количество аргументов** или используйте маркеры окончания
+- **Проверяйте корректность параметров** перед обработкой
+- **Используйте typedef** для упрощения сложных сигнатур
+:::
+
+:::info Применение variadic функций
+- **Форматированный вывод** — printf, sprintf
+- **Функции логирования** — с разным количеством данных
+- **Математические операции** — сумма, произведение многих чисел
+- **Построители запросов** — SQL, конфигурации
+- **Системы уведомлений** — с различными параметрами
+:::
+
+Функции с переменным количеством параметров обеспечивают гибкость интерфейсов, но требуют осторожности в использовании.

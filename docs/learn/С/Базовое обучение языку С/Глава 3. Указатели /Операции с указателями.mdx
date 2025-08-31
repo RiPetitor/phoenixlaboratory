@@ -1,0 +1,364 @@
+---
+sidebar_position: 2
+---
+
+# Операции с указателями
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+## Основные операции с указателями
+
+С указателями можно выполнять несколько типов операций: арифметические, сравнения и присваивания.
+
+## Арифметические операции
+
+### Инкремент и декремент
+
+<Tabs>
+<TabItem value="increment" label="Увеличение указателя" default>
+
+```c
+#include <stdio.h>
+
+int main() {
+    int numbers[5] = {10, 20, 30, 40, 50};
+    int *ptr = numbers;  // Указывает на numbers[0]
+
+    printf("Исходная позиция:\n");
+    printf("ptr указывает на: %d (адрес: %p)\n", *ptr, ptr);
+
+    ptr++;  // Переходим к следующему элементу
+    printf("После ptr++:\n");
+    printf("ptr указывает на: %d (адрес: %p)\n", *ptr, ptr);
+
+    ptr++;  // Еще один переход
+    printf("После еще одного ptr++:\n");
+    printf("ptr указывает на: %d (адрес: %p)\n", *ptr, ptr);
+
+    return 0;
+}
+```
+
+</TabItem>
+<TabItem value="decrement" label="Уменьшение указателя">
+
+```c
+int numbers[5] = {10, 20, 30, 40, 50};
+int *ptr = &numbers[4];  // Начинаем с последнего элемента
+
+printf("Обход массива назад:\n");
+for (int i = 4; i >= 0; i--) {
+    printf("ptr указывает на: %d\n", *ptr);
+    ptr--;  // Переходим к предыдущему элементу
+}
+```
+
+</TabItem>
+</Tabs>
+
+### Сложение и вычитание
+
+```c
+#include <stdio.h>
+
+int main() {
+    int array[6] = {1, 2, 3, 4, 5, 6};
+    int *ptr = array;  // Указывает на array[0]
+
+    printf("ptr: %d\n", *ptr);           // 1
+    printf("ptr + 1: %d\n", *(ptr + 1)); // 2
+    printf("ptr + 3: %d\n", *(ptr + 3)); // 4
+    printf("ptr + 5: %d\n", *(ptr + 5)); // 6
+
+    // Перемещаем указатель
+    ptr += 2;  // Теперь указывает на array[2]
+    printf("После ptr += 2: %d\n", *ptr); // 3
+
+    return 0;
+}
+```
+
+### Разность указателей
+
+```c
+#include <stdio.h>
+
+int main() {
+    int data[10] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
+    int *start = &data[2];  // Указывает на элемент 3
+    int *end = &data[7];    // Указывает на элемент 8
+
+    int distance = end - start;  // Количество элементов между ними
+
+    printf("Элемент в start: %d\n", *start);  // 3
+    printf("Элемент в end: %d\n", *end);      // 8
+    printf("Расстояние между указателями: %d элементов\n", distance);  // 5
+
+    return 0;
+}
+```
+
+## Операции сравнения
+
+### Сравнение адресов
+
+```c
+#include <stdio.h>
+
+int main() {
+    int a = 10, b = 20, c = 30;
+    int *ptr1 = &a;
+    int *ptr2 = &b;
+    int *ptr3 = &a;  // Указывает на ту же переменную что ptr1
+
+    printf("=== СРАВНЕНИЕ УКАЗАТЕЛЕЙ ===\n");
+
+    if (ptr1 == ptr3) {
+        printf("ptr1 и ptr3 указывают на одну переменную\n");
+    }
+
+    if (ptr1 != ptr2) {
+        printf("ptr1 и ptr2 указывают на разные переменные\n");
+    }
+
+    if (ptr1 < ptr2) {
+        printf("ptr1 имеет меньший адрес чем ptr2\n");
+    }
+
+    return 0;
+}
+```
+
+### Проверка на NULL
+
+<Tabs>
+<TabItem value="null-check" label="Проверка на NULL" default>
+
+```c
+#include <stdio.h>
+
+int main() {
+    int *ptr = NULL;  // Нулевой указатель
+
+    if (ptr == NULL) {
+        printf("Указатель не инициализирован\n");
+    }
+
+    int value = 42;
+    ptr = &value;
+
+    if (ptr != NULL) {
+        printf("Указатель теперь корректен: %d\n", *ptr);
+    }
+
+    return 0;
+}
+```
+
+</TabItem>
+<TabItem value="safe-access" label="Безопасный доступ">
+
+```c
+void printValue(int *ptr) {
+    if (ptr != NULL) {
+        printf("Значение: %d\n", *ptr);
+    } else {
+        printf("Ошибка: NULL указатель\n");
+    }
+}
+
+int main() {
+    int number = 100;
+    int *validPtr = &number;
+    int *nullPtr = NULL;
+
+    printValue(validPtr);  // Значение: 100
+    printValue(nullPtr);   // Ошибка: NULL указатель
+
+    return 0;
+}
+```
+
+</TabItem>
+</Tabs>
+
+## Присваивание указателей
+
+### Копирование адресов
+
+```c
+#include <stdio.h>
+
+int main() {
+    int original = 75;
+    int *ptr1 = &original;
+    int *ptr2 = ptr1;       // Копируем адрес из ptr1 в ptr2
+
+    printf("original = %d\n", original);
+    printf("*ptr1 = %d\n", *ptr1);
+    printf("*ptr2 = %d\n", *ptr2);
+
+    // Все три ссылаются на одну переменную
+    *ptr2 = 100;  // Изменяем через ptr2
+
+    printf("\nПосле изменения через ptr2:\n");
+    printf("original = %d\n", original);  // 100
+    printf("*ptr1 = %d\n", *ptr1);        // 100
+    printf("*ptr2 = %d\n", *ptr2);        // 100
+
+    return 0;
+}
+```
+
+### Переназначение указателей
+
+```c
+#include <stdio.h>
+
+int main() {
+    int first = 10;
+    int second = 20;
+    int *ptr = &first;  // Сначала указывает на first
+
+    printf("ptr указывает на first: %d\n", *ptr);  // 10
+
+    ptr = &second;  // Теперь указывает на second
+    printf("ptr теперь указывает на second: %d\n", *ptr);  // 20
+
+    return 0;
+}
+```
+
+## Указатели и массивы
+
+### Указатель как индекс массива
+
+```c
+#include <stdio.h>
+
+int main() {
+    int scores[4] = {85, 92, 78, 96};
+    int *ptr = scores;  // Указывает на первый элемент
+
+    printf("Обход массива через указатель:\n");
+
+    for (int i = 0; i < 4; i++) {
+        printf("Элемент %d: %d\n", i, *(ptr + i));
+    }
+
+    return 0;
+}
+```
+
+### Перемещение по массиву
+
+<Tabs>
+<TabItem value="step-by-step" label="Пошаговое перемещение" default>
+
+```c
+#include <stdio.h>
+
+int main() {
+    int data[5] = {100, 200, 300, 400, 500};
+    int *current = data;
+
+    printf("Перемещение указателя по массиву:\n");
+
+    for (int i = 0; i < 5; i++) {
+        printf("Позиция %d: значение = %d, адрес = %p\n",
+               i, *current, current);
+        current++;  // Переходим к следующему элементу
+    }
+
+    return 0;
+}
+```
+
+</TabItem>
+<TabItem value="arithmetic" label="Арифметика указателей">
+
+```c
+int numbers[6] = {10, 20, 30, 40, 50, 60};
+int *start = numbers;
+int *middle = start + 3;  // Указывает на numbers[3]
+int *end = start + 5;     // Указывает на numbers[5]
+
+printf("start: %d\n", *start);    // 10
+printf("middle: %d\n", *middle);  // 40
+printf("end: %d\n", *end);        // 60
+
+int distance = end - start;  // Расстояние в элементах
+printf("Расстояние: %d элементов\n", distance);  // 5
+```
+
+</TabItem>
+</Tabs>
+
+## Размеры в арифметике указателей
+
+### Автоматическое масштабирование
+
+```c
+#include <stdio.h>
+
+int main() {
+    int integers[3] = {1, 2, 3};
+    char characters[3] = {'A', 'B', 'C'};
+
+    int *intPtr = integers;
+    char *charPtr = characters;
+
+    printf("=== РАЗМЕРЫ ШАГОВ ===\n");
+    printf("int*: %p\n", intPtr);
+    printf("int* + 1: %p (сдвиг на %zu байт)\n", intPtr + 1, sizeof(int));
+
+    printf("char*: %p\n", charPtr);
+    printf("char* + 1: %p (сдвиг на %zu байт)\n", charPtr + 1, sizeof(char));
+
+    return 0;
+}
+```
+
+:::info Важно понимать
+При операции `ptr + 1` указатель сдвигается не на 1 байт, а на размер типа данных:
+- `int* + 1` сдвигается на 4 байта
+- `char* + 1` сдвигается на 1 байт
+- `double* + 1` сдвигается на 8 байт
+:::
+
+## Практический пример
+
+### Поиск максимума через указатели
+
+```c
+#include <stdio.h>
+
+int main() {
+    int values[6] = {45, 12, 78, 34, 89, 23};
+    int size = 6;
+
+    int *current = values;       // Начинаем с первого элемента
+    int *maxPtr = values;        // Указатель на максимальный элемент
+
+    printf("Поиск максимального элемента:\n");
+
+    for (int i = 0; i < size; i++) {
+        printf("Проверяем: %d\n", *current);
+
+        if (*current > *maxPtr) {
+            maxPtr = current;  // Запоминаем адрес нового максимума
+            printf("  Новый максимум!\n");
+        }
+
+        current++;  // Переходим к следующему элементу
+    }
+
+    printf("\nМаксимальный элемент: %d\n", *maxPtr);
+    printf("Его позиция в массиве: %ld\n", maxPtr - values);
+
+    return 0;
+}
+```
+
+Операции с указателями позволяют эффективно перемещаться по памяти и работать с данными через их адреса.

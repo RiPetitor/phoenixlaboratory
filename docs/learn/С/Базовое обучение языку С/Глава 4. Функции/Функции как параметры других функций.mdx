@@ -1,0 +1,577 @@
+---
+sidebar_position: 11
+---
+
+# Функции как параметры других функций
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+## Передача функций как аргументов
+
+Функцию можно передать в другую функцию как параметр. Это позволяет изменять поведение функции, не изменяя её код.
+
+```c
+int operation(int a, int b, int (*func)(int, int)) {
+    return func(a, b);  // Вызываем переданную функцию
+}
+```
+
+## Базовые примеры
+
+### Простая передача функции
+
+<Tabs>
+<TabItem value="basic" label="Основной пример" default>
+
+```c
+#include <stdio.h>
+
+// Простые математические функции
+int add(int a, int b) {
+    return a + b;
+}
+
+int multiply(int a, int b) {
+    return a * b;
+}
+
+// Функция, принимающая другую функцию как параметр
+int calculate(int x, int y, int (*operation)(int, int)) {
+    printf("Выполняем операцию с числами %d и %d\n", x, y);
+    return operation(x, y);  // Вызываем переданную функцию
+}
+
+int main() {
+    int num1 = 8, num2 = 3;
+
+    printf("=== ДЕМОНСТРАЦИЯ ===\n");
+
+    int sum = calculate(num1, num2, add);       // Передаем функцию add
+    printf("Результат сложения: %d\n", sum);
+
+    int product = calculate(num1, num2, multiply); // Передаем функцию multiply
+    printf("Результат умножения: %d\n", product);
+
+    return 0;
+}
+```
+
+</TabItem>
+<TabItem value="selection" label="Выбор функции">
+
+```c
+#include <stdio.h>
+
+int subtract(int a, int b) { return a - b; }
+int modulo(int a, int b) { return b != 0 ? a % b : 0; }
+
+// Функция выбора операции
+int (*selectOperation(char symbol))(int, int) {
+    switch (symbol) {
+        case '+': return add;
+        case '*': return multiply;
+        case '-': return subtract;
+        case '%': return modulo;
+        default: return NULL;
+    }
+}
+
+// Выполнение операции по символу
+void executeOperation(int a, int b, char symbol) {
+    int (*op)(int, int) = selectOperation(symbol);
+
+    if (op != NULL) {
+        int result = calculate(a, b, op);
+        printf("%d %c %d = %d\n", a, symbol, b, result);
+    } else {
+        printf("Неизвестная операция: %c\n", symbol);
+    }
+}
+
+int main() {
+    executeOperation(15, 4, '+');
+    executeOperation(15, 4, '*');
+    executeOperation(15, 4, '%');
+
+    return 0;
+}
+```
+
+</TabItem>
+</Tabs>
+
+## Обработка массивов с функциями-параметрами
+
+### Применение операции к каждому элементу
+
+```c
+#include <stdio.h>
+
+// Функции преобразования
+int doubleValue(int x) { return x * 2; }
+int squareValue(int x) { return x * x; }
+int incrementValue(int x) { return x + 1; }
+
+// Применяем функцию к каждому элементу массива
+void transformArray(int source[], int target[], int size, int (*transform)(int)) {
+    printf("Применяем преобразование к массиву:\n");
+
+    for (int i = 0; i < size; i++) {
+        target[i] = transform(source[i]);
+        printf("%d → %d\n", source[i], target[i]);
+    }
+}
+
+// Подсчет элементов, удовлетворяющих условию
+int countElements(int arr[], int size, int (*condition)(int)) {
+    int count = 0;
+
+    for (int i = 0; i < size; i++) {
+        if (condition(arr[i])) {
+            count++;
+        }
+    }
+
+    return count;
+}
+
+// Условия для подсчета
+int isEven(int x) { return x % 2 == 0; }
+int isPositive(int x) { return x > 0; }
+int isLarge(int x) { return x >= 50; }
+
+int main() {
+    int original[6] = {-5, 12, 67, -3, 24, 78};
+    int transformed[6];
+
+    printf("Исходный массив: ");
+    for (int i = 0; i < 6; i++) printf("%d ", original[i]);
+    printf("\n\n");
+
+    // Применяем разные преобразования
+    transformArray(original, transformed, 6, doubleValue);
+    printf("Удвоенные: ");
+    for (int i = 0; i < 6; i++) printf("%d ", transformed[i]);
+    printf("\n\n");
+
+    // Подсчитываем элементы по условиям
+    printf("Статистика исходного массива:\n");
+    printf("Четных чисел: %d\n", countElements(original, 6, isEven));
+    printf("Положительных: %d\n", countElements(original, 6, isPositive));
+    printf("Больших (≥50): %d\n", countElements(original, 6, isLarge));
+
+    return 0;
+}
+```
+
+## Сортировка с настраиваемым сравнением
+
+### Универсальные алгоритмы сортировки
+
+<Tabs>
+<TabItem value="custom-sort" label="Настраиваемая сортировка" default>
+
+```c
+#include <stdio.h>
+
+// Функции сравнения
+int compareAscending(int a, int b) {
+    return a > b;  // Возвращает 1, если нужно поменять местами
+}
+
+int compareDescending(int a, int b) {
+    return a < b;
+}
+
+int compareByLastDigit(int a, int b) {
+    return (a % 10) > (b % 10);  // Сравниваем по последней цифре
+}
+
+int compareByAbsoluteValue(int a, int b) {
+    int absA = a < 0 ? -a : a;
+    int absB = b < 0 ? -b : b;
+    return absA > absB;
+}
+
+// Универсальная функция сортировки
+void customSort(int arr[], int size, int (*compare)(int, int), char *sortType) {
+    printf("Сортировка: %s\n", sortType);
+
+    for (int i = 0; i < size - 1; i++) {
+        for (int j = 0; j < size - 1 - i; j++) {
+            if (compare(arr[j], arr[j + 1])) {
+                int temp = arr[j];
+                arr[j] = arr[j + 1];
+                arr[j + 1] = temp;
+            }
+        }
+    }
+}
+
+int main() {
+    int original[7] = {-15, 42, -8, 73, 24, -31, 56};
+
+    printf("Исходный массив: ");
+    for (int i = 0; i < 7; i++) printf("%d ", original[i]);
+    printf("\n\n");
+
+    // Создаем копии для разных сортировок
+    int copy1[7], copy2[7], copy3[7], copy4[7];
+    for (int i = 0; i < 7; i++) {
+        copy1[i] = copy2[i] = copy3[i] = copy4[i] = original[i];
+    }
+
+    // Применяем разные алгоритмы сортировки
+    customSort(copy1, 7, compareAscending, "по возрастанию");
+    for (int i = 0; i < 7; i++) printf("%d ", copy1[i]);
+    printf("\n\n");
+
+    customSort(copy2, 7, compareDescending, "по убыванию");
+    for (int i = 0; i < 7; i++) printf("%d ", copy2[i]);
+    printf("\n\n");
+
+    customSort(copy3, 7, compareByLastDigit, "по последней цифре");
+    for (int i = 0; i < 7; i++) printf("%d ", copy3[i]);
+    printf("\n\n");
+
+    customSort(copy4, 7, compareByAbsoluteValue, "по модулю");
+    for (int i = 0; i < 7; i++) printf("%d ", copy4[i]);
+    printf("\n");
+
+    return 0;
+}
+```
+
+</TabItem>
+<TabItem value="search-algorithms" label="Алгоритмы поиска">
+
+```c
+#include <stdio.h>
+
+// Условия поиска
+int findEven(int x) { return x % 2 == 0; }
+int findNegative(int x) { return x < 0; }
+int findLarge(int x) { return x > 50; }
+
+// Универсальная функция поиска
+int findFirst(int arr[], int size, int (*condition)(int)) {
+    for (int i = 0; i < size; i++) {
+        if (condition(arr[i])) {
+            return i;  // Возвращаем индекс первого найденного элемента
+        }
+    }
+    return -1;  // Не найдено
+}
+
+// Подсчет элементов по условию
+int countMatching(int arr[], int size, int (*condition)(int)) {
+    int count = 0;
+    for (int i = 0; i < size; i++) {
+        if (condition(arr[i])) {
+            count++;
+        }
+    }
+    return count;
+}
+
+int main() {
+    int data[8] = {15, -42, 8, 73, -29, 56, 91, -34};
+
+    printf("Массив для анализа: ");
+    for (int i = 0; i < 8; i++) printf("%d ", data[i]);
+    printf("\n\n");
+
+    // Поиск первых элементов по разным условиям
+    int evenIndex = findFirst(data, 8, findEven);
+    int negativeIndex = findFirst(data, 8, findNegative);
+    int largeIndex = findFirst(data, 8, findLarge);
+
+    printf("Первое четное число: ");
+    if (evenIndex >= 0) {
+        printf("%d на позиции %d\n", data[evenIndex], evenIndex);
+    } else {
+        printf("не найдено\n");
+    }
+
+    printf("Первое отрицательное: ");
+    if (negativeIndex >= 0) {
+        printf("%d на позиции %d\n", data[negativeIndex], negativeIndex);
+    } else {
+        printf("не найдено\n");
+    }
+
+    printf("Первое большое (>50): ");
+    if (largeIndex >= 0) {
+        printf("%d на позиции %d\n", data[largeIndex], largeIndex);
+    } else {
+        printf("не найдено\n");
+    }
+
+    // Подсчет по условиям
+    printf("\nСтатистика:\n");
+    printf("Четных чисел: %d\n", countMatching(data, 8, findEven));
+    printf("Отрицательных: %d\n", countMatching(data, 8, findNegative));
+    printf("Больших (>50): %d\n", countMatching(data, 8, findLarge));
+
+    return 0;
+}
+```
+
+</TabItem>
+</Tabs>
+
+## Функции обратного вызова (callbacks)
+
+### Уведомления о событиях
+
+```c
+#include <stdio.h>
+
+// Типы обратных вызовов
+void onOperationStart(char *operation) {
+    printf("🔄 Начинаем: %s\n", operation);
+}
+
+void onOperationComplete(char *operation) {
+    printf("✅ Завершено: %s\n", operation);
+}
+
+void onOperationError(char *operation) {
+    printf("❌ Ошибка в: %s\n", operation);
+}
+
+// Функция выполнения операции с обратными вызовами
+void performFileOperation(char *filename, char *operation,
+                         void (*onStart)(char*),
+                         void (*onComplete)(char*),
+                         void (*onError)(char*)) {
+
+    onStart(operation);  // Уведомляем о начале
+
+    // Имитируем выполнение операции
+    printf("Работаем с файлом: %s\n", filename);
+
+    // Имитируем результат (успех/ошибка)
+    int success = (filename[0] != 'X');  // Простое условие для примера
+
+    if (success) {
+        onComplete(operation);  // Уведомляем об успехе
+    } else {
+        onError(operation);     // Уведомляем об ошибке
+    }
+}
+
+int main() {
+    printf("Система обратных вызовов:\n");
+
+    performFileOperation("document.txt", "сохранение файла",
+                        onOperationStart, onOperationComplete, onOperationError);
+
+    printf("\n");
+
+    performFileOperation("Xerror.txt", "открытие файла",
+                        onOperationStart, onOperationComplete, onOperationError);
+
+    return 0;
+}
+```
+
+## Функциональное программирование
+
+### Функции высшего порядка
+
+<Tabs>
+<TabItem value="map" label="Применение функции к массиву" default>
+
+```c
+#include <stdio.h>
+
+// Функции преобразования
+int triple(int x) { return x * 3; }
+int addTen(int x) { return x + 10; }
+int negate(int x) { return -x; }
+
+// Функция map — применяет функцию к каждому элементу
+void mapArray(int source[], int target[], int size, int (*transform)(int), char *transformName) {
+    printf("Преобразование '%s':\n", transformName);
+
+    for (int i = 0; i < size; i++) {
+        target[i] = transform(source[i]);
+        printf("%d → %d\n", source[i], target[i]);
+    }
+    printf("\n");
+}
+
+// Функция filter — отбирает элементы по условию
+int filterArray(int source[], int target[], int size, int (*predicate)(int), char *filterName) {
+    int targetIndex = 0;
+
+    printf("Фильтрация '%s':\n", filterName);
+
+    for (int i = 0; i < size; i++) {
+        if (predicate(source[i])) {
+            target[targetIndex] = source[i];
+            printf("Принят: %d\n", source[i]);
+            targetIndex++;
+        }
+    }
+
+    printf("Отфильтровано: %d элементов\n\n", targetIndex);
+    return targetIndex;
+}
+
+// Предикаты для фильтрации
+int isPositive(int x) { return x > 0; }
+int isEven(int x) { return x % 2 == 0; }
+
+int main() {
+    int original[6] = {-3, 8, -1, 15, 24, -7};
+    int mapped[6];
+    int filtered[6];
+
+    printf("Исходный массив: ");
+    for (int i = 0; i < 6; i++) printf("%d ", original[i]);
+    printf("\n\n");
+
+    // Применяем преобразование
+    mapArray(original, mapped, 6, triple, "утроение");
+
+    // Фильтруем положительные числа
+    int positiveCount = filterArray(original, filtered, 6, isPositive, "только положительные");
+
+    printf("Положительные числа: ");
+    for (int i = 0; i < positiveCount; i++) printf("%d ", filtered[i]);
+    printf("\n");
+
+    return 0;
+}
+```
+
+</TabItem>
+<TabItem value="reduce" label="Свертка массива">
+
+```c
+#include <stdio.h>
+
+// Операции свертки
+int sum(int acc, int val) { return acc + val; }
+int product(int acc, int val) { return acc * val; }
+int maximum(int acc, int val) { return acc > val ? acc : val; }
+
+// Функция свертки — уменьшает массив до одного значения
+int reduceArray(int arr[], int size, int initialValue, int (*operation)(int, int), char *operationName) {
+    int accumulator = initialValue;
+
+    printf("Свертка '%s' (начальное значение: %d):\n", operationName, initialValue);
+
+    for (int i = 0; i < size; i++) {
+        int oldValue = accumulator;
+        accumulator = operation(accumulator, arr[i]);
+        printf("Шаг %d: %d %s %d = %d\n", i + 1, oldValue,
+               operationName, arr[i], accumulator);
+    }
+
+    printf("Итоговый результат: %d\n\n", accumulator);
+    return accumulator;
+}
+
+int main() {
+    int numbers[5] = {2, 3, 4, 5, 6};
+
+    printf("Массив: ");
+    for (int i = 0; i < 5; i++) printf("%d ", numbers[i]);
+    printf("\n\n");
+
+    // Различные операции свертки
+    int totalSum = reduceArray(numbers, 5, 0, sum, "сложение");
+    int totalProduct = reduceArray(numbers, 5, 1, product, "умножение");
+    int maxValue = reduceArray(numbers, 5, numbers[0], maximum, "максимум");
+
+    return 0;
+}
+```
+
+</TabItem>
+</Tabs>
+
+## Композиция функций
+
+### Цепочки обработки
+
+```c
+#include <stdio.h>
+
+// Функции обработки
+int addFive(int x) { return x + 5; }
+int multiplyByTwo(int x) { return x * 2; }
+int subtractOne(int x) { return x - 1; }
+
+// Композиция функций — применяем несколько функций последовательно
+int compose(int value, int (*functions[])(int), int count) {
+    int result = value;
+
+    printf("Композиция функций, начальное значение: %d\n", value);
+
+    for (int i = 0; i < count; i++) {
+        int oldResult = result;
+        result = functions[i](result);
+        printf("Шаг %d: %d → %d\n", i + 1, oldResult, result);
+    }
+
+    return result;
+}
+
+// Пайплайн обработки данных
+void processPipeline(int data[], int size, int (*pipeline[])(int), int stageCount, char *pipelineName) {
+    printf("=== ПАЙПЛАЙН: %s ===\n", pipelineName);
+
+    for (int i = 0; i < size; i++) {
+        printf("Элемент %d (%d):\n", i + 1, data[i]);
+        data[i] = compose(data[i], pipeline, stageCount);
+        printf("Финальное значение: %d\n\n", data[i]);
+    }
+}
+
+int main() {
+    int dataset[4] = {10, 15, 20, 25};
+
+    // Определяем пайплайн обработки
+    int (*transformPipeline[3])(int) = {addFive, multiplyByTwo, subtractOne};
+
+    printf("Исходные данные: ");
+    for (int i = 0; i < 4; i++) printf("%d ", dataset[i]);
+    printf("\n\n");
+
+    processPipeline(dataset, 4, transformPipeline, 3, "Трансформация данных");
+
+    printf("Результат пайплайна: ");
+    for (int i = 0; i < 4; i++) printf("%d ", dataset[i]);
+    printf("\n");
+
+    return 0;
+}
+```
+
+:::info Ключевые концепции
+- **Функции как параметры** позволяют передавать алгоритмы
+- **Обратные вызовы** обеспечивают уведомления о событиях
+- **Функции высшего порядка** работают с другими функциями
+- **Композиция** позволяет строить сложные операции из простых
+:::
+
+:::tip Практические применения
+- **Настраиваемые алгоритмы** — сортировка, поиск, фильтрация
+- **Системы событий** — обработка пользовательского ввода
+- **Плагины** — расширяемая функциональность
+- **Обработка данных** — конвейеры преобразований
+:::
+
+:::warning Важные моменты
+- **Проверяйте указатели на NULL** перед вызовом
+- **Сигнатуры функций должны совпадать** с ожидаемыми типами
+- **Документируйте ожидаемое поведение** функций-параметров
+- **Обрабатывайте ошибки** в передаваемых функциях
+:::
+
+Передача функций как параметров — мощный механизм для создания гибких и переиспользуемых алгоритмов.

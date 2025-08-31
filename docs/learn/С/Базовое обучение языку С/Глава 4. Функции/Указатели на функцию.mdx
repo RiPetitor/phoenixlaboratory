@@ -1,0 +1,701 @@
+---
+sidebar_position: 9
+---
+
+# Указатели на функцию
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+## Что такое указатель на функцию
+
+Указатель на функцию — это переменная, которая хранит адрес функции в памяти. Через такой указатель можно вызывать функцию.
+
+```c
+int add(int a, int b) {
+    return a + b;
+}
+
+int (*funcPtr)(int, int) = add;  // Указатель на функцию add
+int result = funcPtr(5, 3);      // Вызов через указатель
+```
+
+## Объявление указателей на функции
+
+### Синтаксис объявления
+
+```c
+тип_возврата (*имя_указателя)(параметры);
+```
+
+### Базовые примеры
+
+<Tabs>
+<TabItem value="basic" label="Основные объявления" default>
+
+```c
+#include <stdio.h>
+
+// Простые функции
+int multiply(int x, int y) {
+    return x * y;
+}
+
+void printMessage(void) {
+    printf("Сообщение из функции\n");
+}
+
+float divide(float a, float b) {
+    return b != 0 ? a / b : 0;
+}
+
+int main() {
+    // Объявление указателей на функции
+    int (*mathOp)(int, int) = multiply;        // Указатель на функцию с двумя int
+    void (*printer)(void) = printMessage;     // Указатель на void функцию
+    float (*divider)(float, float) = divide;  // Указатель на функцию с float
+
+    // Вызовы через указатели
+    printf("5 × 7 = %d\n", mathOp(5, 7));
+    printer();
+    printf("10.0 / 3.0 = %.2f\n", divider(10.0, 3.0));
+
+    return 0;
+}
+```
+
+</TabItem>
+<TabItem value="assignment" label="Присваивание указателей">
+
+```c
+#include <stdio.h>
+
+int add(int a, int b) { return a + b; }
+int subtract(int a, int b) { return a - b; }
+int multiply(int a, int b) { return a * b; }
+
+int main() {
+    int (*operation)(int, int);  // Объявляем указатель
+
+    int x = 10, y = 3;
+
+    // Присваиваем разные функции
+    operation = add;
+    printf("%d + %d = %d\n", x, y, operation(x, y));
+
+    operation = subtract;
+    printf("%d - %d = %d\n", x, y, operation(x, y));
+
+    operation = multiply;
+    printf("%d × %d = %d\n", x, y, operation(x, y));
+
+    return 0;
+}
+```
+
+</TabItem>
+</Tabs>
+
+## Массивы указателей на функции
+
+### Таблица функций
+
+```c
+#include <stdio.h>
+
+// Функции для калькулятора
+int add(int a, int b) { return a + b; }
+int subtract(int a, int b) { return a - b; }
+int multiply(int a, int b) { return a * b; }
+int divide(int a, int b) { return b != 0 ? a / b : 0; }
+
+int main() {
+    // Массив указателей на функции
+    int (*operations[4])(int, int) = {add, subtract, multiply, divide};
+    char *operationNames[4] = {"Сложение", "Вычитание", "Умножение", "Деление"};
+    char symbols[4] = {'+', '-', '×', '÷'};
+
+    int num1 = 12, num2 = 4;
+
+    printf("=== КАЛЬКУЛЯТОР ===\n");
+    printf("Числа: %d и %d\n\n", num1, num2);
+
+    for (int i = 0; i < 4; i++) {
+        int result = operations[i](num1, num2);  // Вызов через массив указателей
+        printf("%s: %d %c %d = %d\n",
+               operationNames[i], num1, symbols[i], num2, result);
+    }
+
+    return 0;
+}
+```
+
+## Функции как параметры других функций
+
+### Передача функций в качестве аргументов
+
+<Tabs>
+<TabItem value="function-param" label="Функция как параметр" default>
+
+```c
+#include <stdio.h>
+
+// Функции обработки массива
+void doubleElements(int arr[], int size) {
+    for (int i = 0; i < size; i++) {
+        arr[i] *= 2;
+    }
+}
+
+void squareElements(int arr[], int size) {
+    for (int i = 0; i < size; i++) {
+        arr[i] *= arr[i];
+    }
+}
+
+void incrementElements(int arr[], int size) {
+    for (int i = 0; i < size; i++) {
+        arr[i] += 1;
+    }
+}
+
+// Функция, принимающая другую функцию как параметр
+void processArray(int arr[], int size, void (*processor)(int[], int), char *operation) {
+    printf("До %s: ", operation);
+    for (int i = 0; i < size; i++) printf("%d ", arr[i]);
+    printf("\n");
+
+    processor(arr, size);  // Вызываем переданную функцию
+
+    printf("После %s: ", operation);
+    for (int i = 0; i < size; i++) printf("%d ", arr[i]);
+    printf("\n\n");
+}
+
+int main() {
+    int numbers[5] = {1, 2, 3, 4, 5};
+
+    printf("Демонстрация обработки массива:\n");
+
+    // Создаем копии для разных операций
+    int copy1[5] = {1, 2, 3, 4, 5};
+    int copy2[5] = {1, 2, 3, 4, 5};
+    int copy3[5] = {1, 2, 3, 4, 5};
+
+    processArray(copy1, 5, doubleElements, "удвоения");
+    processArray(copy2, 5, squareElements, "возведения в квадрат");
+    processArray(copy3, 5, incrementElements, "инкремента");
+
+    return 0;
+}
+```
+
+</TabItem>
+<TabItem value="callback" label="Функции обратного вызова">
+
+```c
+#include <stdio.h>
+
+// Функции обратного вызова для разных событий
+void onSuccess(char *message) {
+    printf("✅ Успех: %s\n", message);
+}
+
+void onError(char *message) {
+    printf("❌ Ошибка: %s\n", message);
+}
+
+void onWarning(char *message) {
+    printf("⚠️ Предупреждение: %s\n", message);
+}
+
+// Функция, которая использует обратные вызовы
+void performOperation(int operationCode, void (*callback)(char*)) {
+    char *message;
+
+    switch (operationCode) {
+        case 1:
+            message = "Файл успешно сохранен";
+            callback(message);
+            break;
+        case 2:
+            message = "Не удалось открыть файл";
+            callback(message);
+            break;
+        case 3:
+            message = "Диск почти заполнен";
+            callback(message);
+            break;
+        default:
+            message = "Неизвестная операция";
+            callback(message);
+    }
+}
+
+int main() {
+    printf("Система обратных вызовов:\n");
+
+    performOperation(1, onSuccess);   // Успешная операция
+    performOperation(2, onError);     // Ошибка
+    performOperation(3, onWarning);   // Предупреждение
+
+    return 0;
+}
+```
+
+</TabItem>
+</Tabs>
+
+## Сложные указатели на функции
+
+### Функции возвращающие указатели на функции
+
+```c
+#include <stdio.h>
+
+// Математические операции
+int add(int a, int b) { return a + b; }
+int multiply(int a, int b) { return a * b; }
+
+// Функция, возвращающая указатель на нужную операцию
+int (*getOperation(char op))(int, int) {
+    switch (op) {
+        case '+': return add;
+        case '*': return multiply;
+        default: return NULL;
+    }
+}
+
+int main() {
+    char operation = '+';
+    int num1 = 8, num2 = 5;
+
+    // Получаем указатель на нужную функцию
+    int (*selectedOp)(int, int) = getOperation(operation);
+
+    if (selectedOp != NULL) {
+        int result = selectedOp(num1, num2);
+        printf("%d %c %d = %d\n", num1, operation, num2, result);
+    } else {
+        printf("Неизвестная операция\n");
+    }
+
+    return 0;
+}
+```
+
+## Практические применения
+
+### Система обработки событий
+
+<Tabs>
+<TabItem value="event-system" label="Обработчики событий" default>
+
+```c
+#include <stdio.h>
+
+// Типы событий
+typedef enum {
+    EVENT_CLICK,
+    EVENT_KEYPRESS,
+    EVENT_TIMER,
+    EVENT_ERROR
+} EventType;
+
+// Обработчики событий
+void handleClick(int data) {
+    printf("🖱️ Обработка клика: данные = %d\n", data);
+}
+
+void handleKeypress(int keyCode) {
+    printf("⌨️ Нажата клавиша: код = %d\n", keyCode);
+}
+
+void handleTimer(int seconds) {
+    printf("⏰ Таймер сработал: %d секунд\n", seconds);
+}
+
+void handleError(int errorCode) {
+    printf("🚨 Ошибка: код = %d\n", errorCode);
+}
+
+// Диспетчер событий
+void processEvent(EventType eventType, int data) {
+    // Таблица обработчиков
+    void (*handlers[4])(int) = {
+        handleClick,
+        handleKeypress,
+        handleTimer,
+        handleError
+    };
+
+    char *eventNames[4] = {"CLICK", "KEYPRESS", "TIMER", "ERROR"};
+
+    if (eventType >= 0 && eventType < 4) {
+        printf("Событие: %s\n", eventNames[eventType]);
+        handlers[eventType](data);  // Вызываем соответствующий обработчик
+    }
+}
+
+int main() {
+    printf("Система обработки событий:\n");
+
+    processEvent(EVENT_CLICK, 100);
+    processEvent(EVENT_KEYPRESS, 65);  // Код клавиши 'A'
+    processEvent(EVENT_TIMER, 30);
+    processEvent(EVENT_ERROR, 404);
+
+    return 0;
+}
+```
+
+</TabItem>
+<TabItem value="sorting" label="Гибкая сортировка">
+
+```c
+#include <stdio.h>
+
+// Функции сравнения
+int compareAscending(int a, int b) {
+    return a > b;  // Возвращает 1 если нужно поменять местами
+}
+
+int compareDescending(int a, int b) {
+    return a < b;
+}
+
+// Универсальная функция сортировки
+void flexibleSort(int arr[], int size, int (*compare)(int, int), char *sortType) {
+    printf("Сортировка: %s\n", sortType);
+
+    for (int i = 0; i < size - 1; i++) {
+        for (int j = 0; j < size - 1 - i; j++) {
+            if (compare(arr[j], arr[j + 1])) {  // Используем переданную функцию
+                int temp = arr[j];
+                arr[j] = arr[j + 1];
+                arr[j + 1] = temp;
+            }
+        }
+    }
+}
+
+void printArray(int arr[], int size) {
+    for (int i = 0; i < size; i++) {
+        printf("%d ", arr[i]);
+    }
+    printf("\n");
+}
+
+int main() {
+    int original[6] = {64, 34, 25, 12, 22, 11};
+
+    // Создаем копии для разных сортировок
+    int ascending[6], descending[6];
+    for (int i = 0; i < 6; i++) {
+        ascending[i] = original[i];
+        descending[i] = original[i];
+    }
+
+    printf("Исходный массив: ");
+    printArray(original, 6);
+
+    flexibleSort(ascending, 6, compareAscending, "по возрастанию");
+    printArray(ascending, 6);
+
+    flexibleSort(descending, 6, compareDescending, "по убыванию");
+    printArray(descending, 6);
+
+    return 0;
+}
+```
+
+</TabItem>
+</Tabs>
+
+## Указатели на функции как параметры
+
+### Передача алгоритмов в функции
+
+```c
+#include <stdio.h>
+
+// Различные способы обработки данных
+int sumOperation(int a, int b) { return a + b; }
+int maxOperation(int a, int b) { return a > b ? a : b; }
+int minOperation(int a, int b) { return a < b ? a : b; }
+
+// Функция, применяющая операцию к массиву
+int reduceArray(int arr[], int size, int (*operation)(int, int)) {
+    if (size <= 0) return 0;
+
+    int result = arr[0];
+
+    for (int i = 1; i < size; i++) {
+        result = operation(result, arr[i]);  // Применяем переданную операцию
+    }
+
+    return result;
+}
+
+int main() {
+    int data[6] = {15, 42, 8, 73, 29, 56};
+
+    printf("Массив: ");
+    for (int i = 0; i < 6; i++) printf("%d ", data[i]);
+    printf("\n");
+
+    // Применяем разные операции к тому же массиву
+    int sum = reduceArray(data, 6, sumOperation);
+    int maximum = reduceArray(data, 6, maxOperation);
+    int minimum = reduceArray(data, 6, minOperation);
+
+    printf("Сумма элементов: %d\n", sum);
+    printf("Максимальный элемент: %d\n", maximum);
+    printf("Минимальный элемент: %d\n", minimum);
+
+    return 0;
+}
+```
+
+## Практические применения
+
+### Система меню с обработчиками
+
+<Tabs>
+<TabItem value="menu-system" label="Интерактивное меню" default>
+
+```c
+#include <stdio.h>
+
+// Обработчики пунктов меню
+void newFile() {
+    printf("📄 Создание нового файла\n");
+}
+
+void openFile() {
+    printf("📂 Открытие существующего файла\n");
+}
+
+void saveFile() {
+    printf("💾 Сохранение текущего файла\n");
+}
+
+void showSettings() {
+    printf("⚙️ Открытие настроек программы\n");
+}
+
+void exitProgram() {
+    printf("👋 Выход из программы\n");
+}
+
+// Структура пункта меню
+struct MenuItem {
+    char *title;
+    void (*handler)(void);
+};
+
+int main() {
+    // Массив пунктов меню с обработчиками
+    struct MenuItem menu[5] = {
+        {"Новый файл", newFile},
+        {"Открыть файл", openFile},
+        {"Сохранить", saveFile},
+        {"Настройки", showSettings},
+        {"Выход", exitProgram}
+    };
+
+    int choice = 2;  // Выбираем пункт 2
+
+    printf("=== ГЛАВНОЕ МЕНЮ ===\n");
+    for (int i = 0; i < 5; i++) {
+        printf("%d. %s\n", i + 1, menu[i].title);
+    }
+
+    printf("\nВы выбрали пункт %d:\n", choice);
+
+    if (choice >= 1 && choice <= 5) {
+        menu[choice - 1].handler();  // Вызываем обработчик
+    } else {
+        printf("Неверный выбор\n");
+    }
+
+    return 0;
+}
+```
+
+</TabItem>
+<TabItem value="calculator" label="Расширяемый калькулятор">
+
+```c
+#include <stdio.h>
+
+// Математические операции
+float addFloat(float a, float b) { return a + b; }
+float subtractFloat(float a, float b) { return a - b; }
+float multiplyFloat(float a, float b) { return a * b; }
+float divideFloat(float a, float b) { return b != 0 ? a / b : 0; }
+float powerFloat(float a, float b) {
+    float result = 1;
+    for (int i = 0; i < (int)b; i++) result *= a;
+    return result;
+}
+
+// Структура операции
+typedef struct {
+    char symbol;
+    char *name;
+    float (*function)(float, float);
+} Operation;
+
+float calculate(float num1, float num2, char symbol) {
+    // Таблица операций
+    Operation operations[5] = {
+        {'+', "сложение", addFloat},
+        {'-', "вычитание", subtractFloat},
+        {'*', "умножение", multiplyFloat},
+        {'/', "деление", divideFloat},
+        {'^', "возведение в степень", powerFloat}
+    };
+
+    for (int i = 0; i < 5; i++) {
+        if (operations[i].symbol == symbol) {
+            printf("Выполняем %s\n", operations[i].name);
+            return operations[i].function(num1, num2);
+        }
+    }
+
+    printf("Неизвестная операция: %c\n", symbol);
+    return 0;
+}
+
+int main() {
+    float a = 8.0, b = 3.0;
+    char ops[5] = {'+', '-', '*', '/', '^'};
+
+    printf("=== УНИВЕРСАЛЬНЫЙ КАЛЬКУЛЯТОР ===\n");
+    printf("Числа: %.1f и %.1f\n\n", a, b);
+
+    for (int i = 0; i < 5; i++) {
+        float result = calculate(a, b, ops[i]);
+        printf("%.1f %c %.1f = %.2f\n", a, ops[i], b, result);
+    }
+
+    return 0;
+}
+```
+
+</TabItem>
+</Tabs>
+
+## Функции высшего порядка
+
+### Применение функции к каждому элементу
+
+```c
+#include <stdio.h>
+
+// Функции преобразования
+int doubleValue(int x) { return x * 2; }
+int squareValue(int x) { return x * x; }
+int incrementValue(int x) { return x + 1; }
+
+// Функция высшего порядка — применяет переданную функцию к каждому элементу
+void mapArray(int source[], int target[], int size, int (*transform)(int)) {
+    for (int i = 0; i < size; i++) {
+        target[i] = transform(source[i]);
+    }
+}
+
+// Функция фильтрации с предикатом
+int filterArray(int source[], int target[], int size, int (*predicate)(int)) {
+    int targetIndex = 0;
+
+    for (int i = 0; i < size; i++) {
+        if (predicate(source[i])) {
+            target[targetIndex] = source[i];
+            targetIndex++;
+        }
+    }
+
+    return targetIndex;  // Количество отфильтрованных элементов
+}
+
+// Предикаты для фильтрации
+int isEven(int x) { return x % 2 == 0; }
+int isPositive(int x) { return x > 0; }
+int isLarge(int x) { return x >= 50; }
+
+int main() {
+    int original[8] = {-5, 12, -3, 67, 24, -8, 45, 78};
+    int transformed[8];
+    int filtered[8];
+
+    printf("Исходный массив: ");
+    for (int i = 0; i < 8; i++) printf("%d ", original[i]);
+    printf("\n");
+
+    // Применяем преобразование
+    mapArray(original, transformed, 8, squareValue);
+    printf("Квадраты: ");
+    for (int i = 0; i < 8; i++) printf("%d ", transformed[i]);
+    printf("\n");
+
+    // Фильтруем положительные числа
+    int positiveCount = filterArray(original, filtered, 8, isPositive);
+    printf("Положительные (%d): ", positiveCount);
+    for (int i = 0; i < positiveCount; i++) printf("%d ", filtered[i]);
+    printf("\n");
+
+    // Фильтруем четные числа
+    int evenCount = filterArray(original, filtered, 8, isEven);
+    printf("Четные (%d): ", evenCount);
+    for (int i = 0; i < evenCount; i++) printf("%d ", filtered[i]);
+    printf("\n");
+
+    return 0;
+}
+```
+
+## Типичные ошибки
+
+:::danger Частые проблемы
+
+```c
+// ❌ Неправильный синтаксис объявления
+int *funcPtr(int, int);  // Это функция, возвращающая int*!
+// Правильно:
+int (*funcPtr)(int, int);  // Это указатель на функцию
+
+// ❌ Вызов без разыменования (в старых компиляторах)
+int (*ptr)(int, int) = add;
+int result = ptr(5, 3);  // Современные компиляторы позволяют
+int result2 = (*ptr)(5, 3);  // Явное разыменование (безопаснее)
+
+// ❌ Неправильное присваивание
+int (*mathPtr)(int, int);
+mathPtr = add();  // Ошибка! Вызываем функцию вместо получения адреса
+// Правильно:
+mathPtr = add;    // Присваиваем адрес функции
+
+// ❌ Несоответствие сигнатуры
+float divide(float a, float b) { return a/b; }
+int (*wrongPtr)(int, int) = divide;  // Типы не совпадают!
+```
+
+:::
+
+:::tip Полезные советы
+- **Используйте typedef** для сложных типов указателей на функции
+- **Проверяйте указатели на NULL** перед вызовом
+- **Группируйте связанные функции** в массивы указателей
+- **Документируйте назначение** функций-параметров
+:::
+
+:::info Преимущества указателей на функции
+- **Гибкость** — можно менять поведение программы во время выполнения
+- **Модульность** — разделение логики на независимые функции
+- **Расширяемость** — легко добавлять новые операции
+- **Обратные вызовы** — уведомления о событиях
+:::
+
+Указатели на функции позволяют создавать гибкие и расширяемые программы с изменяемым поведением.

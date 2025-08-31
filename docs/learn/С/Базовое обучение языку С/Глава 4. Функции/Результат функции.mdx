@@ -1,0 +1,676 @@
+---
+sidebar_position: 3
+---
+
+# Результат функции
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+## Что такое результат функции
+
+Результат функции — это значение, которое функция возвращает в место своего вызова с помощью оператора `return`.
+
+```c
+int getSum(int a, int b) {
+    return a + b;  // Возвращаем результат сложения
+}
+
+int result = getSum(5, 3);  // result получает значение 8
+```
+
+## Оператор return
+
+### Базовое использование
+
+<Tabs>
+<TabItem value="basic-return" label="Простой возврат" default>
+
+```c
+#include <stdio.h>
+
+int square(int number) {
+    int result = number * number;
+    return result;  // Возвращаем вычисленное значение
+}
+
+float divide(float a, float b) {
+    if (b != 0) {
+        return a / b;  // Возвращаем результат деления
+    } else {
+        return 0.0;    // Возвращаем 0 при ошибке
+    }
+}
+
+int main() {
+    int num = 7;
+    int squared = square(num);
+
+    printf("%d в квадрате = %d\n", num, squared);
+
+    float quotient = divide(15.0, 3.0);
+    printf("15.0 / 3.0 = %.2f\n", quotient);
+
+    return 0;
+}
+```
+
+</TabItem>
+<TabItem value="early-return" label="Досрочный возврат">
+
+```c
+#include <stdio.h>
+
+int findMax(int arr[], int size) {
+    if (size <= 0) {
+        return -1;  // Досрочный выход при ошибке
+    }
+
+    int max = arr[0];
+    for (int i = 1; i < size; i++) {
+        if (arr[i] > max) {
+            max = arr[i];
+        }
+    }
+
+    return max;  // Нормальный возврат результата
+}
+
+int main() {
+    int numbers[] = {15, 42, 8, 73, 29};
+    int size = 5;
+
+    int maximum = findMax(numbers, size);
+
+    if (maximum != -1) {
+        printf("Максимальное значение: %d\n", maximum);
+    } else {
+        printf("Ошибка: пустой массив\n");
+    }
+
+    return 0;
+}
+```
+
+</TabItem>
+</Tabs>
+
+## Типы возвращаемых значений
+
+### Различные типы результатов
+
+```c
+#include <stdio.h>
+
+int getAge(void) {
+    return 25;  // Возвращаем целое число
+}
+
+float getPrice(void) {
+    return 19.99;  // Возвращаем дробное число
+}
+
+char getGrade(int score) {
+    if (score >= 90) return 'A';
+    if (score >= 80) return 'B';
+    if (score >= 70) return 'C';
+    return 'F';
+}
+
+int isPositive(int number) {
+    return number > 0;  // Возвращаем 1 (true) или 0 (false)
+}
+
+int main() {
+    printf("Возраст: %d\n", getAge());
+    printf("Цена: %.2f\n", getPrice());
+    printf("Оценка за 85 баллов: %c\n", getGrade(85));
+    printf("15 положительное? %s\n", isPositive(15) ? "Да" : "Нет");
+
+    return 0;
+}
+```
+
+## Возврат указателей
+
+### Возврат адресов
+
+<Tabs>
+<TabItem value="array-element" label="Указатель на элемент массива" default>
+
+```c
+#include <stdio.h>
+
+int* findElement(int arr[], int size, int target) {
+    for (int i = 0; i < size; i++) {
+        if (arr[i] == target) {
+            return &arr[i];  // Возвращаем адрес найденного элемента
+        }
+    }
+    return NULL;  // Элемент не найден
+}
+
+int main() {
+    int data[6] = {10, 25, 30, 15, 40, 20};
+    int searchValue = 30;
+
+    int *found = findElement(data, 6, searchValue);
+
+    if (found != NULL) {
+        printf("Элемент %d найден\n", searchValue);
+        printf("Его значение: %d\n", *found);
+        printf("Адрес: %p\n", found);
+
+        // Можем изменить через возвращенный указатель
+        *found = 99;
+        printf("Изменили на: %d\n", *found);
+    } else {
+        printf("Элемент %d не найден\n", searchValue);
+    }
+
+    return 0;
+}
+```
+
+</TabItem>
+<TabItem value="string-return" label="Возврат строк">
+
+```c
+#include <stdio.h>
+
+char* getStatusMessage(int code) {
+    switch (code) {
+        case 0: return "Успешно";
+        case 1: return "Предупреждение";
+        case 2: return "Ошибка";
+        default: return "Неизвестный статус";
+    }
+}
+
+char* selectGreeting(int timeHour) {
+    if (timeHour < 12) {
+        return "Доброе утро";
+    } else if (timeHour < 18) {
+        return "Добрый день";
+    } else {
+        return "Добрый вечер";
+    }
+}
+
+int main() {
+    int status = 1;
+    int currentHour = 14;
+
+    printf("Статус операции: %s\n", getStatusMessage(status));
+    printf("Приветствие: %s\n", selectGreeting(currentHour));
+
+    return 0;
+}
+```
+
+</TabItem>
+</Tabs>
+
+## Функции без возвращаемого значения
+
+### Тип void
+
+```c
+#include <stdio.h>
+
+void printReport(char *title, int data[], int size) {
+    printf("=== %s ===\n", title);
+
+    int sum = 0;
+    for (int i = 0; i < size; i++) {
+        printf("Позиция %d: %d\n", i + 1, data[i]);
+        sum += data[i];
+    }
+
+    printf("Итого: %d\n", sum);
+    printf("===============\n");
+
+    // return не обязателен для void функций
+}
+
+void processTransaction(float *balance, float amount, char type) {
+    if (type == 'D') {  // Депозит
+        *balance += amount;
+        printf("✅ Зачислено %.2f руб.\n", amount);
+    } else if (type == 'W') {  // Withdrawal
+        if (*balance >= amount) {
+            *balance -= amount;
+            printf("✅ Списано %.2f руб.\n", amount);
+        } else {
+            printf("❌ Недостаточно средств\n");
+        }
+    }
+
+    printf("Текущий баланс: %.2f руб.\n", *balance);
+}
+
+int main() {
+    int sales[4] = {1200, 1500, 980, 1100};
+    printReport("ПРОДАЖИ ЗА НЕДЕЛЮ", sales, 4);
+
+    float account = 5000.0;
+    processTransaction(&account, 750.0, 'W');
+    processTransaction(&account, 200.0, 'D');
+
+    return 0;
+}
+```
+
+## Множественные точки возврата
+
+### Условный возврат
+
+```c
+#include <stdio.h>
+
+int validateAge(int age) {
+    if (age < 0) {
+        printf("Ошибка: отрицательный возраст\n");
+        return 0;  // Неудача
+    }
+
+    if (age > 150) {
+        printf("Ошибка: слишком большой возраст\n");
+        return 0;  // Неудача
+    }
+
+    printf("Возраст %d корректен\n", age);
+    return 1;  // Успех
+}
+
+char* getDayType(int dayNumber) {
+    if (dayNumber < 1 || dayNumber > 7) {
+        return "Неверный день";  // Ранний выход
+    }
+
+    if (dayNumber == 6 || dayNumber == 7) {
+        return "Выходной";
+    }
+
+    return "Рабочий день";  // Обычный случай
+}
+
+int main() {
+    int testAges[4] = {25, -5, 200, 45};
+
+    printf("Проверка возрастов:\n");
+    for (int i = 0; i < 4; i++) {
+        int valid = validateAge(testAges[i]);
+        printf("Возраст %d: %s\n\n", testAges[i], valid ? "принят" : "отклонен");
+    }
+
+    printf("Типы дней:\n");
+    for (int day = 0; day <= 8; day++) {
+        printf("День %d: %s\n", day, getDayType(day));
+    }
+
+    return 0;
+}
+```
+
+## Использование результатов функций
+
+### Цепочки вызовов
+
+<Tabs>
+<TabItem value="chain" label="Последовательные вызовы" default>
+
+```c
+#include <stdio.h>
+
+int increment(int x) {
+    return x + 1;
+}
+
+int double_value(int x) {
+    return x * 2;
+}
+
+int triple(int x) {
+    return x * 3;
+}
+
+int main() {
+    int number = 5;
+
+    printf("Исходное число: %d\n", number);
+
+    // Цепочка преобразований
+    int step1 = increment(number);      // 6
+    int step2 = double_value(step1);    // 12
+    int step3 = triple(step2);          // 36
+
+    printf("После increment: %d\n", step1);
+    printf("После double: %d\n", step2);
+    printf("После triple: %d\n", step3);
+
+    // Или в одну строку
+    int final = triple(double_value(increment(number)));
+    printf("Все сразу: %d\n", final);
+
+    return 0;
+}
+```
+
+</TabItem>
+<TabItem value="conditional" label="Условное использование">
+
+```c
+#include <stdio.h>
+
+int calculateDiscount(int purchaseAmount) {
+    if (purchaseAmount >= 5000) return 15;  // 15% скидка
+    if (purchaseAmount >= 2000) return 10;  // 10% скидка
+    if (purchaseAmount >= 1000) return 5;   // 5% скидка
+    return 0;  // Без скидки
+}
+
+float applyDiscount(float amount, int discountPercent) {
+    return amount * (100 - discountPercent) / 100.0;
+}
+
+int main() {
+    float purchaseSum = 3500.0;
+
+    printf("Сумма покупки: %.2f руб.\n", purchaseSum);
+
+    int discount = calculateDiscount((int)purchaseSum);
+    printf("Скидка: %d%%\n", discount);
+
+    if (discount > 0) {
+        float finalPrice = applyDiscount(purchaseSum, discount);
+        printf("К оплате: %.2f руб.\n", finalPrice);
+        printf("Экономия: %.2f руб.\n", purchaseSum - finalPrice);
+    } else {
+        printf("К оплате: %.2f руб.\n", purchaseSum);
+        printf("Скидка не предоставляется\n");
+    }
+
+    return 0;
+}
+```
+
+</TabItem>
+</Tabs>
+
+## Проверка результатов функций
+
+### Обработка ошибок через возвращаемые значения
+
+```c
+#include <stdio.h>
+
+int safeDivide(int dividend, int divisor, float *result) {
+    if (divisor == 0) {
+        return 0;  // Ошибка: деление на ноль
+    }
+
+    *result = (float)dividend / divisor;
+    return 1;  // Успех
+}
+
+int findInArray(int arr[], int size, int target) {
+    for (int i = 0; i < size; i++) {
+        if (arr[i] == target) {
+            return i;  // Возвращаем индекс найденного элемента
+        }
+    }
+    return -1;  // Элемент не найден
+}
+
+int main() {
+    // Тест безопасного деления
+    float divisionResult;
+
+    if (safeDivide(10, 3, &divisionResult)) {
+        printf("10 / 3 = %.3f\n", divisionResult);
+    } else {
+        printf("Ошибка деления\n");
+    }
+
+    if (safeDivide(10, 0, &divisionResult)) {
+        printf("10 / 0 = %.3f\n", divisionResult);
+    } else {
+        printf("Ошибка: деление на ноль\n");
+    }
+
+    // Тест поиска в массиве
+    int data[5] = {10, 25, 30, 15, 40};
+    int searchValue = 30;
+
+    int position = findInArray(data, 5, searchValue);
+
+    if (position >= 0) {
+        printf("Элемент %d найден на позиции %d\n", searchValue, position);
+    } else {
+        printf("Элемент %d не найден\n", searchValue);
+    }
+
+    return 0;
+}
+```
+
+## Типы возвращаемых значений
+
+### Функции возвращающие разные типы
+
+```c
+#include <stdio.h>
+
+// Возвращает целое число
+int getStudentCount(void) {
+    return 42;
+}
+
+// Возвращает дробное число
+float calculateAverage(int sum, int count) {
+    return (float)sum / count;
+}
+
+// Возвращает символ
+char convertToGrade(float average) {
+    if (average >= 4.5) return 'A';
+    if (average >= 3.5) return 'B';
+    if (average >= 2.5) return 'C';
+    return 'F';
+}
+
+// Возвращает логическое значение (0 или 1)
+int isPassing(char grade) {
+    return grade != 'F';  // Возвращает 1 если не F, иначе 0
+}
+
+int main() {
+    int students = getStudentCount();
+    float avg = calculateAverage(180, students);
+    char grade = convertToGrade(avg);
+    int passed = isPassing(grade);
+
+    printf("Студентов: %d\n", students);
+    printf("Средний балл: %.2f\n", avg);
+    printf("Оценка: %c\n", grade);
+    printf("Сдал: %s\n", passed ? "Да" : "Нет");
+
+    return 0;
+}
+```
+
+## Возврат сложных данных
+
+### Возврат через параметры-указатели
+
+<Tabs>
+<TabItem value="multiple-results" label="Несколько результатов" default>
+
+```c
+#include <stdio.h>
+
+void analyzeArray(int arr[], int size, int *min, int *max, float *avg) {
+    *min = arr[0];
+    *max = arr[0];
+    int sum = 0;
+
+    for (int i = 0; i < size; i++) {
+        if (arr[i] < *min) *min = arr[i];
+        if (arr[i] > *max) *max = arr[i];
+        sum += arr[i];
+    }
+
+    *avg = (float)sum / size;
+}
+
+int main() {
+    int scores[8] = {85, 92, 78, 95, 88, 76, 94, 82};
+    int minimum, maximum;
+    float average;
+
+    analyzeArray(scores, 8, &minimum, &maximum, &average);
+
+    printf("Анализ оценок:\n");
+    printf("Минимум: %d\n", minimum);
+    printf("Максимум: %d\n", maximum);
+    printf("Среднее: %.1f\n", average);
+
+    return 0;
+}
+```
+
+</TabItem>
+<TabItem value="string-processing" label="Обработка строк">
+
+```c
+#include <stdio.h>
+
+int processString(char *str, int *letters, int *digits) {
+    *letters = 0;
+    *digits = 0;
+    int total = 0;
+
+    while (*str != '\0') {
+        if ((*str >= 'A' && *str <= 'Z') || (*str >= 'a' && *str <= 'z')) {
+            (*letters)++;
+        } else if (*str >= '0' && *str <= '9') {
+            (*digits)++;
+        }
+        total++;
+        str++;
+    }
+
+    return total;  // Общая длина как возвращаемое значение
+}
+
+int main() {
+    char text[] = "Hello123World456";
+    int letterCount, digitCount;
+
+    int totalLength = processString(text, &letterCount, &digitCount);
+
+    printf("Текст: \"%s\"\n", text);
+    printf("Общая длина: %d\n", totalLength);
+    printf("Букв: %d\n", letterCount);
+    printf("Цифр: %d\n", digitCount);
+    printf("Других символов: %d\n", totalLength - letterCount - digitCount);
+
+    return 0;
+}
+```
+
+</TabItem>
+</Tabs>
+
+## Функции возвращающие указатели
+
+### Возврат адреса строки
+
+```c
+#include <stdio.h>
+
+char* getMonthName(int month) {
+    switch (month) {
+        case 1: return "Январь";
+        case 2: return "Февраль";
+        case 3: return "Март";
+        case 4: return "Апрель";
+        case 5: return "Май";
+        case 6: return "Июнь";
+        case 7: return "Июль";
+        case 8: return "Август";
+        case 9: return "Сентябрь";
+        case 10: return "Октябрь";
+        case 11: return "Ноябрь";
+        case 12: return "Декабрь";
+        default: return "Неверный месяц";
+    }
+}
+
+char* getSeasonName(int month) {
+    if (month == 12 || month <= 2) return "Зима";
+    if (month <= 5) return "Весна";
+    if (month <= 8) return "Лето";
+    return "Осень";
+}
+
+int main() {
+    int currentMonth = 8;
+
+    char *monthName = getMonthName(currentMonth);
+    char *seasonName = getSeasonName(currentMonth);
+
+    printf("Месяц #%d: %s\n", currentMonth, monthName);
+    printf("Время года: %s\n", seasonName);
+
+    return 0;
+}
+```
+
+## Частые ошибки с результатами функций
+
+:::danger Типичные проблемы
+
+```c
+// ❌ Забыть return в функции с типом отличным от void
+int calculateSum(int a, int b) {
+    int sum = a + b;
+    // Забыли return! Функция вернет мусор
+}
+
+// ❌ Неправильный тип возврата
+float getAverage(int sum, int count) {
+    return sum / count;  // Целочисленное деление вместо дробного!
+}
+// Правильно: return (float)sum / count;
+
+// ❌ Возврат адреса локальной переменной
+char* createString(void) {
+    char local[] = "Локальная строка";
+    return local;  // Опасно! Локальная переменная уничтожается
+}
+
+// ❌ Не проверять результат функции
+int result = findInArray(arr, size, target);
+printf("Найден на позиции: %d\n", result);  // А если вернулось -1?
+```
+
+:::
+
+:::tip Лучшие практики
+- **Всегда используйте return** в функциях с типом отличным от void
+- **Проверяйте результаты** функций на корректность
+- **Используйте осмысленные возвращаемые значения** (коды ошибок, индексы)
+- **Документируйте** что возвращает функция в разных случаях
+- **Не возвращайте адреса** локальных переменных
+:::
+
+:::info Ключевые принципы
+- Результат функции позволяет передавать вычисленные данные обратно
+- `return` завершает выполнение функции немедленно
+- Тип возврата должен соответствовать типу в объявлении функции
+- Функции void не обязаны использовать return
+:::
+
+Результат функции — основной способ получения данных от вычислений и передачи их в другие части программы.

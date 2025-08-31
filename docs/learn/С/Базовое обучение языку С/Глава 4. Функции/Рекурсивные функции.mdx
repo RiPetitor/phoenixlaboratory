@@ -1,0 +1,405 @@
+---
+sidebar_position: 4
+---
+
+# Рекурсивные функции
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+## Что такое рекурсия
+
+Рекурсия — это когда функция вызывает сама себя. Это мощный способ решения задач, которые можно разбить на меньшие подзадачи.
+
+```c
+int countdown(int n) {
+    if (n <= 0) {
+        return 0;  // Базовый случай — остановка рекурсии
+    }
+    printf("%d\n", n);
+    return countdown(n - 1);  // Функция вызывает сама себя
+}
+```
+
+## Структура рекурсивной функции
+
+### Обязательные компоненты
+
+<Tabs>
+<TabItem value="components" label="Базовый случай и рекурсивный вызов" default>
+
+```c
+#include <stdio.h>
+
+int factorial(int n) {
+    // 1. Базовый случай (условие остановки)
+    if (n <= 1) {
+        return 1;
+    }
+
+    // 2. Рекурсивный случай (вызов самой себя)
+    return n * factorial(n - 1);
+}
+
+int main() {
+    int number = 5;
+    int result = factorial(number);
+
+    printf("%d! = %d\n", number, result);
+
+    return 0;
+}
+```
+
+**Как работает `factorial(5)`:**
+```
+factorial(5) = 5 * factorial(4)
+factorial(4) = 4 * factorial(3)
+factorial(3) = 3 * factorial(2)
+factorial(2) = 2 * factorial(1)
+factorial(1) = 1 (базовый случай)
+```
+
+</TabItem>
+<TabItem value="trace" label="Трассировка выполнения">
+
+```c
+#include <stdio.h>
+
+int fibonacci(int n) {
+    printf("Вызов fibonacci(%d)\n", n);
+
+    if (n <= 1) {
+        printf("Базовый случай: возвращаем %d\n", n);
+        return n;
+    }
+
+    printf("Вычисляем fibonacci(%d) + fibonacci(%d)\n", n-1, n-2);
+    int result = fibonacci(n - 1) + fibonacci(n - 2);
+
+    printf("fibonacci(%d) = %d\n", n, result);
+    return result;
+}
+
+int main() {
+    printf("Вычисление fibonacci(4):\n");
+    int result = fibonacci(4);
+    printf("\nИтоговый результат: %d\n", result);
+
+    return 0;
+}
+```
+
+</TabItem>
+</Tabs>
+
+## Классические примеры рекурсии
+
+### Математические функции
+
+```c
+#include <stdio.h>
+
+int power(int base, int exponent) {
+    // Базовый случай
+    if (exponent == 0) {
+        return 1;
+    }
+
+    // Рекурсивный случай
+    return base * power(base, exponent - 1);
+}
+
+int gcd(int a, int b) {  // Наибольший общий делитель
+    // Базовый случай
+    if (b == 0) {
+        return a;
+    }
+
+    // Рекурсивный случай (алгоритм Евклида)
+    return gcd(b, a % b);
+}
+
+int main() {
+    printf("2^8 = %d\n", power(2, 8));
+    printf("НОД(48, 18) = %d\n", gcd(48, 18));
+
+    return 0;
+}
+```
+
+### Обработка строк
+
+<Tabs>
+<TabItem value="string-length" label="Длина строки" default>
+
+```c
+#include <stdio.h>
+
+int stringLength(char *str) {
+    // Базовый случай — конец строки
+    if (*str == '\0') {
+        return 0;
+    }
+
+    // Рекурсивный случай — 1 + длина остальной части
+    return 1 + stringLength(str + 1);
+}
+
+int main() {
+    char text[] = "Рекурсия";
+    int length = stringLength(text);
+
+    printf("Строка: \"%s\"\n", text);
+    printf("Длина: %d символов\n", length);
+
+    return 0;
+}
+```
+
+</TabItem>
+<TabItem value="string-reverse" label="Обращение строки">
+
+```c
+#include <stdio.h>
+
+void printReverse(char *str) {
+    // Базовый случай — конец строки
+    if (*str == '\0') {
+        return;
+    }
+
+    // Рекурсивный вызов для остальной части
+    printReverse(str + 1);
+
+    // Печатаем текущий символ ПОСЛЕ рекурсивного вызова
+    printf("%c", *str);
+}
+
+int main() {
+    char word[] = "привет";
+
+    printf("Исходная строка: %s\n", word);
+    printf("Обращенная строка: ");
+    printReverse(word);
+    printf("\n");
+
+    return 0;
+}
+```
+
+</TabItem>
+</Tabs>
+
+## Обработка массивов рекурсивно
+
+### Сумма элементов массива
+
+```c
+#include <stdio.h>
+
+int arraySum(int arr[], int size) {
+    // Базовый случай — пустой массив
+    if (size <= 0) {
+        return 0;
+    }
+
+    // Рекурсивный случай — первый элемент + сумма остальных
+    return arr[0] + arraySum(arr + 1, size - 1);
+}
+
+int findMaximum(int arr[], int size) {
+    // Базовый случай — один элемент
+    if (size == 1) {
+        return arr[0];
+    }
+
+    // Рекурсивный случай
+    int maxOfRest = findMaximum(arr + 1, size - 1);
+    return (arr[0] > maxOfRest) ? arr[0] : maxOfRest;
+}
+
+int main() {
+    int numbers[6] = {15, 42, 8, 73, 29, 56};
+    int size = 6;
+
+    int sum = arraySum(numbers, size);
+    int max = findMaximum(numbers, size);
+
+    printf("Массив: ");
+    for (int i = 0; i < size; i++) {
+        printf("%d ", numbers[i]);
+    }
+    printf("\n");
+
+    printf("Сумма: %d\n", sum);
+    printf("Максимум: %d\n", max);
+
+    return 0;
+}
+```
+
+## Практические применения
+
+### Обход вложенных структур
+
+<Tabs>
+<TabItem value="tree-sum" label="Суммирование в дереве" default>
+
+```c
+#include <stdio.h>
+
+// Простая имитация дерева через массив
+int sumTree(int tree[], int index, int size) {
+    // Базовый случай — выход за границы
+    if (index >= size || tree[index] == 0) {
+        return 0;
+    }
+
+    // Рекурсивный случай — узел + левое поддерево + правое поддерево
+    int leftChild = 2 * index + 1;
+    int rightChild = 2 * index + 2;
+
+    return tree[index] +
+           sumTree(tree, leftChild, size) +
+           sumTree(tree, rightChild, size);
+}
+
+int main() {
+    // Двоичное дерево в виде массива
+    int tree[7] = {1, 2, 3, 4, 5, 0, 6};
+
+    int totalSum = sumTree(tree, 0, 7);  // Начинаем с корня (индекс 0)
+
+    printf("Структура дерева: ");
+    for (int i = 0; i < 7; i++) {
+        printf("%d ", tree[i]);
+    }
+    printf("\n");
+
+    printf("Сумма всех узлов: %d\n", totalSum);
+
+    return 0;
+}
+```
+
+</TabItem>
+<TabItem value="directory" label="Обход каталогов (имитация)">
+
+```c
+#include <stdio.h>
+
+void printDirectory(char *path, int level) {
+    // Печатаем отступы для уровня вложенности
+    for (int i = 0; i < level; i++) {
+        printf("  ");
+    }
+    printf("%s\n", path);
+
+    // Базовый случай — если это файл (простая проверка)
+    if (level >= 3) {  // Ограничиваем глубину для примера
+        return;
+    }
+
+    // Имитируем подкаталоги
+    if (level == 0) {
+        printDirectory("Documents/", level + 1);
+        printDirectory("Pictures/", level + 1);
+    } else if (level == 1) {
+        printDirectory("file1.txt", level + 1);
+        printDirectory("subfolder/", level + 1);
+    } else if (level == 2) {
+        printDirectory("data.dat", level + 1);
+    }
+}
+
+int main() {
+    printf("Структура каталогов:\n");
+    printDirectory("Root/", 0);
+
+    return 0;
+}
+```
+
+</TabItem>
+</Tabs>
+
+## Опасности рекурсии
+
+### Бесконечная рекурсия
+
+```c
+#include <stdio.h>
+
+int badCountdown(int n) {
+    printf("%d\n", n);
+    return badCountdown(n - 1);  // ❌ Нет базового случая!
+    // Приведет к переполнению стека
+}
+
+int goodCountdown(int n) {
+    if (n <= 0) {  // ✅ Базовый случай
+        printf("Старт!\n");
+        return 0;
+    }
+
+    printf("%d\n", n);
+    return goodCountdown(n - 1);
+}
+
+int main() {
+    printf("Правильный обратный отсчет:\n");
+    goodCountdown(5);
+
+    // badCountdown(5);  // Не запускайте! Бесконечная рекурсия
+
+    return 0;
+}
+```
+
+### Контроль глубины рекурсии
+
+```c
+#include <stdio.h>
+
+int safeFactorial(int n, int depth) {
+    if (depth > 10) {  // Ограничиваем глубину
+        printf("Слишком глубокая рекурсия!\n");
+        return -1;  // Ошибка
+    }
+
+    if (n <= 1) {
+        return 1;
+    }
+
+    return n * safeFactorial(n - 1, depth + 1);
+}
+
+int main() {
+    int result1 = safeFactorial(5, 0);   // Нормальный случай
+    int result2 = safeFactorial(15, 0);  // Может превысить лимит
+
+    printf("5! = %d\n", result1);
+    if (result2 != -1) {
+        printf("15! = %d\n", result2);
+    }
+
+    return 0;
+}
+```
+
+:::warning Важные моменты
+- **Базовый случай обязателен** — иначе бесконечная рекурсия
+- **Рекурсия использует память стека** — глубокая рекурсия может вызвать переполнение
+- **Не все задачи подходят для рекурсии** — иногда циклы эффективнее
+- **Проблема может стать проще** при рекурсивном подходе, но медленнее
+:::
+
+:::tip Когда использовать рекурсию
+- **Математические формулы** (факториал, числа Фибоначчи)
+- **Обработка вложенных структур** (деревья, каталоги)
+- **Алгоритмы "разделяй и властвуй"**
+- **Задачи с естественной рекурсивной структурой**
+:::
+
+Рекурсивные функции позволяют элегантно решать сложные задачи, разбивая их на более простые подзадачи.

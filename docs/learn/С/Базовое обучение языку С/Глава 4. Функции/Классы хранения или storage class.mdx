@@ -1,0 +1,707 @@
+---
+sidebar_position: 7
+---
+
+# Классы хранения (Storage class)
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+## Что такое классы хранения
+
+Классы хранения определяют четыре характеристики переменных:
+- **Область видимости** — где переменная доступна
+- **Время жизни** — как долго переменная существует
+- **Место хранения** — где переменная размещается в памяти
+- **Начальное значение** — как переменная инициализируется
+
+В языке Си есть четыре класса хранения: `auto`, `register`, `static`, `extern`.
+
+## Класс auto (автоматический)
+
+### Локальные переменные по умолчанию
+
+<Tabs>
+<TabItem value="auto-basic" label="Основное использование" default>
+
+```c
+#include <stdio.h>
+
+void demonstrateAuto() {
+    auto int localVar = 10;  // Явное указание auto (обычно не пишут)
+    int anotherVar = 20;     // То же самое — auto по умолчанию
+
+    printf("localVar: %d\n", localVar);
+    printf("anotherVar: %d\n", anotherVar);
+
+    localVar = 50;  // Можем изменять
+    printf("Изменили localVar: %d\n", localVar);
+}
+
+int main() {
+    printf("Демонстрация auto переменных:\n");
+
+    demonstrateAuto();
+    demonstrateAuto();  // Переменные создаются заново
+
+    return 0;
+}
+```
+
+</TabItem>
+<TabItem value="auto-lifecycle" label="Время жизни auto переменных">
+
+```c
+#include <stdio.h>
+
+void showLifecycle() {
+    printf("Вход в функцию\n");
+
+    {
+        auto int blockVar = 100;  // Создается при входе в блок
+        printf("Внутри блока: blockVar = %d\n", blockVar);
+    }  // blockVar уничтожается здесь
+
+    printf("После блока\n");
+    // blockVar больше не существует
+}
+
+int main() {
+    for (int i = 0; i < 2; i++) {
+        printf("--- Итерация %d ---\n", i + 1);
+        showLifecycle();
+    }
+
+    return 0;
+}
+```
+
+</TabItem>
+</Tabs>
+
+## Класс register
+
+### Переменные в регистрах процессора
+
+```c
+#include <stdio.h>
+
+int main() {
+    register int fastCounter;  // Просьба разместить в регистре процессора
+    int normalCounter;         // Обычная переменная в памяти
+
+    printf("Демонстрация register переменных:\n");
+
+    // Используем register переменную для часто используемых данных
+    for (fastCounter = 0; fastCounter < 5; fastCounter++) {
+        normalCounter = fastCounter * 2;
+        printf("fastCounter: %d, normalCounter: %d\n", fastCounter, normalCounter);
+    }
+
+    // ❌ Нельзя получить адрес register переменной
+    // printf("Адрес: %p\n", &fastCounter);  // Ошибка компиляции!
+
+    return 0;
+}
+```
+
+:::info Особенности register
+- **Только рекомендация** компилятору — может быть проигнорирована
+- **Нельзя получить адрес** register переменной
+- **Подходит для счетчиков циклов** и часто используемых переменных
+- **Современные компиляторы** сами оптимизируют размещение переменных
+:::
+
+## Класс static
+
+### Статические локальные переменные
+
+<Tabs>
+<TabItem value="static-local" label="Сохранение состояния" default>
+
+```c
+#include <stdio.h>
+
+int getUniqueId() {
+    static int lastId = 0;  // Инициализируется только один раз
+    return ++lastId;
+}
+
+void trackFunctionCalls() {
+    static int callCount = 0;
+    callCount++;
+
+    printf("Функция вызвана %d раз\n", callCount);
+}
+
+int main() {
+    printf("Генерация уникальных ID:\n");
+    for (int i = 0; i < 3; i++) {
+        printf("ID #%d: %d\n", i + 1, getUniqueId());
+    }
+
+    printf("\nОтслеживание вызовов:\n");
+    for (int i = 0; i < 4; i++) {
+        trackFunctionCalls();
+    }
+
+    return 0;
+}
+```
+
+</TabItem>
+<TabItem value="static-vs-auto" label="static vs auto сравнение">
+
+```c
+#include <stdio.h>
+
+void compareStorageClasses() {
+    auto int autoVar = 1;     // Создается каждый раз
+    static int staticVar = 1; // Создается только один раз
+
+    printf("auto: %d, static: %d\n", autoVar, staticVar);
+
+    autoVar += 10;
+    staticVar += 10;
+
+    printf("После изменения - auto: %d, static: %d\n", autoVar, staticVar);
+}
+
+int main() {
+    printf("Сравнение классов хранения:\n");
+
+    for (int i = 0; i < 3; i++) {
+        printf("Вызов %d: ", i + 1);
+        compareStorageClasses();
+        printf("---\n");
+    }
+
+    return 0;
+}
+```
+
+</TabItem>
+</Tabs>
+
+### Статические глобальные объекты
+
+```c
+#include <stdio.h>
+
+static int moduleData = 1000;  // Видна только в этом файле
+
+static void internalHelper() {  // Функция только для этого файла
+    moduleData++;
+    printf("Внутренние данные: %d\n", moduleData);
+}
+
+void publicInterface() {  // Доступна другим файлам
+    printf("Публичный интерфейс модуля\n");
+    internalHelper();  // Вызываем внутреннюю функцию
+}
+
+int main() {
+    printf("Демонстрация статических глобальных объектов:\n");
+
+    publicInterface();
+    publicInterface();
+
+    // В других файлах moduleData и internalHelper() недоступны
+
+    return 0;
+}
+```
+
+## Класс extern
+
+### Внешние переменные и функции
+
+```c
+#include <stdio.h>
+
+// Определения (обычно в другом файле)
+int globalCounter = 0;
+float globalPrice = 100.0;
+
+// Объявления внешних объектов (для использования в других файлах)
+extern int globalCounter;   // Переменная определена в другом месте
+extern float globalPrice;  // Переменная определена в другом месте
+
+// Внешняя функция
+extern void processData(int value);
+
+void processData(int value) {
+    globalCounter++;
+    printf("Обработка данных #%d: значение = %d\n", globalCounter, value);
+
+    if (value > 50) {
+        globalPrice *= 1.1;  // Увеличиваем цену на 10%
+    }
+}
+
+int main() {
+    printf("Работа с внешними объектами:\n");
+
+    printf("Начальные значения:\n");
+    printf("Счетчик: %d\n", globalCounter);
+    printf("Цена: %.2f\n", globalPrice);
+
+    processData(30);
+    processData(60);
+    processData(45);
+
+    printf("Финальные значения:\n");
+    printf("Счетчик: %d\n", globalCounter);
+    printf("Цена: %.2f\n", globalPrice);
+
+    return 0;
+}
+```
+
+## Сравнение классов хранения
+
+### Таблица характеристик
+
+| Класс | Область видимости | Время жизни | Место хранения | Инициализация |
+|-------|------------------|-------------|----------------|---------------|
+| `auto` | Локальная | Время выполнения блока | Стек | Случайные значения |
+| `register` | Локальная | Время выполнения блока | Регистры CPU | Случайные значения |
+| `static` | Локальная/Файл | Вся программа | Данные программы | Ноль |
+| `extern` | Глобальная | Вся программа | Данные программы | Ноль |
+
+### Практическое сравнение
+
+```c
+#include <stdio.h>
+
+int externVar = 500;  // Класс extern (глобальная)
+
+void testAllClasses() {
+    auto int autoVar = 10;        // Автоматическая переменная
+    register int regVar = 20;     // Переменная в регистре
+    static int staticVar = 30;    // Статическая переменная
+
+    printf("=== ЗНАЧЕНИЯ ПЕРЕМЕННЫХ ===\n");
+    printf("auto: %d\n", autoVar);
+    printf("register: %d\n", regVar);
+    printf("static: %d\n", staticVar);
+    printf("extern: %d\n", externVar);
+
+    // Изменяем все переменные
+    autoVar += 1;
+    regVar += 1;
+    staticVar += 1;
+    externVar += 1;
+
+    printf("После инкремента:\n");
+    printf("auto: %d, register: %d, static: %d, extern: %d\n",
+           autoVar, regVar, staticVar, externVar);
+}
+
+int main() {
+    printf("Тестирование всех классов хранения:\n");
+
+    for (int i = 0; i < 3; i++) {
+        printf("\n--- Вызов %d ---\n", i + 1);
+        testAllClasses();
+    }
+
+    return 0;
+}
+```
+
+## Практические применения
+
+### Модульная архитектура
+
+<Tabs>
+<TabItem value="module-design" label="Дизайн модуля" default>
+
+```c
+#include <stdio.h>
+
+// Приватные данные модуля (static)
+static int moduleInitialized = 0;
+static int activeConnections = 0;
+static int maxConnections = 5;
+
+// Приватные функции модуля (static)
+static void initializeModule() {
+    if (!moduleInitialized) {
+        printf("🔧 Инициализация сетевого модуля\n");
+        activeConnections = 0;
+        moduleInitialized = 1;
+    }
+}
+
+static int hasAvailableSlots() {
+    return activeConnections < maxConnections;
+}
+
+// Публичные функции модуля (extern по умолчанию)
+int createConnection() {
+    initializeModule();
+
+    if (hasAvailableSlots()) {
+        activeConnections++;
+        printf("✅ Соединение создано (#%d)\n", activeConnections);
+        return activeConnections;
+    } else {
+        printf("❌ Превышен лимит соединений\n");
+        return -1;
+    }
+}
+
+void closeConnection() {
+    if (activeConnections > 0) {
+        activeConnections--;
+        printf("🔌 Соединение закрыто (осталось: %d)\n", activeConnections);
+    }
+}
+
+void getModuleStatus() {
+    printf("📊 Активных соединений: %d/%d\n", activeConnections, maxConnections);
+}
+
+int main() {
+    printf("Демонстрация модульной архитектуры:\n");
+
+    getModuleStatus();
+
+    // Создаем несколько соединений
+    for (int i = 0; i < 7; i++) {
+        createConnection();
+    }
+
+    getModuleStatus();
+
+    // Закрываем несколько соединений
+    closeConnection();
+    closeConnection();
+
+    getModuleStatus();
+
+    return 0;
+}
+```
+
+</TabItem>
+<TabItem value="performance" label="Оптимизация производительности">
+
+```c
+#include <stdio.h>
+
+// Функция с оптимизацией через register
+int fastMatrixSum(int matrix[][3], int rows) {
+    register int sum = 0;     // Просим разместить в регистре
+    register int i, j;        // Счетчики в регистрах
+
+    for (i = 0; i < rows; i++) {
+        for (j = 0; j < 3; j++) {
+            sum += matrix[i][j];
+        }
+    }
+
+    return sum;
+}
+
+// Функция с кэшированием результата
+int cachedFactorial(int n) {
+    static int cache[10] = {0};        // Статический кэш
+    static int cacheInitialized = 0;  // Флаг инициализации
+
+    if (!cacheInitialized) {
+        cache[0] = 1;  // 0! = 1
+        cache[1] = 1;  // 1! = 1
+        cacheInitialized = 1;
+        printf("Кэш инициализирован\n");
+    }
+
+    if (n < 10 && cache[n] != 0) {
+        printf("Результат взят из кэша\n");
+        return cache[n];
+    }
+
+    printf("Вычисляем факториал %d\n", n);
+    int result = 1;
+    for (register int i = 1; i <= n; i++) {
+        result *= i;
+    }
+
+    if (n < 10) {
+        cache[n] = result;  // Сохраняем в кэш
+    }
+
+    return result;
+}
+
+int main() {
+    int data[2][3] = {
+        {1, 2, 3},
+        {4, 5, 6}
+    };
+
+    printf("Сумма матрицы: %d\n", fastMatrixSum(data, 2));
+
+    printf("\nТест кэширования факториала:\n");
+    printf("5! = %d\n", cachedFactorial(5));
+    printf("3! = %d\n", cachedFactorial(3));
+    printf("5! = %d\n", cachedFactorial(5));  // Из кэша
+
+    return 0;
+}
+```
+
+</TabItem>
+</Tabs>
+
+## Класс static
+
+### Статические переменные и функции
+
+```c
+#include <stdio.h>
+
+// Статическая глобальная переменная (только в этом файле)
+static int fileCounter = 0;
+
+// Статическая функция (только в этом файле)
+static void incrementFileCounter() {
+    fileCounter++;
+    printf("Файловый счетчик: %d\n", fileCounter);
+}
+
+void publicFunction() {
+    static int functionCallCount = 0;  // Статическая локальная
+    functionCallCount++;
+
+    printf("Вызов публичной функции #%d\n", functionCallCount);
+    incrementFileCounter();
+}
+
+int main() {
+    printf("Демонстрация static объектов:\n");
+
+    for (int i = 0; i < 3; i++) {
+        publicFunction();
+        printf("---\n");
+    }
+
+    return 0;
+}
+```
+
+## Класс extern
+
+### Разделяемые данные
+
+<Tabs>
+<TabItem value="extern-vars" label="Внешние переменные" default>
+
+```c
+#include <stdio.h>
+
+// Определение глобальных переменных
+int sharedCounter = 0;
+float sharedBalance = 1000.0;
+char sharedStatus[20] = "Активен";
+
+// Объявления для использования в других файлах
+extern int sharedCounter;
+extern float sharedBalance;
+extern char sharedStatus[];
+
+// Функции для работы с разделяемыми данными
+void updateSharedData(int increment, float balanceChange) {
+    sharedCounter += increment;
+    sharedBalance += balanceChange;
+
+    printf("Обновление разделяемых данных:\n");
+    printf("Счетчик: %d\n", sharedCounter);
+    printf("Баланс: %.2f\n", sharedBalance);
+}
+
+void checkSharedStatus() {
+    printf("Статус системы: %s\n", sharedStatus);
+    printf("Операций выполнено: %d\n", sharedCounter);
+}
+
+int main() {
+    printf("Работа с внешними объектами:\n");
+
+    checkSharedStatus();
+
+    updateSharedData(5, -150.0);
+    updateSharedData(3, 75.0);
+
+    checkSharedStatus();
+
+    return 0;
+}
+```
+
+</TabItem>
+<TabItem value="extern-functions" label="Внешние функции">
+
+```c
+#include <stdio.h>
+
+// Объявления внешних функций (обычно в заголовочных файлах)
+extern int mathAdd(int a, int b);
+extern int mathMultiply(int a, int b);
+extern void mathPrintResult(char *operation, int result);
+
+// Определения функций (обычно в отдельном файле)
+int mathAdd(int a, int b) {
+    return a + b;
+}
+
+int mathMultiply(int a, int b) {
+    return a * b;
+}
+
+void mathPrintResult(char *operation, int result) {
+    printf("%s = %d\n", operation, result);
+}
+
+int main() {
+    int x = 15, y = 4;
+
+    printf("Использование внешних функций:\n");
+
+    int sum = mathAdd(x, y);
+    mathPrintResult("15 + 4", sum);
+
+    int product = mathMultiply(x, y);
+    mathPrintResult("15 × 4", product);
+
+    return 0;
+}
+```
+
+</TabItem>
+</Tabs>
+
+## Инициализация по классам хранения
+
+### Правила инициализации
+
+```c
+#include <stdio.h>
+
+int externInitialized = 100;     // extern: инициализируется нулем или явно
+static int staticInitialized = 200;  // static: инициализируется нулем или явно
+
+void testInitialization() {
+    auto int autoUninitialized;      // auto: случайное значение!
+    static int staticUninitialized;  // static: автоматически ноль
+    auto int autoInitialized = 50;   // auto: явная инициализация
+
+    printf("=== ИНИЦИАЛИЗАЦИЯ ===\n");
+    printf("extern инициализированная: %d\n", externInitialized);
+    printf("static инициализированная: %d\n", staticInitialized);
+    printf("static неинициализированная: %d\n", staticUninitialized);  // 0
+    printf("auto инициализированная: %d\n", autoInitialized);
+    printf("auto неинициализированная: %d\n", autoUninitialized);  // Мусор!
+}
+
+int main() {
+    testInitialization();
+
+    return 0;
+}
+```
+
+## Практический пример: Система логирования
+
+### Модуль с разными классами хранения
+
+```c
+#include <stdio.h>
+
+// Конфигурация модуля (static - приватная)
+static int logLevel = 1;  // 0=выкл, 1=ошибки, 2=все
+static int messageCount = 0;
+
+// Публичные настройки (extern - доступны другим модулям)
+int maxLogMessages = 100;
+
+// Приватная функция модуля
+static void writeLogMessage(char *level, char *message) {
+    if (messageCount >= maxLogMessages) {
+        printf("[LOG] Превышен лимит сообщений\n");
+        return;
+    }
+
+    messageCount++;
+    printf("[%s] #%d: %s\n", level, messageCount, message);
+}
+
+// Публичные функции модуля
+void logError(char *message) {
+    if (logLevel >= 1) {
+        writeLogMessage("ERROR", message);
+    }
+}
+
+void logInfo(char *message) {
+    if (logLevel >= 2) {
+        writeLogMessage("INFO", message);
+    }
+}
+
+void setLogLevel(int level) {
+    logLevel = level;
+    printf("Уровень логирования установлен: %d\n", level);
+}
+
+void getLogStatistics() {
+    printf("📊 Статистика логирования:\n");
+    printf("Сообщений записано: %d/%d\n", messageCount, maxLogMessages);
+    printf("Текущий уровень: %d\n", logLevel);
+}
+
+int main() {
+    printf("Система логирования:\n");
+
+    setLogLevel(2);  // Включаем все сообщения
+
+    logInfo("Система запущена");
+    logError("Не удалось подключиться к БД");
+    logInfo("Повторное подключение");
+    logInfo("Подключение восстановлено");
+
+    getLogStatistics();
+
+    setLogLevel(1);  // Только ошибки
+    logInfo("Это сообщение не появится");
+    logError("Критическая ошибка");
+
+    getLogStatistics();
+
+    return 0;
+}
+```
+
+:::info Ключевые принципы
+- **auto** — стандартные локальные переменные (по умолчанию)
+- **register** — рекомендация для часто используемых переменных
+- **static** — сохранение состояния и ограничение видимости
+- **extern** — совместное использование между файлами
+:::
+
+:::tip Выбор класса хранения
+- **auto** — для обычных локальных вычислений
+- **register** — для счетчиков циклов и временных переменных
+- **static** — для состояния модулей и уникальных счетчиков
+- **extern** — для конфигураций и данных всей программы
+:::
+
+:::warning Важные моменты
+- **Неинициализированные auto/register** содержат мусор
+- **static/extern** автоматически инициализируются нулем
+- **register переменные** нельзя передавать по ссылке
+- **static ограничивает видимость** файлом
+:::
+
+Классы хранения определяют как и где данные размещаются в памяти, контролируя их доступность и время жизни.

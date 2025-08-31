@@ -1,0 +1,606 @@
+---
+sidebar_position: 5
+---
+
+# Область видимости переменных
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+## Что такое область видимости
+
+Область видимости определяет, где в программе переменная доступна для использования. Это "зона действия" переменной.
+
+```c
+int globalVar = 10;  // Видна везде в программе
+
+int main() {
+    int localVar = 20;  // Видна только внутри main()
+    return 0;
+}
+```
+
+## Локальные переменные
+
+### Переменные внутри функций
+
+<Tabs>
+<TabItem value="function-scope" label="Область видимости функции" default>
+
+```c
+#include <stdio.h>
+
+void function1() {
+    int localA = 100;  // Локальная переменная функции function1
+    printf("В function1: localA = %d\n", localA);
+
+    // printf("%d", localB);  // Ошибка! localB недоступна здесь
+}
+
+void function2() {
+    int localB = 200;  // Локальная переменная функции function2
+    printf("В function2: localB = %d\n", localB);
+
+    // printf("%d", localA);  // Ошибка! localA недоступна здесь
+}
+
+int main() {
+    int localMain = 50;  // Локальная переменная main
+
+    printf("В main: localMain = %d\n", localMain);
+
+    function1();
+    function2();
+
+    // printf("%d", localA);  // Ошибка! localA недоступна в main
+
+    return 0;
+}
+```
+
+</TabItem>
+<TabItem value="block-scope" label="Блочная область видимости">
+
+```c
+#include <stdio.h>
+
+int main() {
+    int outerVar = 10;
+
+    printf("outerVar в начале: %d\n", outerVar);
+
+    {  // Начало блока
+        int innerVar = 20;  // Видна только в этом блоке
+        outerVar = 15;      // Можем изменить внешнюю переменную
+
+        printf("Внутри блока:\n");
+        printf("  outerVar = %d\n", outerVar);
+        printf("  innerVar = %d\n", innerVar);
+    }  // Конец блока — innerVar уничтожается
+
+    printf("После блока: outerVar = %d\n", outerVar);
+    // printf("%d", innerVar);  // Ошибка! innerVar больше не существует
+
+    return 0;
+}
+```
+
+</TabItem>
+</Tabs>
+
+## Глобальные переменные
+
+### Переменные доступные везде
+
+```c
+#include <stdio.h>
+
+int totalScore = 0;        // Глобальная переменная
+int gameCount = 0;         // Глобальная переменная
+char playerName[20] = "Игрок";  // Глобальный массив
+
+void addScore(int points) {
+    totalScore += points;   // Доступ к глобальной переменной
+    gameCount++;
+    printf("%s заработал %d очков\n", playerName, points);
+}
+
+void showStatistics() {
+    printf("=== СТАТИСТИКА ===\n");
+    printf("Игрок: %s\n", playerName);
+    printf("Игр сыграно: %d\n", gameCount);
+    printf("Общий счет: %d\n", totalScore);
+
+    if (gameCount > 0) {
+        float average = (float)totalScore / gameCount;
+        printf("Средний счет: %.1f\n", average);
+    }
+}
+
+int main() {
+    printf("Начало игры\n");
+
+    addScore(150);
+    addScore(230);
+    addScore(180);
+
+    showStatistics();
+
+    return 0;
+}
+```
+
+## Приоритет переменных
+
+### Локальные переменные скрывают глобальные
+
+<Tabs>
+<TabItem value="shadowing" label="Затенение переменных" default>
+
+```c
+#include <stdio.h>
+
+int count = 100;  // Глобальная переменная
+
+void testShadowing() {
+    int count = 5;  // Локальная переменная с тем же именем
+
+    printf("В функции count = %d\n", count);  // Выведет 5 (локальная)
+
+    // Глобальная переменная "затенена" локальной
+}
+
+void testGlobal() {
+    printf("В testGlobal count = %d\n", count);  // Выведет 100 (глобальная)
+    count = 150;  // Изменяем глобальную переменную
+}
+
+int main() {
+    printf("В начале main count = %d\n", count);  // 100
+
+    testShadowing();  // Локальная переменная
+    printf("После testShadowing count = %d\n", count);  // Все еще 100
+
+    testGlobal();     // Изменяем глобальную
+    printf("После testGlobal count = %d\n", count);  // Теперь 150
+
+    return 0;
+}
+```
+
+</TabItem>
+<TabItem value="nested-blocks" label="Вложенные блоки">
+
+```c
+#include <stdio.h>
+
+int main() {
+    int x = 1;
+    printf("Уровень 1: x = %d\n", x);
+
+    {  // Блок уровня 2
+        int x = 2;  // Затеняет x из уровня 1
+        printf("Уровень 2: x = %d\n", x);
+
+        {  // Блок уровня 3
+            int x = 3;  // Затеняет x из уровня 2
+            printf("Уровень 3: x = %d\n", x);
+        }
+
+        printf("Снова уровень 2: x = %d\n", x);
+    }
+
+    printf("Снова уровень 1: x = %d\n", x);
+
+    return 0;
+}
+```
+
+</TabItem>
+</Tabs>
+
+## Время жизни переменных
+
+### Автоматические переменные
+
+```c
+#include <stdio.h>
+
+void demonstrateLifetime() {
+    static int staticVar = 0;  // Статическая переменная
+    int autoVar = 0;           // Автоматическая переменная
+
+    staticVar++;
+    autoVar++;
+
+    printf("staticVar = %d, autoVar = %d\n", staticVar, autoVar);
+}
+
+int main() {
+    printf("Демонстрация времени жизни переменных:\n");
+
+    for (int i = 0; i < 5; i++) {
+        printf("Вызов %d: ", i + 1);
+        demonstrateLifetime();
+    }
+
+    return 0;
+}
+```
+
+**Результат:**
+```
+Вызов 1: staticVar = 1, autoVar = 1
+Вызов 2: staticVar = 2, autoVar = 1
+Вызов 3: staticVar = 3, autoVar = 1
+Вызов 4: staticVar = 4, autoVar = 1
+Вызов 5: staticVar = 5, autoVar = 1
+```
+
+## Параметры функций
+
+### Область видимости параметров
+
+```c
+#include <stdio.h>
+
+int calculateBonus(int baseSalary, int experience) {  // Параметры видны во всей функции
+    int bonus = 0;  // Локальная переменная
+
+    if (experience >= 5) {
+        bonus = baseSalary * 0.15;
+        printf("Опытный сотрудник: бонус %.0f%%\n", 15.0);
+    } else if (experience >= 2) {
+        bonus = baseSalary * 0.10;
+        printf("Средний опыт: бонус %.0f%%\n", 10.0);
+    } else {
+        bonus = baseSalary * 0.05;
+        printf("Новичок: бонус %.0f%%\n", 5.0);
+    }
+
+    printf("Базовая зарплата: %d, опыт: %d лет\n", baseSalary, experience);
+
+    return bonus;
+}
+
+int main() {
+    int salary = 50000;
+    int years = 3;
+
+    int bonusAmount = calculateBonus(salary, years);
+
+    printf("Размер бонуса: %d руб.\n", bonusAmount);
+
+    // printf("%d", baseSalary);  // Ошибка! Параметр недоступен в main
+
+    return 0;
+}
+```
+
+## Практические применения
+
+### Счетчики и накопители
+
+<Tabs>
+<TabItem value="counters" label="Локальные счетчики" default>
+
+```c
+#include <stdio.h>
+
+void processOrder() {
+    static int orderCount = 0;  // Сохраняется между вызовами
+    int itemsInOrder = 0;       // Сбрасывается каждый вызов
+
+    orderCount++;
+    itemsInOrder = 3;  // Каждый заказ содержит 3 товара
+
+    printf("Заказ #%d: %d товаров\n", orderCount, itemsInOrder);
+}
+
+int main() {
+    printf("Обработка заказов:\n");
+
+    for (int i = 0; i < 4; i++) {
+        processOrder();
+    }
+
+    return 0;
+}
+```
+
+</TabItem>
+<TabItem value="isolation" label="Изоляция данных">
+
+```c
+#include <stdio.h>
+
+void bankOperation(float amount, char type) {
+    static float balance = 1000.0;  // Персистентный баланс
+    float fee = 0;                  // Локальная комиссия
+
+    if (type == 'W') {  // Withdrawal - снятие
+        fee = amount * 0.01;  // 1% комиссия
+        if (balance >= amount + fee) {
+            balance -= (amount + fee);
+            printf("Снято: %.2f (комиссия: %.2f)\n", amount, fee);
+        } else {
+            printf("Недостаточно средств\n");
+            return;
+        }
+    } else if (type == 'D') {  // Deposit - пополнение
+        balance += amount;
+        printf("Зачислено: %.2f\n", amount);
+    }
+
+    printf("Баланс: %.2f руб.\n\n", balance);
+}
+
+int main() {
+    bankOperation(200, 'D');  // Пополнение
+    bankOperation(150, 'W');  // Снятие
+    bankOperation(50, 'W');   // Снятие
+    bankOperation(300, 'D');  // Пополнение
+
+    return 0;
+}
+```
+
+</TabItem>
+</Tabs>
+
+## Конфликты имен переменных
+
+### Решение конфликтов
+
+```c
+#include <stdio.h>
+
+int temperature = 20;  // Глобальная температура
+
+void checkTemperature(int temperature) {  // Параметр затеняет глобальную
+    printf("Проверяем температуру: %d°C\n", temperature);  // Параметр
+
+    if (temperature > 25) {
+        printf("Жарко\n");
+    } else if (temperature < 15) {
+        printf("Холодно\n");
+    } else {
+        printf("Комфортно\n");
+    }
+
+    // Здесь нет доступа к глобальной переменной temperature
+}
+
+void showGlobalTemperature() {
+    printf("Глобальная температура: %d°C\n", temperature);  // Глобальная
+}
+
+int main() {
+    printf("Тестируем разные температуры:\n");
+
+    checkTemperature(30);  // Используем параметр
+    checkTemperature(10);  // Используем параметр
+
+    showGlobalTemperature();  // Используем глобальную
+
+    return 0;
+}
+```
+
+## Статические переменные
+
+### Сохранение состояния между вызовами
+
+```c
+#include <stdio.h>
+
+int getNextId() {
+    static int lastId = 1000;  // Инициализируется только один раз
+    return ++lastId;
+}
+
+void resetIdCounter() {
+    static int *idPtr = NULL;
+
+    if (idPtr == NULL) {
+        // Получаем доступ к статической переменной из getNextId
+        getNextId();  // Инициализируем lastId
+    }
+
+    printf("Счетчик ID сброшен (в реальности нужен другой подход)\n");
+}
+
+int main() {
+    printf("Генерация уникальных ID:\n");
+
+    for (int i = 0; i < 5; i++) {
+        int newId = getNextId();
+        printf("Пользователь #%d получил ID: %d\n", i + 1, newId);
+    }
+
+    return 0;
+}
+```
+
+## Область видимости в циклах
+
+### Переменные цикла
+
+```c
+#include <stdio.h>
+
+int main() {
+    printf("Тест области видимости в циклах:\n");
+
+    for (int i = 0; i < 3; i++) {  // i видна только в цикле
+        int loopVar = i * 10;      // loopVar создается в каждой итерации
+        printf("Итерация %d: loopVar = %d\n", i, loopVar);
+    }
+
+    // printf("%d", i);        // Ошибка! i не существует вне цикла
+    // printf("%d", loopVar);  // Ошибка! loopVar не существует вне цикла
+
+    // Переменная с тем же именем в другом цикле
+    for (int i = 10; i < 13; i++) {  // Новая переменная i
+        printf("Новый цикл: i = %d\n", i);
+    }
+
+    return 0;
+}
+```
+
+### Вложенные циклы и области видимости
+
+<Tabs>
+<TabItem value="nested-loops" label="Вложенные циклы" default>
+
+```c
+#include <stdio.h>
+
+int main() {
+    printf("Таблица умножения (фрагмент):\n");
+
+    for (int row = 1; row <= 3; row++) {  // row видна во внешнем цикле
+        for (int col = 1; col <= 3; col++) {  // col видна во внутреннем цикле
+            int product = row * col;  // product создается в каждой итерации
+            printf("%d×%d=%2d  ", row, col, product);
+        }
+        printf("\n");
+        // col и product здесь недоступны
+    }
+
+    // row, col и product здесь недоступны
+
+    return 0;
+}
+```
+
+</TabItem>
+<TabItem value="scope-conflicts" label="Конфликты имен в циклах">
+
+```c
+#include <stdio.h>
+
+int main() {
+    int sum = 0;  // Переменная main
+
+    for (int i = 0; i < 3; i++) {
+        int sum = i;  // Локальная переменная цикла, затеняет внешнюю
+        printf("Внутри цикла sum = %d\n", sum);  // Локальная
+    }
+
+    printf("Вне цикла sum = %d\n", sum);  // Внешняя переменная (0)
+
+    return 0;
+}
+```
+
+</TabItem>
+</Tabs>
+
+## Практические примеры
+
+### Изоляция вычислений
+
+```c
+#include <stdio.h>
+
+float calculateTax(float income) {
+    const float TAX_RATE = 0.13;  // Локальная константа
+    float tax = income * TAX_RATE;
+
+    printf("Доход: %.2f, налог (%.0f%%): %.2f\n",
+           income, TAX_RATE * 100, tax);
+
+    return tax;
+}
+
+float calculateNetIncome(float grossIncome) {
+    float tax = calculateTax(grossIncome);  // Локальная переменная
+    float netIncome = grossIncome - tax;
+
+    printf("Чистый доход: %.2f\n", netIncome);
+
+    return netIncome;
+
+    // tax недоступна вне этой функции
+}
+
+int main() {
+    float salary = 50000.0;
+
+    float net = calculateNetIncome(salary);
+
+    printf("Итоговый чистый доход: %.2f руб.\n", net);
+
+    // TAX_RATE и tax недоступны в main
+
+    return 0;
+}
+```
+
+### Управление состоянием
+
+```c
+#include <stdio.h>
+
+void manageInventory(int productId, int quantity, char operation) {
+    static int inventory[5] = {100, 50, 75, 30, 80};  // Склад товаров
+    static int initialized = 0;
+
+    if (!initialized) {
+        printf("Инициализация склада\n");
+        initialized = 1;
+    }
+
+    if (productId < 0 || productId >= 5) {
+        printf("Ошибка: неверный ID товара\n");
+        return;
+    }
+
+    int currentStock = inventory[productId];
+
+    if (operation == 'A') {  // Add - добавить
+        inventory[productId] += quantity;
+        printf("Товар #%d: добавлено %d, на складе: %d\n",
+               productId, quantity, inventory[productId]);
+    } else if (operation == 'R') {  // Remove - убрать
+        if (currentStock >= quantity) {
+            inventory[productId] -= quantity;
+            printf("Товар #%d: убрано %d, осталось: %d\n",
+                   productId, quantity, inventory[productId]);
+        } else {
+            printf("Товар #%d: недостаточно на складе (есть: %d)\n",
+                   productId, currentStock);
+        }
+    }
+}
+
+int main() {
+    printf("Управление складом:\n");
+
+    manageInventory(0, 20, 'R');  // Убираем 20 единиц товара 0
+    manageInventory(1, 15, 'A');  // Добавляем 15 единиц товара 1
+    manageInventory(0, 10, 'A');  // Добавляем 10 единиц товара 0
+    manageInventory(2, 100, 'R'); // Пытаемся убрать больше чем есть
+
+    return 0;
+}
+```
+
+:::info Ключевые правила
+- **Локальные переменные** видны только в своем блоке `{}`
+- **Глобальные переменные** доступны во всех функциях
+- **Параметры функций** — локальные переменные этой функции
+- **Статические переменные** сохраняют значение между вызовами
+- **Внутренние переменные затеняют внешние** с тем же именем
+:::
+
+:::tip Рекомендации
+- **Минимизируйте глобальные переменные** — используйте только когда необходимо
+- **Используйте локальные переменные** для временных вычислений
+- **Избегайте затенения** — давайте переменным разные имена
+- **Группируйте связанные данные** в одной области видимости
+:::
+
+Понимание области видимости помогает создавать надежные программы без случайных конфликтов переменных.

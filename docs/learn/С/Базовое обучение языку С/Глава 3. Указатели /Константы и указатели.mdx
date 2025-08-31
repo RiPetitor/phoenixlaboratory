@@ -1,0 +1,344 @@
+---
+sidebar_position: 4
+---
+
+# Константы и указатели
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+## Типы констант с указателями
+
+При работе с указателями можно сделать константными разные части: само значение, указатель или оба элемента.
+
+## Указатель на константу
+
+Значение нельзя изменить через указатель, но сам указатель можно переназначить.
+
+### Синтаксис и примеры
+
+<Tabs>
+<TabItem value="basic" label="Основное использование" default>
+
+```c
+#include <stdio.h>
+
+int main() {
+    int value1 = 100;
+    int value2 = 200;
+
+    const int *ptr = &value1;  // Указатель на константу
+
+    printf("Значение через ptr: %d\n", *ptr);  // 100
+
+    // ❌ Нельзя изменить значение через указатель
+    // *ptr = 150;  // Ошибка компиляции!
+
+    // ✅ Можно переназначить указатель
+    ptr = &value2;
+    printf("Новое значение через ptr: %d\n", *ptr);  // 200
+
+    // ✅ Можно изменить саму переменную напрямую
+    value1 = 300;
+    printf("value1 изменен напрямую: %d\n", value1);  // 300
+
+    return 0;
+}
+```
+
+</TabItem>
+<TabItem value="array" label="С массивами">
+
+```c
+int numbers[5] = {10, 20, 30, 40, 50};
+const int *arrayPtr = numbers;
+
+printf("Обход массива через const указатель:\n");
+for (int i = 0; i < 5; i++) {
+    printf("Элемент %d: %d\n", i, *(arrayPtr + i));
+    // *(arrayPtr + i) = 0;  // Ошибка! Нельзя изменить
+}
+```
+
+</TabItem>
+</Tabs>
+
+## Константный указатель
+
+Указатель нельзя переназначить, но значение можно изменять.
+
+### Фиксированный адрес
+
+```c
+#include <stdio.h>
+
+int main() {
+    int balance = 1000;
+    int deposit = 500;
+
+    int * const accountPtr = &balance;  // Константный указатель
+
+    printf("Баланс счета: %d\n", *accountPtr);
+
+    // ✅ Можно изменить значение
+    *accountPtr += 250;
+    printf("После пополнения: %d\n", *accountPtr);  // 1250
+
+    // ❌ Нельзя переназначить указатель
+    // accountPtr = &deposit;  // Ошибка компиляции!
+
+    printf("Финальный баланс: %d\n", balance);  // 1250
+
+    return 0;
+}
+```
+
+### Применение с массивами
+
+<Tabs>
+<TabItem value="fixed-array" label="Фиксированный массив" default>
+
+```c
+int scores[6] = {85, 92, 78, 95, 88, 91};
+int * const scoresPtr = scores;  // Всегда указывает на этот массив
+
+printf("Изменение оценок через константный указатель:\n");
+
+// ✅ Можем изменять элементы
+for (int i = 0; i < 6; i++) {
+    *(scoresPtr + i) += 5;  // Добавляем 5 баллов всем
+    printf("Студент %d: %d баллов\n", i + 1, *(scoresPtr + i));
+}
+
+// ❌ Не можем переназначить указатель
+// scoresPtr = other_array;  // Ошибка!
+```
+
+</TabItem>
+<TabItem value="sum-calc" label="Вычисления с фиксированным указателем">
+
+```c
+int data[5] = {10, 15, 20, 25, 30};
+int * const dataPtr = data;
+int sum = 0;
+
+printf("Вычисление суммы:\n");
+for (int i = 0; i < 5; i++) {
+    sum += *(dataPtr + i);
+    printf("+ %d = %d\n", *(dataPtr + i), sum);
+}
+
+printf("Итоговая сумма: %d\n", sum);
+```
+
+</TabItem>
+</Tabs>
+
+## Константный указатель на константу
+
+Нельзя изменить ни значение, ни сам указатель.
+
+```c
+#include <stdio.h>
+
+int main() {
+    int original = 42;
+    int another = 84;
+
+    const int * const fixedPtr = &original;  // Константный указатель на константу
+
+    printf("Значение: %d\n", *fixedPtr);
+
+    // ❌ Нельзя изменить значение
+    // *fixedPtr = 50;  // Ошибка!
+
+    // ❌ Нельзя переназначить указатель
+    // fixedPtr = &another;  // Ошибка!
+
+    // ✅ Можно только читать
+    printf("Можем только читать: %d\n", *fixedPtr);
+
+    return 0;
+}
+```
+
+## Сравнение типов
+
+### Таблица различий
+
+| Тип | Объявление | Изменение значения | Переназначение указателя |
+|-----|------------|-------------------|-------------------------|
+| **Обычный указатель** | `int *ptr` | ✅ Да | ✅ Да |
+| **Указатель на константу** | `const int *ptr` | ❌ Нет | ✅ Да |
+| **Константный указатель** | `int * const ptr` | ✅ Да | ❌ Нет |
+| **Константный указатель на константу** | `const int * const ptr` | ❌ Нет | ❌ Нет |
+
+### Демонстрация различий
+
+```c
+#include <stdio.h>
+
+int main() {
+    int a = 10, b = 20, c = 30;
+
+    // Обычный указатель
+    int *normal = &a;
+    *normal = 15;    // ✅ Работает
+    normal = &b;     // ✅ Работает
+
+    // Указатель на константу
+    const int *ptrToConst = &a;
+    // *ptrToConst = 25;  // ❌ Ошибка!
+    ptrToConst = &c;     // ✅ Работает
+
+    // Константный указатель
+    int * const constPtr = &b;
+    *constPtr = 25;      // ✅ Работает
+    // constPtr = &c;    // ❌ Ошибка!
+
+    // Константный указатель на константу
+    const int * const bothConst = &c;
+    // *bothConst = 35;  // ❌ Ошибка!
+    // bothConst = &a;   // ❌ Ошибка!
+
+    printf("a = %d, b = %d, c = %d\n", a, b, c);
+
+    return 0;
+}
+```
+
+## Практические применения
+
+### Защита данных
+
+<Tabs>
+<TabItem value="readonly" label="Только для чтения" default>
+
+```c
+#include <stdio.h>
+
+void printArray(const int *arr, int size) {
+    printf("Элементы массива: ");
+    for (int i = 0; i < size; i++) {
+        printf("%d ", *(arr + i));
+        // *(arr + i) = 0;  // Ошибка! Функция не может изменить массив
+    }
+    printf("\n");
+}
+
+int main() {
+    int numbers[5] = {1, 2, 3, 4, 5};
+
+    printf("Исходный массив: ");
+    for (int i = 0; i < 5; i++) {
+        printf("%d ", numbers[i]);
+    }
+    printf("\n");
+
+    printArray(numbers, 5);  // Безопасный вывод
+
+    printf("Массив не изменился: ");
+    for (int i = 0; i < 5; i++) {
+        printf("%d ", numbers[i]);
+    }
+    printf("\n");
+
+    return 0;
+}
+```
+
+</TabItem>
+<TabItem value="config" label="Конфигурационные данные">
+
+```c
+// Настройки программы (не должны изменяться случайно)
+const int MAX_USERS = 100;
+const int TIMEOUT = 30;
+const float TAX_RATE = 0.13;
+
+const int * const settings[] = {&MAX_USERS, &TIMEOUT};
+
+int main() {
+    printf("Конфигурация системы:\n");
+    printf("Максимум пользователей: %d\n", *settings[0]);
+    printf("Таймаут: %d секунд\n", *settings[1]);
+    printf("Налоговая ставка: %.0f%%\n", TAX_RATE * 100);
+
+    // Настройки защищены от случайного изменения
+    return 0;
+}
+```
+
+</TabItem>
+</Tabs>
+
+### Фиксированные буферы
+
+```c
+#include <stdio.h>
+
+int main() {
+    char buffer[100];
+    char * const bufferPtr = buffer;  // Указатель всегда на этот буфер
+
+    // Заполняем буфер
+    for (int i = 0; i < 10; i++) {
+        *(bufferPtr + i) = 'A' + i;  // A, B, C, D, ...
+    }
+    *(bufferPtr + 10) = '\0';  // Завершаем строку
+
+    printf("Содержимое буфера: ");
+    for (int i = 0; i < 10; i++) {
+        printf("%c", *(bufferPtr + i));
+    }
+    printf("\n");
+
+    // bufferPtr всегда указывает на наш буфер
+    // bufferPtr = other_buffer;  // Ошибка!
+
+    return 0;
+}
+```
+
+## Полезные применения
+
+### Неизменяемые конфигурации
+
+```c
+#include <stdio.h>
+
+int main() {
+    // Неизменяемые настройки игры
+    const int BOARD_SIZE = 8;
+    const int MAX_PIECES = 32;
+    const char PLAYER_SYMBOLS[2] = {'X', 'O'};
+
+    const int * const gameSettings = &BOARD_SIZE;
+    const char * const symbols = PLAYER_SYMBOLS;
+
+    printf("=== НАСТРОЙКИ ИГРЫ ===\n");
+    printf("Размер доски: %d×%d\n", *gameSettings, *gameSettings);
+    printf("Максимум фигур: %d\n", MAX_PIECES);
+    printf("Символы игроков: '%c' и '%c'\n", symbols[0], symbols[1]);
+
+    // Все настройки защищены от изменения
+
+    return 0;
+}
+```
+
+:::info Ключевая идея
+Константы с указателями позволяют:
+- **Защитить данные** от случайного изменения
+- **Зафиксировать указатель** на определенной области памяти
+- **Создать неизменяемые конфигурации** для надежности программы
+- **Ясно выразить намерения** — что можно изменять, а что нет
+:::
+
+:::tip Выбор правильного типа
+- `const int *ptr` — когда нужно читать разные значения, но не изменять
+- `int * const ptr` — когда работаем с фиксированной областью памяти
+- `const int * const ptr` — для полностью защищенных данных
+:::
+
+Константы с указателями обеспечивают контроль над тем, что можно изменять в программе, повышая её надежность.

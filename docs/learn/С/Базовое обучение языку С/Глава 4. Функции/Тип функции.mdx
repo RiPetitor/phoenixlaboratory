@@ -1,0 +1,368 @@
+---
+sidebar_position: 10
+---
+
+# Тип функции
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+## Что такое тип функции
+
+Тип функции определяется её сигнатурой — типом возвращаемого значения и типами параметров. Функции с одинаковой сигнатурой имеют один тип.
+
+```c
+int add(int a, int b);      // Тип: int (int, int)
+int multiply(int x, int y); // Тот же тип: int (int, int)
+float divide(float a, float b); // Другой тип: float (float, float)
+```
+
+## Определение типов функций
+
+### Сигнатуры функций
+
+<Tabs>
+<TabItem value="signatures" label="Различные сигнатуры" default>
+
+```c
+#include <stdio.h>
+
+// Функции с разными типами
+int intFunction(int a, int b) {           // Тип: int (int, int)
+    return a + b;
+}
+
+float floatFunction(float x, float y) {   // Тип: float (float, float)
+    return x * y;
+}
+
+void voidFunction(int param) {            // Тип: void (int)
+    printf("Параметр: %d\n", param);
+}
+
+char charFunction(void) {                 // Тип: char (void)
+    return 'A';
+}
+
+int main() {
+    printf("Демонстрация типов функций:\n");
+
+    printf("intFunction(5, 3) = %d\n", intFunction(5, 3));
+    printf("floatFunction(2.5, 4.0) = %.1f\n", floatFunction(2.5, 4.0));
+    voidFunction(42);
+    printf("charFunction() = '%c'\n", charFunction());
+
+    return 0;
+}
+```
+
+</TabItem>
+<TabItem value="compatibility" label="Совместимость типов">
+
+```c
+#include <stdio.h>
+
+// Функции одного типа: int (int, int)
+int add(int a, int b) { return a + b; }
+int subtract(int a, int b) { return a - b; }
+int multiply(int a, int b) { return a * b; }
+
+// Функция другого типа: int (int)
+int square(int x) { return x * x; }
+
+int main() {
+    // Указатели на функции одного типа
+    int (*binaryOp)(int, int);  // Тип: int (int, int)
+    int (*unaryOp)(int);        // Тип: int (int)
+
+    // ✅ Совместимые присваивания
+    binaryOp = add;
+    printf("add: %d\n", binaryOp(5, 3));
+
+    binaryOp = subtract;
+    printf("subtract: %d\n", binaryOp(5, 3));
+
+    unaryOp = square;
+    printf("square: %d\n", unaryOp(5));
+
+    // ❌ Несовместимые присваивания
+    // binaryOp = square;  // Ошибка! Разные типы функций
+    // unaryOp = add;      // Ошибка! Разные количества параметров
+
+    return 0;
+}
+```
+
+</TabItem>
+</Tabs>
+
+## Группировка функций по типам
+
+### Функции одного типа
+
+```c
+#include <stdio.h>
+
+// Группа функций типа: int (int, int)
+int maximum(int a, int b) { return a > b ? a : b; }
+int minimum(int a, int b) { return a < b ? a : b; }
+int modulo(int a, int b) { return b != 0 ? a % b : 0; }
+
+// Группа функций типа: void (char*)
+void printError(char *message) { printf("❌ Ошибка: %s\n", message); }
+void printWarning(char *message) { printf("⚠️ Предупреждение: %s\n", message); }
+void printInfo(char *message) { printf("ℹ️ Информация: %s\n", message); }
+
+int main() {
+    // Массив функций одного типа: int (int, int)
+    int (*mathOperations[3])(int, int) = {maximum, minimum, modulo};
+    char *mathNames[3] = {"максимум", "минимум", "остаток"};
+
+    int x = 17, y = 5;
+    printf("Числа: %d и %d\n", x, y);
+
+    for (int i = 0; i < 3; i++) {
+        int result = mathOperations[i](x, y);
+        printf("%s: %d\n", mathNames[i], result);
+    }
+
+    printf("\n");
+
+    // Массив функций типа: void (char*)
+    void (*loggers[3])(char*) = {printError, printWarning, printInfo};
+    char *messages[3] = {"Файл не найден", "Низкий заряд", "Операция завершена"};
+
+    for (int i = 0; i < 3; i++) {
+        loggers[i](messages[i]);
+    }
+
+    return 0;
+}
+```
+
+## Typedef для типов функций
+
+### Упрощение сложных объявлений
+
+<Tabs>
+<TabItem value="typedef-basic" label="Базовое использование typedef" default>
+
+```c
+#include <stdio.h>
+
+// Определяем псевдонимы для типов функций
+typedef int (*BinaryIntOp)(int, int);      // Бинарная операция с int
+typedef void (*MessageHandler)(char*);     // Обработчик сообщений
+typedef float (*Calculator)(float, float); // Калькулятор с float
+
+// Функции соответствующих типов
+int add(int a, int b) { return a + b; }
+int multiply(int a, int b) { return a * b; }
+
+void logMessage(char *msg) { printf("[LOG] %s\n", msg); }
+void debugMessage(char *msg) { printf("[DEBUG] %s\n", msg); }
+
+float addFloat(float a, float b) { return a + b; }
+float multiplyFloat(float a, float b) { return a * b; }
+
+int main() {
+    // Используем typedef для чистых объявлений
+    BinaryIntOp intOp = add;
+    MessageHandler logger = logMessage;
+    Calculator calc = addFloat;
+
+    printf("Результат intOp: %d\n", intOp(10, 5));
+    logger("Система инициализирована");
+    printf("Результат calc: %.2f\n", calc(3.5, 2.1));
+
+    // Легко изменяем поведение
+    intOp = multiply;
+    logger = debugMessage;
+    calc = multiplyFloat;
+
+    printf("Новый результат intOp: %d\n", intOp(10, 5));
+    logger("Режим отладки включен");
+    printf("Новый результат calc: %.2f\n", calc(3.5, 2.1));
+
+    return 0;
+}
+```
+
+</TabItem>
+<TabItem value="typedef-arrays" label="Массивы типизированных функций">
+
+```c
+#include <stdio.h>
+
+// Определяем тип функции сравнения
+typedef int (*Comparator)(int, int);
+
+// Функции сравнения
+int ascending(int a, int b) { return a > b; }   // Для сортировки по возрастанию
+int descending(int a, int b) { return a < b; }  // Для сортировки по убыванию
+
+// Универсальная сортировка
+void genericSort(int arr[], int size, Comparator compare) {
+    for (int i = 0; i < size - 1; i++) {
+        for (int j = 0; j < size - 1 - i; j++) {
+            if (compare(arr[j], arr[j + 1])) {
+                int temp = arr[j];
+                arr[j] = arr[j + 1];
+                arr[j + 1] = temp;
+            }
+        }
+    }
+}
+
+int main() {
+    int data[6] = {64, 34, 25, 12, 22, 11};
+
+    // Массив компараторов
+    Comparator sortMethods[2] = {ascending, descending};
+    char *sortNames[2] = {"по возрастанию", "по убыванию"};
+
+    for (int method = 0; method < 2; method++) {
+        // Создаем копию для сортировки
+        int copy[6];
+        for (int i = 0; i < 6; i++) copy[i] = data[i];
+
+        printf("Сортировка %s: ", sortNames[method]);
+        genericSort(copy, 6, sortMethods[method]);
+
+        for (int i = 0; i < 6; i++) printf("%d ", copy[i]);
+        printf("\n");
+    }
+
+    return 0;
+}
+```
+
+</TabItem>
+</Tabs>
+
+## Функции с одинаковыми типами
+
+### Взаимозаменяемость функций
+
+```c
+#include <stdio.h>
+
+// Все функции имеют тип: float (float, float, float)
+float calculateTriangleArea(float a, float b, float c) {
+    // Формула Герона (упрощенно)
+    float s = (a + b + c) / 2;
+    return s;  // Упрощенная версия
+}
+
+float calculateVolume(float length, float width, float height) {
+    return length * width * height;
+}
+
+float calculateAverage(float a, float b, float c) {
+    return (a + b + c) / 3.0;
+}
+
+// Функция для выполнения вычислений
+void performCalculation(float x, float y, float z,
+                       float (*calculator)(float, float, float),
+                       char *description) {
+    float result = calculator(x, y, z);
+    printf("%s (%.1f, %.1f, %.1f) = %.2f\n", description, x, y, z, result);
+}
+
+int main() {
+    float a = 5.0, b = 3.0, c = 4.0;
+
+    printf("Демонстрация функций одного типа:\n");
+
+    // Все функции имеют одинаковый тип, поэтому взаимозаменяемы
+    performCalculation(a, b, c, calculateTriangleArea, "Площадь треугольника");
+    performCalculation(a, b, c, calculateVolume, "Объем параллелепипеда");
+    performCalculation(a, b, c, calculateAverage, "Среднее арифметическое");
+
+    return 0;
+}
+```
+
+## Полиморфизм через указатели на функции
+
+### Различное поведение для одного интерфейса
+
+```c
+#include <stdio.h>
+
+// Определяем тип обработчика данных
+typedef void (*DataProcessor)(int[], int);
+
+// Различные способы обработки массива
+void printAsNumbers(int arr[], int size) {
+    printf("Числа: ");
+    for (int i = 0; i < size; i++) {
+        printf("%d ", arr[i]);
+    }
+    printf("\n");
+}
+
+void printAsChars(int arr[], int size) {
+    printf("Символы: ");
+    for (int i = 0; i < size; i++) {
+        if (arr[i] >= 32 && arr[i] <= 126) {  // Печатные ASCII символы
+            printf("'%c' ", (char)arr[i]);
+        } else {
+            printf("? ");
+        }
+    }
+    printf("\n");
+}
+
+void printAsSum(int arr[], int size) {
+    int sum = 0;
+    for (int i = 0; i < size; i++) {
+        sum += arr[i];
+    }
+    printf("Сумма: %d\n", sum);
+}
+
+// Универсальная функция обработки
+void processData(int data[], int size, DataProcessor processor, char *mode) {
+    printf("Режим: %s\n", mode);
+    processor(data, size);  // Вызываем переданный обработчик
+    printf("---\n");
+}
+
+int main() {
+    int values[5] = {65, 66, 67, 68, 69};  // ASCII коды A, B, C, D, E
+
+    printf("Один массив — разные способы обработки:\n");
+
+    // Тот же массив обрабатывается по-разному
+    processData(values, 5, printAsNumbers, "Как числа");
+    processData(values, 5, printAsChars, "Как символы");
+    processData(values, 5, printAsSum, "Как сумма");
+
+    return 0;
+}
+```
+
+:::info Ключевые концепции
+- **Тип функции** определяется сигнатурой (возврат + параметры)
+- **Функции одного типа** взаимозаменяемы через указатели
+- **typedef** упрощает работу со сложными типами функций
+- **Полиморфизм** достигается через указатели на функции одного типа
+:::
+
+:::tip Практические применения
+- **Стратегии алгоритмов** — разные способы решения одной задачи
+- **Обработчики событий** — разные реакции на события
+- **Плагины и модули** — расширяемая функциональность
+- **Конфигурируемое поведение** — изменение логики во время выполнения
+:::
+
+:::warning Важные правила
+- **Сигнатуры должны точно совпадать** для совместимости
+- **Типы параметров** и возвращаемого значения должны быть идентичными
+- **Имена параметров** не влияют на тип функции
+- **Модификаторы const** влияют на тип функции
+:::
+
+Понимание типов функций позволяет создавать гибкие системы с изменяемым поведением и взаимозаменяемыми компонентами.

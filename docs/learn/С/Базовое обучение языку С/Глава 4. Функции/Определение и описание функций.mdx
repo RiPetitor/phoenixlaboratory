@@ -1,0 +1,427 @@
+---
+sidebar_position: 1
+---
+
+# Определение и описание функций
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+## Что такое функция
+
+Функция — это именованный блок кода, который выполняет определенную задачу. Функции позволяют разделить программу на отдельные части и избежать повторения кода.
+
+```c
+int add(int a, int b) {    // Определение функции
+    return a + b;          // Возвращаем результат
+}
+```
+
+## Структура функции
+
+### Синтаксис определения
+
+```c
+тип_возвращаемого_значения имя_функции(параметры) {
+    // тело функции
+    return значение;  // если функция возвращает значение
+}
+```
+
+### Части функции
+
+<Tabs>
+<TabItem value="parts" label="Компоненты функции" default>
+
+```c
+#include <stdio.h>
+
+int multiply(int x, int y) {  // ← Заголовок функции
+    int result = x * y;       // ← Тело функции
+    return result;            // ← Возврат значения
+}                             // ← Конец функции
+
+int main() {
+    int answer = multiply(5, 3);  // ← Вызов функции
+    printf("5 × 3 = %d\n", answer);
+
+    return 0;
+}
+```
+
+**Компоненты:**
+- **Тип возврата:** `int` — функция возвращает целое число
+- **Имя функции:** `multiply` — как мы будем её вызывать
+- **Параметры:** `int x, int y` — входные данные
+- **Тело:** код между `{}`
+- **Возврат:** `return result` — что функция отдает обратно
+
+</TabItem>
+<TabItem value="void" label="Функция без возврата">
+
+```c
+#include <stdio.h>
+
+void printMessage(void) {     // void = ничего не возвращает
+    printf("Это сообщение из функции\n");
+    printf("Функция выполнила свою работу\n");
+    // return; - можно не писать для void функций
+}
+
+int main() {
+    printMessage();  // Вызов функции
+    printMessage();  // Можем вызвать снова
+
+    return 0;
+}
+```
+
+</TabItem>
+</Tabs>
+
+## Типы функций по возвращаемому значению
+
+### Функции с возвращаемым значением
+
+```c
+#include <stdio.h>
+
+int getSquare(int number) {
+    return number * number;
+}
+
+float calculateAverage(int sum, int count) {
+    return (float)sum / count;
+}
+
+char getGrade(int score) {
+    if (score >= 90) return 'A';
+    if (score >= 80) return 'B';
+    if (score >= 70) return 'C';
+    return 'F';
+}
+
+int main() {
+    int num = 7;
+    printf("%d в квадрате = %d\n", num, getSquare(num));
+
+    printf("Средний балл: %.1f\n", calculateAverage(270, 3));
+
+    printf("Оценка за 85 баллов: %c\n", getGrade(85));
+
+    return 0;
+}
+```
+
+### Функции без возвращаемого значения (void)
+
+<Tabs>
+<TabItem value="actions" label="Функции-действия" default>
+
+```c
+#include <stdio.h>
+
+void showWelcome(void) {
+    printf("=============================\n");
+    printf("  Добро пожаловать в систему \n");
+    printf("=============================\n");
+}
+
+void showMenu(void) {
+    printf("1. Новый документ\n");
+    printf("2. Открыть файл\n");
+    printf("3. Настройки\n");
+    printf("0. Выход\n");
+}
+
+void showGoodbye(void) {
+    printf("До свидания!\n");
+}
+
+int main() {
+    showWelcome();
+    showMenu();
+    showGoodbye();
+
+    return 0;
+}
+```
+
+</TabItem>
+<TabItem value="procedures" label="Процедуры обработки">
+
+```c
+#include <stdio.h>
+
+void printLine(int length) {
+    for (int i = 0; i < length; i++) {
+        printf("-");
+    }
+    printf("\n");
+}
+
+void printHeader(char *title) {
+    printLine(30);
+    printf("  %s\n", title);
+    printLine(30);
+}
+
+int main() {
+    printHeader("ОТЧЕТ О ПРОДАЖАХ");
+    printf("Данные за текущий месяц\n");
+    printLine(30);
+
+    return 0;
+}
+```
+
+</TabItem>
+</Tabs>
+
+## Параметры функций
+
+### Функции с параметрами
+
+```c
+#include <stdio.h>
+
+void printInfo(char *name, int age, float salary) {
+    printf("=== ИНФОРМАЦИЯ О СОТРУДНИКЕ ===\n");
+    printf("Имя: %s\n", name);
+    printf("Возраст: %d лет\n", age);
+    printf("Зарплата: %.2f руб.\n", salary);
+    printf("===============================\n");
+}
+
+int calculateBonus(int baseSalary, int percentage) {
+    return baseSalary * percentage / 100;
+}
+
+int main() {
+    char *employee = "Иван Петров";
+    int employeeAge = 30;
+    float employeeSalary = 75000.0;
+
+    printInfo(employee, employeeAge, employeeSalary);
+
+    int bonus = calculateBonus(75000, 15);
+    printf("Бонус составляет: %d руб.\n", bonus);
+
+    return 0;
+}
+```
+
+### Функции без параметров
+
+```c
+#include <stdio.h>
+
+int getCurrentYear(void) {
+    return 2025;  // В реальности можно получать системную дату
+}
+
+void clearScreen(void) {
+    // Имитация очистки экрана
+    for (int i = 0; i < 3; i++) {
+        printf("\n");
+    }
+    printf("=== ЭКРАН ОЧИЩЕН ===\n");
+}
+
+int main() {
+    printf("Текущий год: %d\n", getCurrentYear());
+
+    clearScreen();
+
+    printf("Программа продолжает работу\n");
+
+    return 0;
+}
+```
+
+## Прототипы функций
+
+### Объявление до определения
+
+```c
+#include <stdio.h>
+
+// Прототипы функций (объявления)
+int add(int a, int b);
+int subtract(int a, int b);
+void printResult(int result);
+
+int main() {
+    int x = 10, y = 3;
+
+    int sum = add(x, y);
+    int diff = subtract(x, y);
+
+    printf("Числа: %d и %d\n", x, y);
+    printResult(sum);
+    printResult(diff);
+
+    return 0;
+}
+
+// Определения функций (после main)
+int add(int a, int b) {
+    return a + b;
+}
+
+int subtract(int a, int b) {
+    return a - b;
+}
+
+void printResult(int result) {
+    printf("Результат: %d\n", result);
+}
+```
+
+## Локальные и глобальные переменные
+
+### Область видимости
+
+<Tabs>
+<TabItem value="local" label="Локальные переменные" default>
+
+```c
+#include <stdio.h>
+
+int processData(int input) {
+    int localVariable = input * 2;  // Локальная переменная
+    printf("Внутри функции: localVariable = %d\n", localVariable);
+    return localVariable;
+}
+
+int main() {
+    int result = processData(5);
+    printf("В main: result = %d\n", result);
+
+    // printf("%d", localVariable);  // Ошибка! Переменная недоступна здесь
+
+    return 0;
+}
+```
+
+</TabItem>
+<TabItem value="global" label="Глобальные переменные">
+
+```c
+#include <stdio.h>
+
+int globalCounter = 0;  // Глобальная переменная
+
+void incrementCounter(void) {
+    globalCounter++;  // Доступна во всех функциях
+    printf("Счетчик увеличен до: %d\n", globalCounter);
+}
+
+void resetCounter(void) {
+    globalCounter = 0;
+    printf("Счетчик сброшен\n");
+}
+
+int main() {
+    printf("Начальное значение: %d\n", globalCounter);
+
+    incrementCounter();  // 1
+    incrementCounter();  // 2
+    incrementCounter();  // 3
+
+    resetCounter();      // 0
+
+    return 0;
+}
+```
+
+</TabItem>
+</Tabs>
+
+## Практические примеры
+
+### Математические функции
+
+```c
+#include <stdio.h>
+
+int factorial(int n) {
+    int result = 1;
+    for (int i = 1; i <= n; i++) {
+        result *= i;
+    }
+    return result;
+}
+
+int power(int base, int exponent) {
+    int result = 1;
+    for (int i = 0; i < exponent; i++) {
+        result *= base;
+    }
+    return result;
+}
+
+int isEven(int number) {
+    return number % 2 == 0;  // Возвращает 1 (true) или 0 (false)
+}
+
+int main() {
+    int number = 5;
+
+    printf("Число: %d\n", number);
+    printf("Факториал: %d\n", factorial(number));
+    printf("В кубе: %d\n", power(number, 3));
+    printf("Четное: %s\n", isEven(number) ? "Да" : "Нет");
+
+    return 0;
+}
+```
+
+### Функции для работы со строками
+
+```c
+#include <stdio.h>
+
+int getStringLength(char *str) {
+    int length = 0;
+    while (*str != '\0') {
+        length++;
+        str++;
+    }
+    return length;
+}
+
+void printStringInfo(char *text) {
+    int length = getStringLength(text);
+
+    printf("Строка: \"%s\"\n", text);
+    printf("Длина: %d символов\n", length);
+    printf("Первый символ: '%c'\n", *text);
+    printf("Последний символ: '%c'\n", *(text + length - 1));
+}
+
+int main() {
+    char message[] = "Изучаем функции";
+
+    printStringInfo(message);
+
+    return 0;
+}
+```
+
+:::tip Правила хорошего стиля
+- **Имена функций** должны описывать действие: `calculateSum`, `printReport`
+- **Одна функция — одна задача** — не смешивайте разные операции
+- **Используйте прототипы** для сложных программ
+- **Локальные переменные** предпочтительнее глобальных
+- **Возвращайте значения** вместо изменения глобальных переменных
+:::
+
+:::info Преимущества функций
+- **Повторное использование** кода
+- **Упрощение отладки** — легче найти ошибку в отдельной функции
+- **Читаемость** программы — понятная структура
+- **Модульность** — независимые части программы
+:::
+
+Функции — основа структурированного программирования, позволяющая создавать понятные и поддерживаемые программы.

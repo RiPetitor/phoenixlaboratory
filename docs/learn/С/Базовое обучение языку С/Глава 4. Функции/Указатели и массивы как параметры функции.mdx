@@ -1,0 +1,721 @@
+---
+sidebar_position: 8
+---
+
+# Указатели и массивы как параметры функции
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+## Массивы как параметры функций
+
+При передаче массива в функцию передается указатель на его первый элемент, а не копия всего массива.
+
+```c
+void processArray(int arr[], int size) {
+    // arr — это указатель на первый элемент массива
+}
+```
+
+## Способы объявления массивов в параметрах
+
+### Эквивалентные формы записи
+
+<Tabs>
+<TabItem value="forms" label="Разные формы записи" default>
+
+```c
+#include <stdio.h>
+
+// Все эти объявления эквивалентны:
+void method1(int arr[], int size) {
+    printf("Форма 1: arr[] - %d элементов\n", size);
+}
+
+void method2(int arr[10], int size) {  // Размер игнорируется!
+    printf("Форма 2: arr[10] - %d элементов\n", size);
+}
+
+void method3(int *arr, int size) {
+    printf("Форма 3: *arr - %d элементов\n", size);
+}
+
+int main() {
+    int data[5] = {1, 2, 3, 4, 5};
+
+    method1(data, 5);
+    method2(data, 5);  // Размер 10 в объявлении не важен
+    method3(data, 5);
+
+    return 0;
+}
+```
+
+</TabItem>
+<TabItem value="size-importance" label="Важность передачи размера">
+
+```c
+#include <stdio.h>
+
+void printArray(int *arr, int size) {
+    printf("Элементы массива: ");
+    for (int i = 0; i < size; i++) {
+        printf("%d ", arr[i]);
+    }
+    printf("\n");
+}
+
+// ❌ Неправильно — размер неизвестен
+void badPrintArray(int arr[]) {
+    // Как узнать размер массива? sizeof(arr) вернет размер указателя!
+    printf("Размер параметра arr: %zu байт\n", sizeof(arr));  // 8 байт (указатель)
+}
+
+int main() {
+    int numbers[6] = {10, 20, 30, 40, 50, 60};
+
+    printf("Размер массива в main: %zu байт\n", sizeof(numbers));  // 24 байта
+
+    printArray(numbers, 6);  // ✅ Правильно — передаем размер
+    badPrintArray(numbers);   // Демонстрация проблемы
+
+    return 0;
+}
+```
+
+</TabItem>
+</Tabs>
+
+## Передача указателей как параметров
+
+### Изменение переменных через указатели
+
+```c
+#include <stdio.h>
+
+void swapValues(int *a, int *b) {
+    int temp = *a;
+    *a = *b;
+    *b = temp;
+}
+
+void updateBalance(float *balance, float amount, char operation) {
+    printf("Текущий баланс: %.2f\n", *balance);
+
+    if (operation == '+') {
+        *balance += amount;
+        printf("Пополнение на %.2f\n", amount);
+    } else if (operation == '-') {
+        if (*balance >= amount) {
+            *balance -= amount;
+            printf("Списание %.2f\n", amount);
+        } else {
+            printf("Недостаточно средств\n");
+        }
+    }
+
+    printf("Новый баланс: %.2f\n", *balance);
+}
+
+int main() {
+    int x = 10, y = 20;
+    printf("До обмена: x = %d, y = %d\n", x, y);
+
+    swapValues(&x, &y);  // Передаем адреса переменных
+
+    printf("После обмена: x = %d, y = %d\n", x, y);
+
+    float account = 500.0;
+    printf("\n=== БАНКОВСКИЕ ОПЕРАЦИИ ===\n");
+    updateBalance(&account, 150.0, '+');
+    updateBalance(&account, 200.0, '-');
+    updateBalance(&account, 1000.0, '-');
+
+    return 0;
+}
+```
+
+## Обработка массивов в функциях
+
+### Поиск и анализ
+
+<Tabs>
+<TabItem value="search" label="Поиск в массиве" default>
+
+```c
+#include <stdio.h>
+
+int findElement(int arr[], int size, int target) {
+    for (int i = 0; i < size; i++) {
+        if (arr[i] == target) {
+            return i;  // Возвращаем индекс найденного элемента
+        }
+    }
+    return -1;  // Элемент не найден
+}
+
+int* findElementPtr(int arr[], int size, int target) {
+    for (int i = 0; i < size; i++) {
+        if (arr[i] == target) {
+            return &arr[i];  // Возвращаем указатель на элемент
+        }
+    }
+    return NULL;  // Элемент не найден
+}
+
+int main() {
+    int data[8] = {15, 42, 8, 73, 29, 56, 91, 34};
+    int searchValue = 73;
+
+    // Поиск по индексу
+    int index = findElement(data, 8, searchValue);
+    if (index >= 0) {
+        printf("Элемент %d найден на позиции %d\n", searchValue, index);
+    }
+
+    // Поиск по указателю
+    int *foundPtr = findElementPtr(data, 8, searchValue);
+    if (foundPtr != NULL) {
+        printf("Найденный элемент: %d\n", *foundPtr);
+        *foundPtr = 999;  // Можем изменить через указатель
+        printf("Изменили на: %d\n", data[index]);
+    }
+
+    return 0;
+}
+```
+
+</TabItem>
+<TabItem value="statistics" label="Статистический анализ">
+
+```c
+#include <stdio.h>
+
+void analyzeArray(int arr[], int size, int *min, int *max, float *avg, int *sum) {
+    *min = arr[0];
+    *max = arr[0];
+    *sum = 0;
+
+    for (int i = 0; i < size; i++) {
+        if (arr[i] < *min) *min = arr[i];
+        if (arr[i] > *max) *max = arr[i];
+        *sum += arr[i];
+    }
+
+    *avg = (float)(*sum) / size;
+}
+
+int main() {
+    int scores[10] = {85, 92, 78, 95, 88, 76, 94, 82, 90, 87};
+    int minimum, maximum, total;
+    float average;
+
+    analyzeArray(scores, 10, &minimum, &maximum, &average, &total);
+
+    printf("=== АНАЛИЗ ОЦЕНОК ===\n");
+    printf("Количество студентов: 10\n");
+    printf("Минимальная оценка: %d\n", minimum);
+    printf("Максимальная оценка: %d\n", maximum);
+    printf("Сумма баллов: %d\n", total);
+    printf("Средний балл: %.1f\n", average);
+
+    return 0;
+}
+```
+
+</TabItem>
+</Tabs>
+
+## Модификация массивов через функции
+
+### Прямое изменение элементов
+
+```c
+#include <stdio.h>
+
+void fillArray(int arr[], int size, int value) {
+    for (int i = 0; i < size; i++) {
+        arr[i] = value;
+    }
+}
+
+void multiplyArray(int arr[], int size, int multiplier) {
+    for (int i = 0; i < size; i++) {
+        arr[i] *= multiplier;
+    }
+}
+
+void reverseArray(int arr[], int size) {
+    for (int i = 0; i < size / 2; i++) {
+        int temp = arr[i];
+        arr[i] = arr[size - 1 - i];
+        arr[size - 1 - i] = temp;
+    }
+}
+
+int main() {
+    int numbers[6];
+
+    // Заполняем массив
+    fillArray(numbers, 6, 5);
+    printf("После заполнения: ");
+    for (int i = 0; i < 6; i++) printf("%d ", numbers[i]);
+    printf("\n");
+
+    // Умножаем на 3
+    multiplyArray(numbers, 6, 3);
+    printf("После умножения на 3: ");
+    for (int i = 0; i < 6; i++) printf("%d ", numbers[i]);
+    printf("\n");
+
+    // Переворачиваем
+    reverseArray(numbers, 6);
+    printf("После переворота: ");
+    for (int i = 0; i < 6; i++) printf("%d ", numbers[i]);
+    printf("\n");
+
+    return 0;
+}
+```
+
+## Работа со строками как параметрами
+
+### Функции обработки строк
+
+<Tabs>
+<TabItem value="string-length" label="Длина и анализ строк" default>
+
+```c
+#include <stdio.h>
+
+int stringLength(char *str) {
+    int length = 0;
+    while (str[length] != '\0') {
+        length++;
+    }
+    return length;
+}
+
+void analyzeString(char str[], int *length, int *vowels, int *consonants) {
+    *length = 0;
+    *vowels = 0;
+    *consonants = 0;
+
+    while (str[*length] != '\0') {
+        char ch = str[*length];
+
+        if ((ch >= 'A' && ch <= 'Z') || (ch >= 'a' && ch <= 'z')) {
+            if (ch == 'a' || ch == 'e' || ch == 'i' || ch == 'o' || ch == 'u' ||
+                ch == 'A' || ch == 'E' || ch == 'I' || ch == 'O' || ch == 'U') {
+                (*vowels)++;
+            } else {
+                (*consonants)++;
+            }
+        }
+
+        (*length)++;
+    }
+}
+
+int main() {
+    char text[] = "Programming in C language";
+    int len, vowelCount, consonantCount;
+
+    analyzeString(text, &len, &vowelCount, &consonantCount);
+
+    printf("Текст: \"%s\"\n", text);
+    printf("Длина: %d символов\n", len);
+    printf("Гласных: %d\n", vowelCount);
+    printf("Согласных: %d\n", consonantCount);
+
+    return 0;
+}
+```
+
+</TabItem>
+<TabItem value="string-modify" label="Модификация строк">
+
+```c
+#include <stdio.h>
+
+void toLowerCase(char *str) {
+    while (*str != '\0') {
+        if (*str >= 'A' && *str <= 'Z') {
+            *str = *str - 'A' + 'a';  // Преобразуем в строчную
+        }
+        str++;
+    }
+}
+
+void removeChar(char *str, char target) {
+    char *src = str;   // Откуда читаем
+    char *dst = str;   // Куда пишем
+
+    while (*src != '\0') {
+        if (*src != target) {
+            *dst = *src;
+            dst++;
+        }
+        src++;
+    }
+    *dst = '\0';  // Завершаем строку
+}
+
+int main() {
+    char message[] = "Hello World!";
+
+    printf("Исходная строка: \"%s\"\n", message);
+
+    toLowerCase(message);
+    printf("В нижнем регистре: \"%s\"\n", message);
+
+    removeChar(message, 'l');
+    printf("Без символа 'l': \"%s\"\n", message);
+
+    return 0;
+}
+```
+
+</TabItem>
+</Tabs>
+
+## Многомерные массивы как параметры
+
+### Двумерные массивы
+
+```c
+#include <stdio.h>
+
+void printMatrix(int matrix[][4], int rows) {  // Количество столбцов обязательно!
+    printf("Матрица %d×4:\n", rows);
+
+    for (int i = 0; i < rows; i++) {
+        for (int j = 0; j < 4; j++) {
+            printf("%3d ", matrix[i][j]);
+        }
+        printf("\n");
+    }
+}
+
+int calculateMatrixSum(int matrix[][4], int rows) {
+    int sum = 0;
+
+    for (int i = 0; i < rows; i++) {
+        for (int j = 0; j < 4; j++) {
+            sum += matrix[i][j];
+        }
+    }
+
+    return sum;
+}
+
+void fillMatrix(int matrix[][4], int rows, int value) {
+    for (int i = 0; i < rows; i++) {
+        for (int j = 0; j < 4; j++) {
+            matrix[i][j] = value + i + j;
+        }
+    }
+}
+
+int main() {
+    int data[3][4];
+
+    fillMatrix(data, 3, 10);
+    printMatrix(data, 3);
+
+    int sum = calculateMatrixSum(data, 3);
+    printf("Сумма элементов: %d\n", sum);
+
+    return 0;
+}
+```
+
+## Функции возвращающие указатели
+
+### Возврат указателей на элементы массива
+
+<Tabs>
+<TabItem value="return-pointer" label="Возврат указателя на элемент" default>
+
+```c
+#include <stdio.h>
+
+int* findMax(int arr[], int size) {
+    if (size <= 0) return NULL;
+
+    int *maxPtr = &arr[0];  // Указатель на первый элемент
+
+    for (int i = 1; i < size; i++) {
+        if (arr[i] > *maxPtr) {
+            maxPtr = &arr[i];  // Запоминаем адрес нового максимума
+        }
+    }
+
+    return maxPtr;
+}
+
+int* findMin(int arr[], int size) {
+    if (size <= 0) return NULL;
+
+    int *minPtr = arr;  // Указатель на первый элемент
+
+    for (int i = 1; i < size; i++) {
+        if (*(arr + i) < *minPtr) {
+            minPtr = arr + i;  // Адрес нового минимума
+        }
+    }
+
+    return minPtr;
+}
+
+int main() {
+    int values[8] = {45, 12, 78, 34, 89, 23, 67, 56};
+
+    int *maxElement = findMax(values, 8);
+    int *minElement = findMin(values, 8);
+
+    if (maxElement != NULL) {
+        printf("Максимальный элемент: %d\n", *maxElement);
+        printf("Его позиция: %ld\n", maxElement - values);
+
+        *maxElement = 999;  // Изменяем через указатель
+        printf("Изменили максимум на: %d\n", *maxElement);
+    }
+
+    if (minElement != NULL) {
+        printf("Минимальный элемент: %d\n", *minElement);
+        printf("Его позиция: %ld\n", minElement - values);
+    }
+
+    return 0;
+}
+```
+
+</TabItem>
+<TabItem value="string-return" label="Возврат указателей на строки">
+
+```c
+#include <stdio.h>
+
+char* findWordInText(char *text, char *word) {
+    char *textPtr = text;
+
+    while (*textPtr != '\0') {
+        char *t = textPtr;
+        char *w = word;
+
+        // Сравниваем символы
+        while (*t != '\0' && *w != '\0' && *t == *w) {
+            t++;
+            w++;
+        }
+
+        if (*w == '\0') {  // Слово найдено полностью
+            return textPtr;
+        }
+
+        textPtr++;
+    }
+
+    return NULL;  // Слово не найдено
+}
+
+char* getFileExtension(char *filename) {
+    char *lastDot = NULL;
+    char *ptr = filename;
+
+    while (*ptr != '\0') {
+        if (*ptr == '.') {
+            lastDot = ptr + 1;  // Указатель на символ после точки
+        }
+        ptr++;
+    }
+
+    return lastDot;
+}
+
+int main() {
+    char document[] = "Изучаем программирование на языке Си";
+    char searchWord[] = "программирование";
+
+    char *found = findWordInText(document, searchWord);
+
+    if (found != NULL) {
+        printf("Слово найдено: \"%s\"\n", found);
+        printf("Позиция в тексте: %ld\n", found - document);
+    }
+
+    char filename[] = "document.txt";
+    char *extension = getFileExtension(filename);
+
+    if (extension != NULL) {
+        printf("Расширение файла: %s\n", extension);
+    }
+
+    return 0;
+}
+```
+
+</TabItem>
+</Tabs>
+
+## Константные параметры
+
+### Защита данных от изменений
+
+```c
+#include <stdio.h>
+
+void printArrayReadOnly(const int arr[], int size) {
+    printf("Массив (только чтение): ");
+    for (int i = 0; i < size; i++) {
+        printf("%d ", arr[i]);
+        // arr[i] = 0;  // Ошибка компиляции! Константный массив
+    }
+    printf("\n");
+}
+
+int calculateSum(const int *arr, int size) {
+    int sum = 0;
+    for (int i = 0; i < size; i++) {
+        sum += arr[i];  // Можем читать
+        // arr[i] *= 2;  // Ошибка! Нельзя изменять
+    }
+    return sum;
+}
+
+void processString(const char *input, char *output) {
+    int i = 0;
+    while (input[i] != '\0') {
+        output[i] = input[i];  // Копируем из константной строки
+        i++;
+    }
+    output[i] = '\0';
+
+    // input[0] = 'X';  // Ошибка! input защищена от изменений
+}
+
+int main() {
+    int data[5] = {10, 20, 30, 40, 50};
+    char source[] = "Исходный текст";
+    char destination[50];
+
+    printArrayReadOnly(data, 5);  // Безопасный вывод
+
+    int sum = calculateSum(data, 5);
+    printf("Сумма элементов: %d\n", sum);
+
+    processString(source, destination);
+    printf("Скопированная строка: \"%s\"\n", destination);
+
+    return 0;
+}
+```
+
+## Практические применения
+
+### Библиотека обработки массивов
+
+```c
+#include <stdio.h>
+
+// Сортировка массива
+void bubbleSort(int arr[], int size) {
+    for (int i = 0; i < size - 1; i++) {
+        for (int j = 0; j < size - 1 - i; j++) {
+            if (arr[j] > arr[j + 1]) {
+                // Обмен элементов
+                int temp = arr[j];
+                arr[j] = arr[j + 1];
+                arr[j + 1] = temp;
+            }
+        }
+    }
+}
+
+// Фильтрация элементов
+int filterArray(int source[], int sourceSize, int target[], int minValue) {
+    int targetIndex = 0;
+
+    for (int i = 0; i < sourceSize; i++) {
+        if (source[i] >= minValue) {
+            target[targetIndex] = source[i];
+            targetIndex++;
+        }
+    }
+
+    return targetIndex;  // Количество отфильтрованных элементов
+}
+
+// Объединение массивов
+void mergeArrays(int arr1[], int size1, int arr2[], int size2, int result[]) {
+    int i = 0;
+
+    // Копируем первый массив
+    for (int j = 0; j < size1; j++) {
+        result[i++] = arr1[j];
+    }
+
+    // Копируем второй массив
+    for (int j = 0; j < size2; j++) {
+        result[i++] = arr2[j];
+    }
+}
+
+int main() {
+    int original[8] = {64, 34, 25, 12, 22, 11, 90, 5};
+    int filtered[8];
+    int sorted[8];
+    int combined[16];
+    int additional[4] = {100, 200, 300, 400};
+
+    printf("Исходный массив: ");
+    for (int i = 0; i < 8; i++) printf("%d ", original[i]);
+    printf("\n");
+
+    // Фильтруем элементы >= 20
+    int filteredCount = filterArray(original, 8, filtered, 20);
+    printf("Отфильтровано (%d элементов): ", filteredCount);
+    for (int i = 0; i < filteredCount; i++) printf("%d ", filtered[i]);
+    printf("\n");
+
+    // Копируем для сортировки
+    for (int i = 0; i < 8; i++) sorted[i] = original[i];
+
+    bubbleSort(sorted, 8);
+    printf("Отсортированный: ");
+    for (int i = 0; i < 8; i++) printf("%d ", sorted[i]);
+    printf("\n");
+
+    // Объединяем массивы
+    mergeArrays(original, 8, additional, 4, combined);
+    printf("Объединенный: ");
+    for (int i = 0; i < 12; i++) printf("%d ", combined[i]);
+    printf("\n");
+
+    return 0;
+}
+```
+
+:::info Ключевые принципы
+- **Массивы передаются по ссылке** — изменения влияют на исходный массив
+- **Всегда передавайте размер** массива отдельным параметром
+- **Используйте const** для параметров, которые не должны изменяться
+- **Функции могут возвращать указатели** на элементы переданных массивов
+:::
+
+:::tip Лучшие практики
+- Проверяйте параметры на корректность (NULL, размер > 0)
+- Используйте осмысленные имена параметров
+- Документируйте ожидаемый размер массива
+- Защищайте данные через const при необходимости
+:::
+
+:::warning Частые ошибки
+- Забывать передавать размер массива
+- Пытаться получить размер массива через sizeof() в функции
+- Изменять массивы, когда нужно только читать
+- Возвращать указатели на локальные переменные
+:::
+
+Передача указателей и массивов в функции — основа для создания эффективных и переиспользуемых программных модулей.

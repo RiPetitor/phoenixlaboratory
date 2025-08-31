@@ -1,0 +1,655 @@
+---
+sidebar_position: 12
+---
+
+# Функция как результат другой функции
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+## Возврат указателей на функции
+
+Функция может возвращать указатель на другую функцию. Это позволяет динамически выбирать алгоритм или поведение программы.
+
+```c
+int (*getOperation(char symbol))(int, int) {
+    // Возвращаем указатель на нужную функцию
+    switch (symbol) {
+        case '+': return addFunction;
+        case '*': return multiplyFunction;
+        default: return NULL;
+    }
+}
+```
+
+## Синтаксис возврата функций
+
+### Объявление функции, возвращающей функцию
+
+<Tabs>
+<TabItem value="syntax" label="Синтаксис" default>
+
+```c
+// Общий вид:
+// тип_возврата (*имя_функции(параметры))(параметры_возвращаемой_функции)
+
+#include <stdio.h>
+
+// Простые функции для возврата
+int add(int a, int b) { return a + b; }
+int subtract(int a, int b) { return a - b; }
+
+// Функция, возвращающая указатель на функцию
+int (*selectMathOperation(int choice))(int, int) {
+    switch (choice) {
+        case 1: return add;
+        case 2: return subtract;
+        default: return NULL;
+    }
+}
+
+int main() {
+    int choice = 1;
+
+    // Получаем функцию
+    int (*operation)(int, int) = selectMathOperation(choice);
+
+    if (operation != NULL) {
+        int result = operation(10, 3);
+        printf("Результат операции: %d\n", result);
+    }
+
+    return 0;
+}
+```
+
+</TabItem>
+<TabItem value="typedef" label="Упрощение через typedef">
+
+```c
+#include <stdio.h>
+
+// Определяем тип функции
+typedef int (*MathOperation)(int, int);
+
+int multiply(int a, int b) { return a * b; }
+int divide(int a, int b) { return b != 0 ? a / b : 0; }
+
+// Теперь синтаксис проще
+MathOperation getMathFunction(char op) {
+    switch (op) {
+        case '*': return multiply;
+        case '/': return divide;
+        default: return NULL;
+    }
+}
+
+int main() {
+    char operation = '*';
+
+    MathOperation func = getMathFunction(operation);
+
+    if (func != NULL) {
+        printf("12 %c 4 = %d\n", operation, func(12, 4));
+    }
+
+    return 0;
+}
+```
+
+</TabItem>
+</Tabs>
+
+## Фабрики функций
+
+### Создание функций на основе параметров
+
+```c
+#include <stdio.h>
+
+// Функции обработки данных
+void processAsIntegers(int arr[], int size) {
+    printf("Обработка как целые числа:\n");
+    for (int i = 0; i < size; i++) {
+        printf("%d ", arr[i]);
+    }
+    printf("\n");
+}
+
+void processAsCharacters(int arr[], int size) {
+    printf("Обработка как символы:\n");
+    for (int i = 0; i < size; i++) {
+        if (arr[i] >= 32 && arr[i] <= 126) {
+            printf("'%c' ", (char)arr[i]);
+        } else {
+            printf("? ");
+        }
+    }
+    printf("\n");
+}
+
+void processAsSum(int arr[], int size) {
+    int sum = 0;
+    for (int i = 0; i < size; i++) {
+        sum += arr[i];
+    }
+    printf("Сумма элементов: %d\n", sum);
+}
+
+// Фабрика процессоров данных
+void (*getDataProcessor(char *mode))(int[], int) {
+    if (mode[0] == 'n') return processAsIntegers;    // "numbers"
+    if (mode[0] == 'c') return processAsCharacters;  // "chars"
+    if (mode[0] == 's') return processAsSum;         // "sum"
+    return NULL;
+}
+
+int main() {
+    int data[5] = {65, 66, 67, 68, 69};  // ASCII коды A, B, C, D, E
+
+    char *modes[3] = {"numbers", "chars", "sum"};
+
+    printf("Один массив — разные способы обработки:\n");
+    for (int i = 0; i < 5; i++) printf("%d ", data[i]);
+    printf("\n\n");
+
+    for (int i = 0; i < 3; i++) {
+        void (*processor)(int[], int) = getDataProcessor(modes[i]);
+
+        if (processor != NULL) {
+            printf("Режим '%s':\n", modes[i]);
+            processor(data, 5);
+            printf("\n");
+        }
+    }
+
+    return 0;
+}
+```
+
+## Стратегии алгоритмов
+
+### Выбор алгоритма во время выполнения
+
+<Tabs>
+<TabItem value="sorting-strategy" label="Стратегии сортировки" default>
+
+```c
+#include <stdio.h>
+
+// Алгоритмы сортировки
+void bubbleSort(int arr[], int size) {
+    printf("Применяем сортировку пузырьком\n");
+    for (int i = 0; i < size - 1; i++) {
+        for (int j = 0; j < size - 1 - i; j++) {
+            if (arr[j] > arr[j + 1]) {
+                int temp = arr[j];
+                arr[j] = arr[j + 1];
+                arr[j + 1] = temp;
+            }
+        }
+    }
+}
+
+void insertionSort(int arr[], int size) {
+    printf("Применяем сортировку вставками\n");
+    for (int i = 1; i < size; i++) {
+        int key = arr[i];
+        int j = i - 1;
+
+        while (j >= 0 && arr[j] > key) {
+            arr[j + 1] = arr[j];
+            j--;
+        }
+        arr[j + 1] = key;
+    }
+}
+
+// Фабрика алгоритмов сортировки
+void (*getSortingAlgorithm(int dataSize))(int[], int) {
+    if (dataSize <= 10) {
+        return insertionSort;  // Для маленьких массивов
+    } else {
+        return bubbleSort;     // Для больших массивов
+    }
+}
+
+int main() {
+    int smallArray[5] = {64, 34, 25, 12, 22};
+    int largeArray[12] = {64, 34, 25, 12, 22, 11, 90, 88, 76, 50, 42, 13};
+
+    printf("=== АВТОМАТИЧЕСКИЙ ВЫБОР АЛГОРИТМА ===\n");
+
+    // Выбираем алгоритм для маленького массива
+    void (*smallSorter)(int[], int) = getSortingAlgorithm(5);
+    printf("Маленький массив (5 элементов):\n");
+    smallSorter(smallArray, 5);
+    for (int i = 0; i < 5; i++) printf("%d ", smallArray[i]);
+    printf("\n\n");
+
+    // Выбираем алгоритм для большого массива
+    void (*largeSorter)(int[], int) = getSortingAlgorithm(12);
+    printf("Большой массив (12 элементов):\n");
+    largeSorter(largeArray, 12);
+    for (int i = 0; i < 12; i++) printf("%d ", largeArray[i]);
+    printf("\n");
+
+    return 0;
+}
+```
+
+</TabItem>
+<TabItem value="search-strategy" label="Стратегии поиска">
+
+```c
+#include <stdio.h>
+
+// Алгоритмы поиска
+int linearSearch(int arr[], int size, int target) {
+    printf("Линейный поиск элемента %d\n", target);
+    for (int i = 0; i < size; i++) {
+        if (arr[i] == target) {
+            return i;
+        }
+    }
+    return -1;
+}
+
+int binarySearch(int arr[], int size, int target) {
+    printf("Бинарный поиск элемента %d (массив должен быть отсортирован)\n", target);
+    int left = 0, right = size - 1;
+
+    while (left <= right) {
+        int mid = (left + right) / 2;
+        if (arr[mid] == target) {
+            return mid;
+        } else if (arr[mid] < target) {
+            left = mid + 1;
+        } else {
+            right = mid - 1;
+        }
+    }
+    return -1;
+}
+
+// Выбираем алгоритм поиска
+int (*getSearchAlgorithm(int isSorted))(int[], int, int) {
+    if (isSorted) {
+        return binarySearch;   // Для отсортированных массивов
+    } else {
+        return linearSearch;   // Для неотсортированных массивов
+    }
+}
+
+int main() {
+    int unsorted[6] = {64, 34, 25, 89, 12, 22};
+    int sorted[6] = {12, 22, 25, 34, 64, 89};
+    int target = 25;
+
+    // Поиск в неотсортированном массиве
+    int (*searchUnsorted)(int[], int, int) = getSearchAlgorithm(0);
+    int pos1 = searchUnsorted(unsorted, 6, target);
+    printf("Найден на позиции: %d\n\n", pos1);
+
+    // Поиск в отсортированном массиве
+    int (*searchSorted)(int[], int, int) = getSearchAlgorithm(1);
+    int pos2 = searchSorted(sorted, 6, target);
+    printf("Найден на позиции: %d\n", pos2);
+
+    return 0;
+}
+```
+
+</TabItem>
+</Tabs>
+
+## Условное поведение функций
+
+### Функции-конфигураторы
+
+```c
+#include <stdio.h>
+
+// Функции форматирования вывода
+void formatAsDecimal(int value) {
+    printf("%d", value);
+}
+
+void formatAsHex(int value) {
+    printf("0x%X", value);
+}
+
+void formatAsBinary(int value) {
+    printf("0b");
+    for (int i = 7; i >= 0; i--) {
+        printf("%d", (value >> i) & 1);
+    }
+}
+
+// Функция выбора форматтера
+void (*getFormatter(char *format))(int) {
+    if (format[0] == 'd') return formatAsDecimal;  // "decimal"
+    if (format[0] == 'h') return formatAsHex;      // "hex"
+    if (format[0] == 'b') return formatAsBinary;   // "binary"
+    return formatAsDecimal;  // По умолчанию
+}
+
+// Функция вывода с настраиваемым форматированием
+void displayNumbers(int arr[], int size, char *format) {
+    void (*formatter)(int) = getFormatter(format);
+
+    printf("Формат '%s': ", format);
+    for (int i = 0; i < size; i++) {
+        formatter(arr[i]);
+        if (i < size - 1) printf(", ");
+    }
+    printf("\n");
+}
+
+int main() {
+    int numbers[4] = {15, 255, 42, 128};
+
+    printf("Числа в разных форматах:\n");
+
+    displayNumbers(numbers, 4, "decimal");
+    displayNumbers(numbers, 4, "hex");
+    displayNumbers(numbers, 4, "binary");
+
+    return 0;
+}
+```
+
+## Функции-генераторы
+
+### Создание специализированных функций
+
+<Tabs>
+<TabItem value="generators" label="Генераторы функций" default>
+
+```c
+#include <stdio.h>
+
+// Тип функции-предиката
+typedef int (*Predicate)(int);
+
+// Функции-предикаты
+int isGreaterThan10(int x) { return x > 10; }
+int isGreaterThan50(int x) { return x > 50; }
+int isGreaterThan100(int x) { return x > 100; }
+
+// Генератор предикатов (концептуально)
+Predicate createGreaterThanPredicate(int threshold) {
+    // В языке Си нельзя создавать функции динамически,
+    // но можем выбирать из готовых
+    switch (threshold) {
+        case 10: return isGreaterThan10;
+        case 50: return isGreaterThan50;
+        case 100: return isGreaterThan100;
+        default: return NULL;
+    }
+}
+
+// Функция фильтрации с динамически выбранным предикатом
+int filterWithThreshold(int arr[], int size, int threshold, int result[]) {
+    Predicate predicate = createGreaterThanPredicate(threshold);
+
+    if (predicate == NULL) {
+        printf("Неподдерживаемый порог: %d\n", threshold);
+        return 0;
+    }
+
+    int count = 0;
+    printf("Фильтруем элементы > %d:\n", threshold);
+
+    for (int i = 0; i < size; i++) {
+        if (predicate(arr[i])) {
+            result[count] = arr[i];
+            printf("Принят: %d\n", arr[i]);
+            count++;
+        }
+    }
+
+    return count;
+}
+
+int main() {
+    int data[8] = {5, 25, 75, 125, 15, 45, 85, 105};
+    int filtered[8];
+
+    printf("Исходный массив: ");
+    for (int i = 0; i < 8; i++) printf("%d ", data[i]);
+    printf("\n\n");
+
+    int thresholds[3] = {10, 50, 100};
+
+    for (int i = 0; i < 3; i++) {
+        int count = filterWithThreshold(data, 8, thresholds[i], filtered);
+
+        printf("Результат (порог %d): ", thresholds[i]);
+        for (int j = 0; j < count; j++) printf("%d ", filtered[j]);
+        printf("\n\n");
+    }
+
+    return 0;
+}
+```
+
+</TabItem>
+<TabItem value="validators" label="Генераторы валидаторов">
+
+```c
+#include <stdio.h>
+
+// Типы валидаторов
+typedef int (*Validator)(int);
+
+// Готовые валидаторы
+int validateAge(int age) { return age >= 0 && age <= 120; }
+int validateGrade(int grade) { return grade >= 0 && grade <= 100; }
+int validateTemperature(int temp) { return temp >= -50 && temp <= 50; }
+
+// Фабрика валидаторов
+Validator getValidator(char *dataType) {
+    if (dataType[0] == 'a') return validateAge;         // "age"
+    if (dataType[0] == 'g') return validateGrade;       // "grade"
+    if (dataType[0] == 't') return validateTemperature; // "temperature"
+    return NULL;
+}
+
+// Функция проверки данных
+void validateInput(int value, char *dataType) {
+    Validator validator = getValidator(dataType);
+
+    if (validator != NULL) {
+        if (validator(value)) {
+            printf("✅ %s %d корректен\n", dataType, value);
+        } else {
+            printf("❌ %s %d некорректен\n", dataType, value);
+        }
+    } else {
+        printf("❓ Неизвестный тип данных: %s\n", dataType);
+    }
+}
+
+int main() {
+    printf("Система валидации:\n");
+
+    validateInput(25, "age");           // Корректный возраст
+    validateInput(150, "age");          // Некорректный возраст
+    validateInput(85, "grade");         // Корректная оценка
+    validateInput(105, "grade");        // Некорректная оценка
+    validateInput(22, "temperature");   // Корректная температура
+    validateInput(60, "temperature");   // Некорректная температура
+
+    return 0;
+}
+```
+
+</TabItem>
+</Tabs>
+
+## Цепочки функций
+
+### Создание пайплайнов обработки
+
+```c
+#include <stdio.h>
+
+// Функции обработки
+int addFive(int x) { return x + 5; }
+int multiplyByThree(int x) { return x * 3; }
+int subtractTwo(int x) { return x - 2; }
+
+// Тип функции обработки
+typedef int (*Processor)(int);
+
+// Создатель пайплайнов
+Processor* createPipeline(char *pipelineType, int *stageCount) {
+    static Processor simpleFlow[2] = {addFive, multiplyByThree};
+    static Processor complexFlow[3] = {addFive, multiplyByThree, subtractTwo};
+
+    if (pipelineType[0] == 's') {  // "simple"
+        *stageCount = 2;
+        return simpleFlow;
+    } else if (pipelineType[0] == 'c') {  // "complex"
+        *stageCount = 3;
+        return complexFlow;
+    }
+
+    *stageCount = 0;
+    return NULL;
+}
+
+// Выполнение пайплайна
+int executePipeline(int input, char *pipelineType) {
+    int stageCount;
+    Processor *pipeline = createPipeline(pipelineType, &stageCount);
+
+    if (pipeline == NULL) {
+        printf("Неизвестный тип пайплайна: %s\n", pipelineType);
+        return input;
+    }
+
+    int result = input;
+    printf("Пайплайн '%s' для значения %d:\n", pipelineType, input);
+
+    for (int i = 0; i < stageCount; i++) {
+        int oldResult = result;
+        result = pipeline[i](result);
+        printf("Этап %d: %d → %d\n", i + 1, oldResult, result);
+    }
+
+    return result;
+}
+
+int main() {
+    int testValue = 10;
+
+    printf("Тестирование пайплайнов:\n");
+
+    int simpleResult = executePipeline(testValue, "simple");
+    printf("Простой пайплайн: %d → %d\n\n", testValue, simpleResult);
+
+    int complexResult = executePipeline(testValue, "complex");
+    printf("Сложный пайплайн: %d → %d\n", testValue, complexResult);
+
+    return 0;
+}
+```
+
+## Практическое применение
+
+### Система обработки событий
+
+```c
+#include <stdio.h>
+
+// Типы событий
+typedef enum {
+    EVENT_CLICK,
+    EVENT_HOVER,
+    EVENT_KEYPRESS
+} EventType;
+
+// Обработчики событий
+void handleButtonClick() { printf("🖱️ Кнопка нажата\n"); }
+void handleLinkClick() { printf("🔗 Ссылка нажата\n"); }
+void handleMenuClick() { printf("📋 Меню открыто\n"); }
+
+void handleButtonHover() { printf("👆 Наведение на кнопку\n"); }
+void handleLinkHover() { printf("👆 Наведение на ссылку\n"); }
+
+void handleKeyA() { printf("⌨️ Нажата клавиша A\n"); }
+void handleKeyEnter() { printf("⌨️ Нажата клавиша Enter\n"); }
+
+// Фабрика обработчиков событий
+void (*getEventHandler(EventType eventType, int elementId))(void) {
+    switch (eventType) {
+        case EVENT_CLICK:
+            switch (elementId) {
+                case 1: return handleButtonClick;
+                case 2: return handleLinkClick;
+                case 3: return handleMenuClick;
+                default: return NULL;
+            }
+        case EVENT_HOVER:
+            switch (elementId) {
+                case 1: return handleButtonHover;
+                case 2: return handleLinkHover;
+                default: return NULL;
+            }
+        case EVENT_KEYPRESS:
+            switch (elementId) {
+                case 65: return handleKeyA;      // ASCII код 'A'
+                case 13: return handleKeyEnter; // ASCII код Enter
+                default: return NULL;
+            }
+        default:
+            return NULL;
+    }
+}
+
+// Обработка события
+void processEvent(EventType eventType, int elementId) {
+    void (*handler)(void) = getEventHandler(eventType, elementId);
+
+    if (handler != NULL) {
+        handler();  // Выполняем соответствующий обработчик
+    } else {
+        printf("❓ Нет обработчика для события\n");
+    }
+}
+
+int main() {
+    printf("Система обработки событий:\n");
+
+    processEvent(EVENT_CLICK, 1);    // Клик по кнопке
+    processEvent(EVENT_HOVER, 2);    // Наведение на ссылку
+    processEvent(EVENT_KEYPRESS, 65); // Нажатие клавиши A
+    processEvent(EVENT_CLICK, 99);   // Неизвестный элемент
+
+    return 0;
+}
+```
+
+:::info Ключевые принципы
+- **Динамический выбор** поведения во время выполнения
+- **Инкапсуляция алгоритмов** в отдельные функции
+- **Стратегический паттерн** — выбор алгоритма по условиям
+- **Фабричный паттерн** — создание функций по параметрам
+:::
+
+:::tip Преимущества
+- **Гибкость** — поведение программы настраивается динамически
+- **Расширяемость** — легко добавлять новые алгоритмы
+- **Переиспользование** — один интерфейс для разных реализаций
+- **Тестируемость** — можно подставлять тестовые функции
+:::
+
+:::warning Ограничения
+- **В языке Си нельзя создавать функции динамически** — только выбирать из готовых
+- **Проверяйте возвращаемые указатели** на NULL
+- **Документируйте ожидаемое поведение** возвращаемых функций
+:::
+
+Возврат функций из других функций позволяет создавать адаптивные системы с настраиваемым поведением.

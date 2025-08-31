@@ -1,0 +1,432 @@
+---
+sidebar_position: 6
+---
+
+# Указатели и строки
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+## Строки как массивы символов
+
+Строка в языке Си — это массив символов, заканчивающийся нулевым символом `'\0'`. Указатели позволяют эффективно работать со строками.
+
+```c
+char name[] = "Анна";     // Массив: ['А', 'н', 'н', 'а', '\0']
+char *namePtr = name;     // Указатель на первый символ
+```
+
+## Объявление строк через указатели
+
+### Два способа создания строк
+
+<Tabs>
+<TabItem value="array" label="Массив символов" default>
+
+```c
+#include <stdio.h>
+
+int main() {
+    char greeting[20] = "Привет";  // Массив символов
+    char *greetingPtr = greeting;
+
+    printf("Строка: %s\n", greeting);
+    printf("Через указатель: %s\n", greetingPtr);
+
+    // Можем изменять символы
+    greeting[0] = 'п';  // Изменяем первый символ
+    printf("После изменения: %s\n", greeting);
+
+    return 0;
+}
+```
+
+</TabItem>
+<TabItem value="pointer" label="Указатель на строку">
+
+```c
+#include <stdio.h>
+
+int main() {
+    char *message = "Добро пожаловать";  // Указатель на строковый литерал
+
+    printf("Сообщение: %s\n", message);
+    printf("Первый символ: '%c'\n", *message);
+    printf("Второй символ: '%c'\n", *(message + 1));
+
+    // ❌ Нельзя изменять строковые литералы!
+    // *message = 'д';  // Ошибка выполнения!
+
+    return 0;
+}
+```
+
+</TabItem>
+</Tabs>
+
+## Обход строки указателем
+
+### Посимвольный доступ
+
+```c
+#include <stdio.h>
+
+int main() {
+    char word[] = "Программа";
+    char *ptr = word;
+
+    printf("Символы строки:\n");
+
+    while (*ptr != '\0') {  // До нулевого символа
+        printf("'%c' ", *ptr);
+        ptr++;  // Переходим к следующему символу
+    }
+    printf("\n");
+
+    return 0;
+}
+```
+
+### Подсчет длины строки
+
+<Tabs>
+<TabItem value="length" label="Вычисление длины" default>
+
+```c
+#include <stdio.h>
+
+int stringLength(char *str) {
+    int length = 0;
+    while (*str != '\0') {
+        length++;
+        str++;
+    }
+    return length;
+}
+
+int main() {
+    char text[] = "Изучаем указатели";
+    int len = stringLength(text);
+
+    printf("Строка: \"%s\"\n", text);
+    printf("Длина: %d символов\n", len);
+
+    return 0;
+}
+```
+
+</TabItem>
+<TabItem value="characters" label="Анализ символов">
+
+```c
+#include <stdio.h>
+
+int main() {
+    char sentence[] = "Hello World 123!";
+    char *ptr = sentence;
+    int letters = 0, digits = 0, others = 0;
+
+    printf("Анализируем: \"%s\"\n", sentence);
+
+    while (*ptr != '\0') {
+        if ((*ptr >= 'A' && *ptr <= 'Z') || (*ptr >= 'a' && *ptr <= 'z')) {
+            letters++;
+        } else if (*ptr >= '0' && *ptr <= '9') {
+            digits++;
+        } else {
+            others++;
+        }
+        ptr++;
+    }
+
+    printf("Букв: %d, цифр: %d, других: %d\n", letters, digits, others);
+
+    return 0;
+}
+```
+
+</TabItem>
+</Tabs>
+
+## Копирование строк
+
+### Функция копирования
+
+```c
+#include <stdio.h>
+
+void copyString(char *destination, char *source) {
+    while (*source != '\0') {
+        *destination = *source;  // Копируем символ
+        destination++;
+        source++;
+    }
+    *destination = '\0';  // Добавляем завершающий нулевой символ
+}
+
+int main() {
+    char original[] = "Исходная строка";
+    char copy[50];  // Достаточно места для копии
+
+    copyString(copy, original);
+
+    printf("Оригинал: %s\n", original);
+    printf("Копия: %s\n", copy);
+
+    return 0;
+}
+```
+
+### Сравнение строк
+
+```c
+#include <stdio.h>
+
+int compareStrings(char *str1, char *str2) {
+    while (*str1 != '\0' && *str2 != '\0') {
+        if (*str1 != *str2) {
+            return 0;  // Строки разные
+        }
+        str1++;
+        str2++;
+    }
+
+    // Проверяем, что обе строки закончились одновременно
+    return (*str1 == '\0' && *str2 == '\0');
+}
+
+int main() {
+    char password[] = "secret123";
+    char input[] = "secret123";
+
+    if (compareStrings(password, input)) {
+        printf("✅ Пароли совпадают\n");
+    } else {
+        printf("❌ Пароли не совпадают\n");
+    }
+
+    return 0;
+}
+```
+
+## Массив строк
+
+### Указатели на строки
+
+<Tabs>
+<TabItem value="string-array" label="Массив строк" default>
+
+```c
+#include <stdio.h>
+
+int main() {
+    char *cities[4] = {
+        "Москва",
+        "Санкт-Петербург",
+        "Новосибирск",
+        "Екатеринбург"
+    };
+
+    printf("Крупнейшие города России:\n");
+
+    for (int i = 0; i < 4; i++) {
+        printf("%d. %s\n", i + 1, cities[i]);
+    }
+
+    // Работаем с отдельной строкой
+    char *selectedCity = cities[1];
+    printf("\nВыбранный город: %s\n", selectedCity);
+    printf("Первая буква: '%c'\n", *selectedCity);
+
+    return 0;
+}
+```
+
+</TabItem>
+<TabItem value="menu" label="Меню с строками">
+
+```c
+#include <stdio.h>
+
+int main() {
+    char *menuItems[5] = {
+        "Новый документ",
+        "Открыть файл",
+        "Сохранить",
+        "Настройки",
+        "Выход"
+    };
+
+    int choice = 2;  // Выбираем пункт 2
+
+    printf("=== МЕНЮ ===\n");
+    for (int i = 0; i < 5; i++) {
+        char *item = menuItems[i];
+        printf("%d. %s\n", i + 1, item);
+    }
+
+    printf("\nВы выбрали: %s\n", menuItems[choice - 1]);
+
+    return 0;
+}
+```
+
+</TabItem>
+</Tabs>
+
+## Модификация строк через указатели
+
+### Изменение символов
+
+```c
+#include <stdio.h>
+
+void toUpperCase(char *str) {
+    while (*str != '\0') {
+        if (*str >= 'a' && *str <= 'z') {
+            *str = *str - 'a' + 'A';  // Преобразуем в заглавную
+        }
+        str++;
+    }
+}
+
+int main() {
+    char text[] = "hello world";  // Изменяемая строка
+
+    printf("До преобразования: %s\n", text);
+
+    toUpperCase(text);
+
+    printf("После преобразования: %s\n", text);
+
+    return 0;
+}
+```
+
+### Удаление символов
+
+```c
+#include <stdio.h>
+
+void removeSpaces(char *str) {
+    char *src = str;   // Источник (откуда читаем)
+    char *dst = str;   // Назначение (куда пишем)
+
+    while (*src != '\0') {
+        if (*src != ' ') {  // Если не пробел
+            *dst = *src;    // Копируем символ
+            dst++;
+        }
+        src++;
+    }
+    *dst = '\0';  // Завершаем строку
+}
+
+int main() {
+    char sentence[] = "У б и р а е м   п р о б е л ы";
+
+    printf("До обработки: \"%s\"\n", sentence);
+
+    removeSpaces(sentence);
+
+    printf("После обработки: \"%s\"\n", sentence);
+
+    return 0;
+}
+```
+
+## Практические функции для строк
+
+### Поиск подстроки
+
+```c
+#include <stdio.h>
+
+char* findSubstring(char *text, char *pattern) {
+    char *textPtr = text;
+
+    while (*textPtr != '\0') {
+        char *t = textPtr;      // Начинаем сравнение с текущей позиции
+        char *p = pattern;      // Начинаем с начала образца
+
+        // Сравниваем символы
+        while (*t != '\0' && *p != '\0' && *t == *p) {
+            t++;
+            p++;
+        }
+
+        if (*p == '\0') {  // Образец полностью совпал
+            return textPtr;
+        }
+
+        textPtr++;  // Переходим к следующему символу в тексте
+    }
+
+    return NULL;  // Не найдено
+}
+
+int main() {
+    char document[] = "Язык программирования Си";
+    char search[] = "программ";
+
+    char *result = findSubstring(document, search);
+
+    if (result != NULL) {
+        int position = result - document;
+        printf("Найдено \"%s\" в позиции %d\n", search, position);
+        printf("Контекст: ...%s\n", result);
+    } else {
+        printf("Подстрока \"%s\" не найдена\n", search);
+    }
+
+    return 0;
+}
+```
+
+## Различия в работе со строками
+
+### Строковые литералы vs массивы
+
+```c
+#include <stdio.h>
+
+int main() {
+    // Массив символов (изменяемый)
+    char editableString[] = "Можно изменить";
+    char *editPtr = editableString;
+
+    // Строковый литерал (неизменяемый)
+    char *literalPtr = "Нельзя изменить";
+
+    printf("Изменяемая строка: %s\n", editableString);
+    printf("Литерал: %s\n", literalPtr);
+
+    // ✅ Можно изменить массив
+    *editPtr = 'м';  // Первая буква становится строчной
+    printf("После изменения: %s\n", editableString);
+
+    // ❌ Нельзя изменить литерал
+    // *literalPtr = 'н';  // Ошибка выполнения!
+
+    // ✅ Можно переназначить указатель на литерал
+    literalPtr = "Другая строка";
+    printf("Новый литерал: %s\n", literalPtr);
+
+    return 0;
+}
+```
+
+:::warning Важные различия
+- **Массив символов** — изменяемые данные в памяти
+- **Строковый литерал** — неизменяемые данные, обычно в read-only памяти
+- Попытка изменить строковый литерал может вызвать сбой программы
+:::
+
+:::tip Практические советы
+- Используйте массивы символов для строк, которые нужно изменять
+- Строковые литералы подходят для константных сообщений
+- При работе с указателями всегда проверяйте наличие `'\0'`
+- Помните: `strlen()` не включает завершающий нулевой символ
+:::
+
+Указатели предоставляют мощные инструменты для эффективной обработки строк посимвольно.
