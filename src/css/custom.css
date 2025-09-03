@@ -14,19 +14,10 @@
     --ifm-color-primary: #e5e5e5;
     --ifm-link-hover-color: rgb(123, 104, 238);
     --ifm-navbar-link-hover-color: rgb(218, 165, 32);
-}
-/* =================================
-   ОСНОВНЫЕ СТИЛИ
-   ================================= */
 
-/* Текст */
-
-.white {
-    color: white;
-}
-
-[data-theme="dark"] {
-    --ifm-font-color: #e5e5e5;
+    a {
+        text-decoration: none;
+    }
 }
 
 /* =================================

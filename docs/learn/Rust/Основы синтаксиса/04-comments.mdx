@@ -1,0 +1,2225 @@
+---
+title: Комментарии в коде
+description: Изучение различных типов комментариев в Rust - обычные, документационные и их использование для создания качественной документации
+sidebar_position: 4
+---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+import CodeBlock from '@theme/CodeBlock';
+
+# Комментарии в коде
+
+В этой главе мы изучим все типы **комментариев** в Rust — от простых пояснений до полноценной документации с примерами кода. Rust имеет мощную систему документирования, которая позволяет создавать профессиональную документацию прямо из исходного кода.
+
+## Типы комментариев в Rust
+
+### Обычные комментарии
+
+**Обычные комментарии** игнорируются компилятором и предназначены для разработчиков:
+
+<Tabs>
+<TabItem value="line" label="Однострочные комментарии">
+
+```rust title="Однострочные комментарии с //"
+fn main() {
+    // Это простой однострочный комментарий
+    let x = 5;
+
+    let y = 10; // Комментарий в конце строки
+
+    // Можно использовать несколько строк комментариев
+    // для более подробного объяснения сложного кода
+    // или алгоритма
+    let result = x + y;
+
+    println!("Результат: {}", result); // Выводим результат
+
+    // TODO: Добавить проверку переполнения
+    // FIXME: Исправить алгоритм для отрицательных чисел
+    // NOTE: Этот код работает только для положительных чисел
+    // WARNING: Не использовать в многопоточной среде
+}
+```
+
+</TabItem>
+<TabItem value="block" label="Блочные комментарии">
+
+```rust title="Блочные комментарии с /* */"
+fn main() {
+    /*
+     Это многострочный блочный комментарий.
+     Он может занимать несколько строк
+     и удобен для больших объяснений.
+    */
+    let data = vec![1, 2, 3, 4, 5];
+
+    /* Короткий блочный комментарий */
+    let sum: i32 = data.iter().sum();
+
+    /*
+    Блочные комментарии могут быть вложенными:
+    /*
+        Это вложенный комментарий
+        /* И ещё один уровень вложенности */
+    */
+    Что очень удобно для временного отключения кода
+    */
+
+    println!("Сумма: {}", sum);
+
+    /*
+    Многострочное объяснение алгоритма:
+
+    1. Создаём вектор чисел
+    2. Используем итератор для обхода
+    3. Применяем метод sum() для вычисления суммы
+    4. Выводим результат на экран
+    */
+}
+```
+
+</TabItem>
+<TabItem value="commenting-code" label="Комментирование кода">
+
+```rust title="Временное отключение кода"
+fn main() {
+    let numbers = vec![1, 2, 3, 4, 5];
+
+    // Временно отключённый код
+    // let doubled: Vec<i32> = numbers.iter().map(|x| x * 2).collect();
+    // println!("Удвоенные: {:?}", doubled);
+
+    /*
+    Блок кода временно отключён:
+
+    let sum: i32 = numbers.iter().sum();
+    let average = sum as f64 / numbers.len() as f64;
+    println!("Среднее: {:.2}", average);
+    */
+
+    // Активный код
+    println!("Исходные числа: {:?}", numbers);
+
+    // Комментарии для объяснения сложных частей
+    let result = numbers
+        .iter()                    // Создаём итератор
+        .filter(|&&x| x % 2 == 0)  // Оставляем только чётные числа
+        .map(|x| x * x)            // Возводим в квадрат
+        .collect::<Vec<i32>>();    // Собираем в вектор
+
+    println!("Квадраты чётных: {:?}", result);
+}
+```
+
+</TabItem>
+</Tabs>
+
+## Документационные комментарии
+
+**Документационные комментарии** обрабатываются компилятором и используются для генерации HTML-документации:
+
+### Внешние документационные комментарии
+
+<Tabs>
+<TabItem value="triple-slash" label="/// для элементов">
+
+```rust title="Документирование функций, структур и модулей"
+/// Вычисляет площадь прямоугольника.
+///
+/// # Аргументы
+///
+/// * `width` - Ширина прямоугольника
+/// * `height` - Высота прямоугольника
+///
+/// # Примеры
+///
+/// ```
+/// let area = calculate_rectangle_area(5.0, 3.0);
+/// assert_eq!(area, 15.0);
+/// ```
+///
+/// # Паники
+///
+/// Функция не паникует при нормальных условиях.
+fn calculate_rectangle_area(width: f64, height: f64) -> f64 {
+    width * height
+}
+
+/// Представляет пользователя в системе.
+///
+/// Структура содержит основную информацию о пользователе,
+/// включая имя, возраст и адрес электронной почты.
+///
+/// # Примеры
+///
+/// ```
+/// let user = User::new("Алиса", 30, "alice@example.com");
+/// println!("Пользователь: {}", user.name);
+/// ```
+pub struct User {
+    /// Имя пользователя
+    pub name: String,
+    /// Возраст пользователя
+    pub age: u32,
+    /// Адрес электронной почты
+    pub email: String,
+}
+
+impl User {
+    /// Создаёт нового пользователя.
+    ///
+    /// # Аргументы
+    ///
+    /// * `name` - Имя пользователя
+    /// * `age` - Возраст пользователя
+    /// * `email` - Адрес электронной почты
+    ///
+    /// # Примеры
+    ///
+    /// ```
+    /// let user = User::new("Боб", 25, "bob@example.com");
+    /// ```
+    pub fn new(name: &str, age: u32, email: &str) -> Self {
+        Self {
+            name: name.to_string(),
+            age,
+            email: email.to_string(),
+        }
+    }
+
+    /// Проверяет, является ли пользователь совершеннолетним.
+    ///
+    /// # Возвращает
+    ///
+    /// `true` если пользователю 18 лет или больше, иначе `false`.
+    ///
+    /// # Примеры
+    ///
+    /// ```
+    /// let adult = User::new("Чарли", 20, "charlie@example.com");
+    /// let minor = User::new("Дэвид", 16, "david@example.com");
+    ///
+    /// assert!(adult.is_adult());
+    /// assert!(!minor.is_adult());
+    /// ```
+    pub fn is_adult(&self) -> bool {
+        self.age >= 18
+    }
+}
+
+/// Модуль для работы с геометрическими фигурами.
+///
+/// Этот модуль предоставляет функции для вычисления
+/// площадей и периметров различных геометрических фигур.
+///
+/// # Примеры
+///
+/// ```
+/// use geometry::circle_area;
+/// let area = circle_area(5.0);
+/// ```
+pub mod geometry {
+    /// Число π с высокой точностью
+    pub const PI: f64 = 3.14159265358979323846;
+
+    /// Вычисляет площадь круга по радиусу.
+    ///
+    /// # Аргументы
+    ///
+    /// * `radius` - Радиус круга
+    ///
+    /// # Возвращает
+    ///
+    /// Площадь круга
+    ///
+    /// # Примеры
+    ///
+    /// ```
+    /// use geometry::circle_area;
+    /// let area = circle_area(3.0);
+    /// assert!((area - 28.274333882308138).abs() < 1e-10);
+    /// ```
+    pub fn circle_area(radius: f64) -> f64 {
+        PI * radius * radius
+    }
+}
+
+fn main() {
+    let area = calculate_rectangle_area(5.0, 3.0);
+    println!("Площадь прямоугольника: {}", area);
+
+    let user = User::new("Алиса", 25, "alice@example.com");
+    println!("Пользователь {} совершеннолетний: {}", user.name, user.is_adult());
+
+    let circle_area = geometry::circle_area(2.0);
+    println!("Площадь круга: {}", circle_area);
+}
+```
+
+</TabItem>
+<TabItem value="outer-block" label="/** */ для элементов">
+
+```rust title="Блочные документационные комментарии"
+/**
+ * Структура для представления точки в двумерном пространстве.
+ *
+ * Содержит координаты x и y, а также методы для работы с точкой.
+ *
+ * # Примеры
+ *
+ * ```
+ * let point = Point::new(3.0, 4.0);
+ * let distance = point.distance_from_origin();
+ * ```
+ */
+pub struct Point {
+    /// Координата x
+    pub x: f64,
+    /// Координата y
+    pub y: f64,
+}
+
+impl Point {
+    /**
+     * Создаёт новую точку с заданными координатами.
+     *
+     * # Аргументы
+     *
+     * * `x` - Координата по оси X
+     * * `y` - Координата по оси Y
+     *
+     * # Примеры
+     *
+     * ```
+     * let origin = Point::new(0.0, 0.0);
+     * let point = Point::new(3.0, 4.0);
+     * ```
+     */
+    pub fn new(x: f64, y: f64) -> Self {
+        Self { x, y }
+    }
+
+    /**
+     * Вычисляет расстояние от точки до начала координат.
+     *
+     * Использует теорему Пифагора: √(x² + y²)
+     *
+     * # Возвращает
+     *
+     * Расстояние от точки до начала координат
+     *
+     * # Примеры
+     *
+     * ```
+     * let point = Point::new(3.0, 4.0);
+     * let distance = point.distance_from_origin();
+     * assert_eq!(distance, 5.0);
+     * ```
+     */
+    pub fn distance_from_origin(&self) -> f64 {
+        (self.x * self.x + self.y * self.y).sqrt()
+    }
+
+    /**
+     * Вычисляет расстояние между двумя точками.
+     *
+     * # Аргументы
+     *
+     * * `other` - Другая точка
+     *
+     * # Возвращает
+     *
+     * Расстояние между точками
+     *
+     * # Примеры
+     *
+     * ```
+     * let p1 = Point::new(0.0, 0.0);
+     * let p2 = Point::new(3.0, 4.0);
+     * let distance = p1.distance_to(&p2);
+     * assert_eq!(distance, 5.0);
+     * ```
+     */
+    pub fn distance_to(&self, other: &Point) -> f64 {
+        let dx = self.x - other.x;
+        let dy = self.y - other.y;
+        (dx * dx + dy * dy).sqrt()
+    }
+}
+
+fn main() {
+    let p1 = Point::new(0.0, 0.0);
+    let p2 = Point::new(3.0, 4.0);
+
+    println!("Точка 1: ({}, {})", p1.x, p1.y);
+    println!("Точка 2: ({}, {})", p2.x, p2.y);
+    println!("Расстояние от p2 до начала координат: {}", p2.distance_from_origin());
+    println!("Расстояние между точками: {}", p1.distance_to(&p2));
+}
+```
+
+</TabItem>
+</Tabs>
+
+### Внутренние документационные комментарии
+
+<Tabs>
+<TabItem value="inner-line" label="//! для модулей">
+
+```rust title="Документирование модуля изнутри"
+//! # Модуль математических утилит
+//!
+//! Этот модуль предоставляет различные математические функции
+//! и константы для использования в приложении.
+//!
+//! ## Возможности
+//!
+//! - Основные арифметические операции
+//! - Тригонометрические функции
+//! - Константы высокой точности
+//!
+//! ## Примеры использования
+//!
+//! ```
+//! use math_utils::{add, multiply, PI};
+//!
+//! let sum = add(2.0, 3.0);
+//! let product = multiply(4.0, 5.0);
+//! let circumference = 2.0 * PI * 5.0; // Окружность с радиусом 5
+//! ```
+//!
+//! ## Совместимость
+//!
+//! Модуль работает со всеми числовыми типами, поддерживающими
+//! стандартные арифметические операции.
+
+use std::f64::consts;
+
+/// Число π с максимальной точностью f64
+pub const PI: f64 = consts::PI;
+
+/// Число e с максимальной точностью f64
+pub const E: f64 = consts::E;
+
+/// Складывает два числа.
+///
+/// # Примеры
+///
+/// ```
+/// let result = add(2.0, 3.0);
+/// assert_eq!(result, 5.0);
+/// ```
+pub fn add(a: f64, b: f64) -> f64 {
+    a + b
+}
+
+/// Умножает два числа.
+///
+/// # Примеры
+///
+/// ```
+/// let result = multiply(4.0, 5.0);
+/// assert_eq!(result, 20.0);
+/// ```
+pub fn multiply(a: f64, b: f64) -> f64 {
+    a * b
+}
+
+/// Возводит число в степень.
+///
+/// # Аргументы
+///
+/// * `base` - Основание степени
+/// * `exponent` - Показатель степени
+///
+/// # Примеры
+///
+/// ```
+/// let result = power(2.0, 3.0);
+/// assert_eq!(result, 8.0);
+/// ```
+pub fn power(base: f64, exponent: f64) -> f64 {
+    base.powf(exponent)
+}
+
+fn main() {
+    println!("Сложение: 2 + 3 = {}", add(2.0, 3.0));
+    println!("Умножение: 4 * 5 = {}", multiply(4.0, 5.0));
+    println!("Степень: 2^3 = {}", power(2.0, 3.0));
+    println!("π = {}", PI);
+    println!("e = {}", E);
+}
+```
+
+</TabItem>
+<TabItem value="inner-block" label="/*! */ для модулей">
+
+```rust title="Блочные внутренние комментарии"
+/*!
+# Библиотека для работы со строками
+
+Эта библиотека предоставляет расширенные возможности для обработки строк,
+включая валидацию, форматирование и трансформацию текста.
+
+## Основные возможности
+
+* **Валидация** - проверка email, телефонов, URL
+* **Форматирование** - преобразование регистра, обрезка пробелов
+* **Анализ** - подсчёт символов, слов, предложений
+
+## Быстрый старт
+
+```rust
+use string_utils::{validate_email, capitalize, word_count};
+
+// Валидация email
+if validate_email("user@example.com") {
+    println!("Email корректный");
+}
+
+// Форматирование текста
+let text = capitalize("hello world");
+assert_eq!(text, "Hello World");
+
+// Анализ текста
+let count = word_count("Hello beautiful world");
+assert_eq!(count, 3);
+```
+
+## Производительность
+
+Все функции оптимизированы для работы с Unicode-строками
+и имеют линейную сложность O(n) по длине входной строки.
+*/
+
+use regex::Regex;
+
+/// Проверяет корректность email адреса.
+///
+/// Использует упрощённую регулярку для базовой валидации.
+/// Для production-использования рекомендуется более строгая проверка.
+///
+/// # Аргументы
+///
+/// * `email` - Строка для проверки
+///
+/// # Возвращает
+///
+/// `true` если email выглядит корректно, иначе `false`
+///
+/// # Примеры
+///
+/// ```
+/// assert!(validate_email("user@example.com"));
+/// assert!(validate_email("test.email+tag@domain.co.uk"));
+/// assert!(!validate_email("invalid.email"));
+/// assert!(!validate_email("@example.com"));
+/// ```
+
+```rust
+pub fn validate_email(email: &str) -> bool {
+    let re = Regex::new(r"^[^\s@]+@[^\s@]+\.[^\s@]+$").unwrap();
+    re.is_match(email)
+}
+```
+
+/// Преобразует первую букву каждого слова в заглавную.
+///
+/// Разделители слов: пробел, табуляция, новая строка.
+///
+/// # Аргументы
+///
+/// * `text` - Исходный текст
+///
+/// # Возвращает
+///
+/// Новая строка с заглавными первыми буквами слов
+///
+/// # Примеры
+///
+/// ```
+/// assert_eq!(capitalize("hello world"), "Hello World");
+/// assert_eq!(capitalize("rust is AWESOME"), "Rust Is AWESOME");
+/// ```
+```rust
+pub fn capitalize(text: &str) -> String {
+    text.split_whitespace()
+        .map(|word| {
+            let mut chars = word.chars();
+            match chars.next() {
+                None => String::new(),
+                Some(first) => first.to_uppercase().collect::<String>() + chars.as_str(),
+            }
+        })
+        .collect::<Vec<_>>()
+        .join(" ")
+}
+```
+
+/// Подсчитывает количество слов в тексте.
+///
+/// Словом считается последовательность не-пробельных символов.
+///
+/// # Аргументы
+///
+/// * `text` - Текст для анализа
+///
+/// # Возвращает
+///
+/// Количество слов в тексте
+///
+/// # Примеры
+///
+/// ```
+/// assert_eq!(word_count("Hello world"), 2);
+/// assert_eq!(word_count("  Hello   beautiful   world  "), 3);
+/// assert_eq!(word_count(""), 0);
+/// ```
+
+```rust
+pub fn word_count(text: &str) -> usize {
+    text.split_whitespace().count()
+}
+
+fn main() {
+    // Демонстрация валидации email
+    let emails = ["user@example.com", "invalid.email", "test@domain.co"];
+    for email in emails {
+        println!("Email '{}' корректен: {}", email, validate_email(email));
+    }
+
+    // Демонстрация капитализации
+    let texts = ["hello world", "rust is awesome", "MIXED cAsE text"];
+    for text in texts {
+        println!("'{}' -> '{}'", text, capitalize(text));
+    }
+
+    // Демонстрация подсчёта слов
+    let samples = ["Hello world", "  Много   пробелов  между   словами  ", ""];
+    for sample in samples {
+        println!("'{}' содержит {} слов", sample, word_count(sample));
+    }
+}
+```
+
+</TabItem>
+</Tabs>
+
+## Специальные разделы документации
+
+Rust поддерживает стандартизированные разделы в документации:
+
+### Стандартные разделы
+
+```rust title="Стандартные разделы документации"
+/// Парсит строку в целое число с детальной обработкой ошибок.
+///
+/// # Аргументы
+///
+/// * `input` - Строка для парсинга
+/// * `radix` - Основание системы счисления (2-36)
+///
+/// # Возвращает
+///
+/// * `Ok(число)` - при успешном парсинге
+/// * `Err(описание_ошибки)` - при ошибке парсинга
+///
+/// # Ошибки
+///
+/// Функция возвращает ошибку в следующих случаях:
+/// - Пустая строка
+/// - Недопустимые символы для заданного основания
+/// - Переполнение при конвертации
+/// - Недопустимое основание системы счисления
+///
+/// # Паники
+///
+/// Функция паникует если `radix` меньше 2 или больше 36.
+///
+/// # Безопасность
+///
+/// Функция безопасна для использования с любыми входными данными.
+/// Не выполняет небезопасных операций с памятью.
+///
+/// # Примеры
+///
+/// Базовое использование:
+///
+/// ```
+/// # use std::num::ParseIntError;
+/// # fn parse_number(input: &str, radix: u32) -> Result<i32, String> {
+/// #     i32::from_str_radix(input, radix).map_err(|e| e.to_string())
+/// # }
+/// let result = parse_number("42", 10);
+/// assert_eq!(result, Ok(42));
+///
+/// let hex_result = parse_number("FF", 16);
+/// assert_eq!(hex_result, Ok(255));
+///
+/// let binary_result = parse_number("1010", 2);
+/// assert_eq!(binary_result, Ok(10));
+/// ```
+///
+/// Обработка ошибок:
+///
+/// ```
+/// # fn parse_number(input: &str, radix: u32) -> Result<i32, String> {
+/// #     i32::from_str_radix(input, radix).map_err(|e| e.to_string())
+/// # }
+/// let error_result = parse_number("xyz", 10);
+/// assert!(error_result.is_err());
+///
+/// let empty_result = parse_number("", 10);
+/// assert!(empty_result.is_err());
+/// ```
+///
+/// # См. также
+///
+/// * [`str::parse`] - для парсинга в различные типы
+/// * [`i32::from_str_radix`] - встроенная функция парсинга
+/// * [Модуль `num`](std::num) - для работы с числами
+fn parse_number(input: &str, radix: u32) -> Result<i32, String> {
+    if radix < 2 || radix > 36 {
+        panic!("Недопустимое основание системы счисления: {}", radix);
+    }
+
+    if input.is_empty() {
+        return Err("Пустая строка".to_string());
+    }
+
+    i32::from_str_radix(input, radix)
+        .map_err(|e| format!("Ошибка парсинга: {}", e))
+}
+
+/// Конфигурация для HTTP клиента.
+///
+/// # Примеры
+///
+/// Создание конфигурации с настройками по умолчанию:
+///
+/// ```
+/// let config = HttpConfig::default();
+/// assert_eq!(config.timeout_seconds, 30);
+/// assert_eq!(config.max_retries, 3);
+/// ```
+///
+/// Создание пользовательской конфигурации:
+///
+/// ```
+/// let config = HttpConfig {
+///     timeout_seconds: 60,
+///     max_retries: 5,
+///     user_agent: "MyApp/1.0".to_string(),
+/// };
+/// ```
+#[derive(Debug, Clone)]
+pub struct HttpConfig {
+    /// Таймаут запроса в секундах
+    pub timeout_seconds: u64,
+    /// Максимальное количество повторов при ошибке
+    pub max_retries: u32,
+    /// Строка User-Agent для HTTP заголовков
+    pub user_agent: String,
+}
+
+impl Default for HttpConfig {
+    /// Создаёт конфигурацию со значениями по умолчанию.
+    ///
+    /// # Значения по умолчанию
+    ///
+    /// * `timeout_seconds`: 30
+    /// * `max_retries`: 3
+    /// * `user_agent`: "RustApp/1.0"
+    ///
+    /// # Примеры
+    ///
+    /// ```
+    /// let config = HttpConfig::default();
+    /// println!("Таймаут: {} секунд", config.timeout_seconds);
+    /// ```
+    fn default() -> Self {
+        Self {
+            timeout_seconds: 30,
+            max_retries: 3,
+            user_agent: "RustApp/1.0".to_string(),
+        }
+    }
+}
+
+fn main() {
+    // Тестирование парсинга чисел
+    println!("=== Парсинг чисел ===");
+
+    let test_cases = [
+        ("42", 10),
+        ("FF", 16),
+        ("1010", 2),
+        ("777", 8),
+    ];
+
+    for (input, radix) in test_cases {
+        match parse_number(input, radix) {
+            Ok(num) => println!("'{}' (base {}) = {}", input, radix, num),
+            Err(e) => println!("Ошибка парсинга '{}': {}", input, e),
+        }
+    }
+
+    // Тестирование ошибок
+    println!("\n=== Тестирование ошибок ===");
+    let error_cases = [("xyz", 10), ("", 10), ("GG", 16)];
+
+    for (input, radix) in error_cases {
+        match parse_number(input, radix) {
+            Ok(num) => println!("'{}' = {}", input, num),
+            Err(e) => println!("Ожидаемая ошибка для '{}': {}", input, e),
+        }
+    }
+
+    // Демонстрация конфигурации
+    println!("\n=== HTTP конфигурация ===");
+    let default_config = HttpConfig::default();
+    println!("Конфигурация по умолчанию: {:?}", default_config);
+
+    let custom_config = HttpConfig {
+        timeout_seconds: 120,
+        max_retries: 10,
+        user_agent: "MyCustomApp/2.0".to_string(),
+    };
+    println!("Пользовательская конфигурация: {:?}", custom_config);
+}
+```
+
+## Тестирование документации
+
+### Доктесты
+
+Примеры кода в документации автоматически тестируются:
+
+<Tabs>
+<TabItem value="basic-doctest" label="Базовые доктесты">
+
+```rust title="Тестируемые примеры в документации"
+/// Вычисляет факториал числа.
+///
+/// # Примеры
+///
+/// ```
+/// # // Скрытые строки начинаются с #
+/// # fn factorial(n: u64) -> u64 {
+/// #     match n {
+/// #         0 | 1 => 1,
+/// #         _ => n * factorial(n - 1),
+/// #     }
+/// # }
+/// assert_eq!(factorial(0), 1);
+/// assert_eq!(factorial(1), 1);
+/// assert_eq!(factorial(5), 120);
+/// ```
+///
+/// Для больших чисел:
+///
+/// ```
+/// # fn factorial(n: u64) -> u64 {
+/// #     match n {
+/// #         0 | 1 => 1,
+/// #         _ => n * factorial(n - 1),
+/// #     }
+/// # }
+/// let result = factorial(10);
+/// assert_eq!(result, 3_628_800);
+/// ```
+fn factorial(n: u64) -> u64 {
+    match n {
+        0 | 1 => 1,
+        _ => n * factorial(n - 1),
+    }
+}
+
+/// Проверяет, является ли строка палиндромом.
+///
+/// # Примеры
+///
+/// Простые случаи:
+///
+/// ```
+/// # fn is_palindrome(s: &str) -> bool {
+/// #     let cleaned: String = s.chars()
+/// #         .filter(|c| c.is_alphanumeric())
+/// #         .map(|c| c.to_lowercase().next().unwrap())
+/// #         .collect();
+/// #     cleaned == cleaned.chars().rev().collect::<String>()
+/// # }
+/// assert!(is_palindrome("racecar"));
+/// assert!(is_palindrome("A man a plan a canal Panama"));
+/// assert!(!is_palindrome("hello"));
+/// ```
+///
+/// Пустые строки и однобуквенные слова:
+///
+/// ```
+/// # fn is_palindrome(s: &str) -> bool {
+/// #     let cleaned: String = s.chars()
+/// #         .filter(|c| c.is_alphanumeric())
+/// #         .map(|c| c.to_lowercase().next().unwrap())
+/// #         .collect();
+/// #     cleaned == cleaned.chars().rev().collect::<String>()
+/// # }
+/// assert!(is_palindrome(""));
+/// assert!(is_palindrome("a"));
+/// assert!(is_palindrome("A"));
+/// ```
+fn is_palindrome(s: &str) -> bool {
+    let cleaned: String = s.chars()
+        .filter(|c| c.is_alphanumeric())
+        .map(|c| c.to_lowercase().next().unwrap())
+        .collect();
+    cleaned == cleaned.chars().rev().collect::<String>()
+}
+
+/// Делит два числа с проверкой деления на ноль.
+///
+/// # Примеры
+///
+/// Успешное деление:
+///
+/// ```
+/// # fn safe_divide(a: f64, b: f64) -> Result<f64, &'static str> {
+/// #     if b == 0.0 {
+/// #         Err("Деление на ноль")
+/// #     } else {
+/// #         Ok(a / b)
+/// #     }
+/// # }
+/// let result = safe_divide(10.0, 2.0);
+/// assert_eq!(result, Ok(5.0));
+/// ```
+///
+/// Обработка ошибки деления на ноль:
+///
+/// ```
+/// # fn safe_divide(a: f64, b: f64) -> Result<f64, &'static str> {
+/// #     if b == 0.0 {
+/// #         Err("Деление на ноль")
+/// #     } else {
+/// #         Ok(a / b)
+/// #     }
+/// # }
+/// let result = safe_divide(10.0, 0.0);
+/// assert_eq!(result, Err("Деление на ноль"));
+/// ```
+fn safe_divide(a: f64, b: f64) -> Result<f64, &'static str> {
+    if b == 0.0 {
+        Err("Деление на ноль")
+    } else {
+        Ok(a / b)
+    }
+}
+
+fn main() {
+    // Демонстрация факториала
+    println!("=== Факториал ===");
+    for i in 0..=6 {
+        println!("{}! = {}", i, factorial(i));
+    }
+
+    // Демонстрация палиндромов
+    println!("\n=== Палиндромы ===");
+    let test_strings = ["racecar", "hello", "A man a plan a canal Panama", "race a car", ""];
+    for s in test_strings {
+        println!("'{}' палиндром: {}", s, is_palindrome(s));
+    }
+
+    // Демонстрация безопасного деления
+    println!("\n=== Безопасное деление ===");
+    let divisions = [(10.0, 2.0), (15.0, 3.0), (7.0, 0.0), (-8.0, 2.0)];
+    for (a, b) in divisions {
+        match safe_divide(a, b) {
+            Ok(result) => println!("{} / {} = {}", a, b, result),
+            Err(error) => println!("{} / {} -> Ошибка: {}", a, b, error),
+        }
+    }
+}
+```
+
+</TabItem>
+<TabItem value="advanced-doctest" label="Продвинутые доктесты">
+
+```rust title="Специальные возможности доктестов"
+/// Структура для работы с очередью.
+///
+/// # Примеры
+///
+/// Создание и использование очереди:
+///
+/// ```
+/// let mut queue = Queue::new();
+/// queue.push(1);
+/// queue.push(2);
+/// queue.push(3);
+///
+/// assert_eq!(queue.pop(), Some(1));
+/// assert_eq!(queue.pop(), Some(2));
+/// assert_eq!(queue.len(), 1);
+/// ```
+///
+/// Работа с пустой очередью:
+///
+/// ```
+/// let mut queue: Queue<i32> = Queue::new();
+/// assert_eq!(queue.pop(), None);
+/// assert!(queue.is_empty());
+/// ```
+///
+/// Пример с паникой (помечен как should_panic):
+///
+/// ```should_panic
+/// let mut queue = Queue::new();
+/// // Этот код должен паниковать
+/// queue.panic_method();
+/// ```
+///
+/// Пример, который может не компилироваться (игнорируется):
+///
+/// ```ignore
+/// // Этот код не будет компилироваться при тестировании
+/// let queue = Queue::new();
+/// queue.some_nonexistent_method();
+/// ```
+///
+/// Пример без выполнения (только проверка компиляции):
+///
+/// ```no_run
+/// // Этот код компилируется, но не выполняется
+/// use std::fs::File;
+/// let file = File::open("/etc/passwd").unwrap();
+/// ```
+///
+/// Пример с определённой версией Rust:
+///
+/// ```edition2021
+/// // Код для Rust edition 2021
+/// let queue = Queue::new();
+/// assert!(queue.is_empty());
+/// ```
+#[derive(Debug)]
+pub struct Queue<T> {
+    items: Vec<T>,
+}
+
+impl<T> Queue<T> {
+    /// Создаёт новую пустую очередь.
+    pub fn new() -> Self {
+        Self {
+            items: Vec::new(),
+        }
+    }
+
+    /// Добавляет элемент в конец очереди.
+    pub fn push(&mut self, item: T) {
+        self.items.push(item);
+    }
+
+    /// Удаляет и возвращает первый элемент очереди.
+    pub fn pop(&mut self) -> Option<T> {
+        if self.items.is_empty() {
+            None
+        } else {
+            Some(self.items.remove(0))
+        }
+    }
+
+    /// Возвращает количество элементов в очереди.
+    pub fn len(&self) -> usize {
+        self.items.len()
+    }
+
+    /// Проверяет, пуста ли очередь.
+    pub fn is_empty(&self) -> bool {
+        self.items.is_empty()
+    }
+
+    /// Метод, который всегда паникует (для демонстрации should_panic).
+    pub fn panic_method(&self) {
+        panic!("Этот метод всегда паникует!");
+    }
+}
+
+/// Функция с комплексным доктестом.
+///
+/// # Примеры
+///
+/// ```
+/// use std::collections::HashMap;
+///
+/// // Создаём тестовые данные
+/// let mut data = HashMap::new();
+/// data.insert("ключ1", "значение1");
+/// data.insert("ключ2", "значение2");
+///
+/// // Тестируем функцию
+/// let result = process_data(&data);
+/// assert_eq!(result.len(), 2);
+/// assert!(result.contains_key("ключ1"));
+/// ```
+///
+/// Тест с временными файлами:
+///
+/// ```no_run
+/// use std::fs::{File, remove_file};
+/// use std::io::Write;
+///
+/// // Создаём временный файл
+/// let mut file = File::create("temp_test.txt").unwrap();
+/// file.write_all(b"test data").unwrap();
+///
+/// // Здесь могла бы быть функция, работающая с файлом
+///
+/// // Удаляем временный файл
+/// remove_file("temp_test.txt").unwrap();
+/// ```
+fn process_data(input: &std::collections::HashMap<&str, &str>) -> std::collections::HashMap<String, String> {
+    input.iter()
+        .map(|(k, v)| (k.to_string(), v.to_string()))
+        .collect()
+}
+
+fn main() {
+    // Демонстрация очереди
+    println!("=== Демонстрация очереди ===");
+    let mut queue = Queue::new();
+
+    println!("Добавляем элементы в очередь");
+    queue.push("первый");
+    queue.push("второй");
+    queue.push("третий");
+
+    println!("Размер очереди: {}", queue.len());
+
+    println!("Извлекаем элементы из очереди:");
+    while let Some(item) = queue.pop() {
+        println!("Извлечён: {}", item);
+    }
+
+    println!("Очередь пуста: {}", queue.is_empty());
+
+    // Демонстрация обработки данных
+    println!("\n=== Обработка данных ===");
+    use std::collections::HashMap;
+
+    let mut input_data = HashMap::new();
+    input_data.insert("имя", "Алиса");
+    input_data.insert("возраст", "30");
+    input_data.insert("город", "Москва");
+
+    let processed = process_data(&input_data);
+    println!("Обработанные данные: {:?}", processed);
+}
+```
+
+</TabItem>
+<TabItem value="doctest-features" label="Возможности доктестов">
+
+```rust title="Специальные атрибуты и возможности"
+/// Функция с различными типами доктестов.
+///
+/// Обычный тест (выполняется при `cargo test`):
+///
+/// ```
+/// assert_eq!(add_two_numbers(2, 3), 5);
+/// ```
+///
+/// Тест, который должен паниковать:
+///
+/// ```should_panic
+/// // Этот код должен вызвать панику
+/// add_two_numbers(i32::MAX, 1); // Переполнение
+/// ```
+///
+/// Тест, который игнорируется (не выполняется):
+///
+/// ```ignore
+/// // Этот код может не работать на всех системах
+/// assert_eq!(add_two_numbers(huge_number1, huge_number2), expected);
+/// ```
+///
+/// Тест, который компилируется, но не выполняется:
+///
+/// ```no_run
+/// // Этот код требует особых условий для выполнения
+/// let result = add_two_numbers(read_from_file(), read_from_network());
+/// println!("Результат: {}", result);
+/// ```
+///
+/// Тест только для проверки компиляции:
+///
+/// ```compile_fail
+/// // Этот код не должен компилироваться
+/// let result: String = add_two_numbers(1, 2); // Неверный тип
+/// ```
+///
+/// Скрытый код для подготовки теста:
+///
+/// ```
+/// # // Эти строки не видны в документации
+/// # fn setup_test_environment() {
+/// #     println!("Настройка окружения для теста");
+/// # }
+/// # setup_test_environment();
+/// let result = add_two_numbers(5, 7);
+/// assert_eq!(result, 12);
+/// ```
+///
+/// Тест с определённым типом ошибки:
+///
+/// ```should_panic(expected = "overflow")
+/// // Должна быть паника с сообщением, содержащим "overflow"
+/// add_two_numbers(i32::MAX, i32::MAX);
+/// ```
+fn add_two_numbers(a: i32, b: i32) -> i32 {
+    // В реальном коде здесь была бы проверка переполнения
+    a.checked_add(b).expect("overflow occurred")
+}
+
+/// Структура с доктестами для методов.
+pub struct Calculator {
+    result: f64,
+}
+
+impl Calculator {
+    /// Создаёт новый калькулятор.
+    ///
+    /// # Примеры
+    ///
+    /// ```
+    /// let calc = Calculator::new();
+    /// assert_eq!(calc.get_result(), 0.0);
+    /// ```
+    pub fn new() -> Self {
+        Self { result: 0.0 }
+    }
+
+    /// Добавляет число к текущему результату.
+    ///
+    /// # Примеры
+    ///
+    /// ```
+    /// let mut calc = Calculator::new();
+    /// calc.add(5.0);
+    /// calc.add(3.0);
+    /// assert_eq!(calc.get_result(), 8.0);
+    /// ```
+    ///
+    /// Цепочка операций:
+    ///
+    /// ```
+    /// let mut calc = Calculator::new();
+    /// let result = calc.add(10.0).multiply(2.0).get_result();
+    /// assert_eq!(result, 20.0);
+    /// ```
+    pub fn add(&mut self, value: f64) -> &mut Self {
+        self.result += value;
+        self
+    }
+
+    /// Умножает текущий результат на число.
+    ///
+    /// # Примеры
+    ///
+    /// ```
+    /// let mut calc = Calculator::new();
+    /// calc.add(5.0).multiply(3.0);
+    /// assert_eq!(calc.get_result(), 15.0);
+    /// ```
+    pub fn multiply(&mut self, value: f64) -> &mut Self {
+        self.result *= value;
+        self
+    }
+
+    /// Возвращает текущий результат.
+    ///
+    /// # Примеры
+    ///
+    /// ```
+    /// let mut calc = Calculator::new();
+    /// assert_eq!(calc.get_result(), 0.0);
+    ///
+    /// calc.add(42.0);
+    /// assert_eq!(calc.get_result(), 42.0);
+    /// ```
+    pub fn get_result(&self) -> f64 {
+        self.result
+    }
+
+    /// Сбрасывает результат в ноль.
+    ///
+    /// # Примеры
+    ///
+    /// ```
+    /// let mut calc = Calculator::new();
+    /// calc.add(100.0);
+    /// assert_eq!(calc.get_result(), 100.0);
+    ///
+    /// calc.reset();
+    /// assert_eq!(calc.get_result(), 0.0);
+    /// ```
+    pub fn reset(&mut self) {
+        self.result = 0.0;
+    }
+}
+
+fn main() {
+    println!("=== Демонстрация сложения ===");
+    let sum1 = add_two_numbers(10, 20);
+    let sum2 = add_two_numbers(-5, 15);
+    println!("10 + 20 = {}", sum1);
+    println!("-5 + 15 = {}", sum2);
+
+    println!("\n=== Демонстрация калькулятора ===");
+    let mut calc = Calculator::new();
+    println!("Начальное значение: {}", calc.get_result());
+
+    calc.add(10.0).multiply(2.0).add(5.0);
+    println!("После операций ((0 + 10) * 2) + 5 = {}", calc.get_result());
+
+    calc.reset();
+    println!("После сброса: {}", calc.get_result());
+
+    // Демонстрация цепочки операций
+    let final_result = calc
+        .add(7.0)
+        .multiply(3.0)
+        .add(1.0)
+        .get_result();
+
+    println!("Цепочка операций: {}", final_result);
+}
+```
+
+</TabItem>
+</Tabs>
+
+## Генерация документации
+
+### Команды cargo doc
+
+```bash title="Основные команды для работы с документацией"
+# Генерация документации
+cargo doc
+
+# Генерация и открытие в браузере
+cargo doc --open
+
+# Генерация документации с приватными элементами
+cargo doc --document-private-items
+
+# Генерация документации для всех зависимостей
+cargo doc --no-deps
+
+# Генерация с примерами кода (запуск доктестов)
+cargo test --doc
+
+# Генерация только для конкретного пакета в workspace
+cargo doc -p my_package
+
+# Генерация с дополнительными флагами rustdoc
+cargo doc -- --html-in-header custom.html
+```
+
+### Настройка в Cargo.toml
+
+```toml title="Настройки документации в Cargo.toml"
+[package]
+name = "my_lib"
+version = "0.1.0"
+edition = "2021"
+documentation = "https://docs.rs/my_lib"
+
+[package.metadata.docs.rs]
+# Настройки для docs.rs
+all-features = true
+rustdoc-args = ["--cfg", "docsrs"]
+
+# Дополнительные возможности для документации
+features = ["doc-images"]
+
+[[example]]
+name = "basic_usage"
+doc-scrape-examples = true
+
+[dependencies]
+# Зависимости только для документации
+[dependencies.image]
+version = "0.24"
+optional = true
+
+[features]
+default = []
+doc-images = ["image"]  # Функция для примеров с изображениями
+```
+
+## Лучшие практики комментирования
+
+### 1. Качественные комментарии
+
+<Tabs>
+<TabItem value="good-comments" label="✅ Хорошие комментарии">
+
+```rust title="Примеры качественных комментариев"
+/// Реализует алгоритм быстрой сортировки (quicksort).
+///
+/// Этот алгоритм имеет среднюю временную сложность O(n log n)
+/// и худшую O(n²), но на практике работает очень быстро.
+///
+/// # Аргументы
+///
+/// * `arr` - Изменяемый срез для сортировки
+///
+/// # Примеры
+///
+/// ```
+/// let mut numbers = vec![64, 34, 25, 12, 22, 11, 90];
+/// quicksort(&mut numbers);
+/// assert_eq!(numbers, vec![11, 12, 22, 25, 34, 64, 90]);
+/// ```
+///
+/// # Производительность
+///
+/// - Лучший случай: O(n log n)
+/// - Средний случай: O(n log n)
+/// - Худший случай: O(n²)
+/// - Память: O(log n) для рекурсивных вызовов
+fn quicksort(arr: &mut [i32]) {
+    if arr.len() <= 1 {
+        return;
+    }
+
+    let pivot_index = partition(arr);
+
+    // Рекурсивно сортируем части до и после опорного элемента
+    quicksort(&mut arr[0..pivot_index]);
+    quicksort(&mut arr[pivot_index + 1..]);
+}
+
+/// Разделяет массив относительно опорного элемента.
+///
+/// Перемещает все элементы меньше опорного влево,
+/// а больше или равные - вправо.
+fn partition(arr: &mut [i32]) -> usize {
+    let len = arr.len();
+    let pivot_index = len - 1;
+    let pivot_value = arr[pivot_index];
+
+    let mut store_index = 0;
+
+    // Перемещаем элементы меньше опорного в начало
+    for i in 0..pivot_index {
+        if arr[i] < pivot_value {
+            arr.swap(i, store_index);
+            store_index += 1;
+        }
+    }
+
+    // Помещаем опорный элемент на правильную позицию
+    arr.swap(store_index, pivot_index);
+    store_index
+}
+
+// Вспомогательная функция с важным комментарием о безопасности
+fn unsafe_memory_operation(ptr: *mut u8, size: usize) {
+    // SAFETY: Вызывающий код гарантирует, что:
+    // 1. ptr указывает на валидную память размером не менее size байт
+    // 2. Память выровнена правильно для типа u8
+    // 3. Никто другой не имеет доступа к этой памяти во время операции
+    unsafe {
+        std::ptr::write_bytes(ptr, 0, size);
+    }
+}
+
+fn main() {
+    let mut test_data = vec![64, 34, 25, 12, 22, 11, 90];
+    println!("До сортировки: {:?}", test_data);
+
+    quicksort(&mut test_data);
+    println!("После сортировки: {:?}", test_data);
+}
+```
+
+</TabItem>
+<TabItem value="bad-comments" label="❌ Плохие комментарии">
+
+```rust title="Примеры плохих комментариев"
+// ❌ Очевидные комментарии
+fn bad_example() {
+    let x = 5; // Присваиваем x значение 5
+    let y = 10; // Присваиваем y значение 10
+    let sum = x + y; // Складываем x и y
+    println!("{}", sum); // Выводим сумму
+}
+
+// ❌ Устаревшие комментарии
+fn calculate_tax(amount: f64) -> f64 {
+    // Налог составляет 10% (комментарий устарел - теперь 12%)
+    amount * 0.12
+}
+
+// ❌ Дезинформирующие комментарии
+/// Сортирует массив по возрастанию (на самом деле по убыванию!)
+fn misleading_sort(arr: &mut [i32]) {
+    arr.sort_by(|a, b| b.cmp(a)); // Сортировка по убыванию
+}
+
+// ❌ Комментарии-извинения за плохой код
+fn messy_function() {
+    // Этот код ужасен, но работает
+    // TODO: Переписать когда-нибудь
+    // HACK: Временное решение
+    let mut result = Vec::new();
+    // Извините за этот беспорядок...
+    for i in 0..100 {
+        if i % 2 == 0 {
+            result.push(i * 2);
+        }
+    }
+}
+
+// ❌ Избыточные комментарии в документации
+/// Эта функция добавляет два числа
+///
+/// # Параметры
+/// * a - первое число для добавления
+/// * b - второе число для добавления
+///
+/// # Возвращает
+/// Сумму двух чисел
+///
+/// # Примеры
+/// ```
+/// let result = add(2, 3);  // result будет 5
+/// ```
+fn add(a: i32, b: i32) -> i32 {
+    a + b  // возвращает сумму a и b
+}
+
+fn main() {
+    bad_example();
+
+    let tax = calculate_tax(100.0);
+    println!("Налог: {}", tax);
+
+    let mut numbers = vec![3, 1, 4, 1, 5];
+    misleading_sort(&mut numbers);
+    println!("Отсортировано: {:?}", numbers);
+
+    messy_function();
+
+    let sum = add(2, 3);
+    println!("Сумма: {}", sum);
+}
+```
+
+</TabItem>
+<TabItem value="comment-guidelines" label="Руководящие принципы">
+
+```rust title="Принципы хорошего комментирования"
+// ✅ Объясняйте ПОЧЕМУ, а не ЧТО
+fn process_data(data: &[u8]) -> Vec<u8> {
+    // Используем буфер размером в 2 раза больше входных данных
+    // для избежания лишних перевыделений памяти при росте
+    let mut buffer = Vec::with_capacity(data.len() * 2);
+
+    for &byte in data {
+        // Пропускаем нулевые байты, так как они указывают на
+        // повреждённые данные в нашем протоколе
+        if byte != 0 {
+            buffer.push(byte);
+        }
+    }
+
+    buffer
+}
+
+// ✅ Документируйте сложные алгоритмы
+/// Реализует алгоритм Луна для проверки контрольных сумм.
+///
+/// Алгоритм используется для валидации номеров кредитных карт,
+/// IMEI и других идентификационных номеров.
+///
+/// # Алгоритм
+///
+/// 1. Начиная с правой цифры, удваивать каждую вторую цифру
+/// 2. Если результат больше 9, вычесть 9
+/// 3. Сложить все цифры
+/// 4. Если сумма кратна 10, номер валиден
+fn luhn_check(number: &str) -> bool {
+    let digits: Vec<u32> = number
+        .chars()
+        .filter_map(|c| c.to_digit(10))
+        .collect();
+
+    if digits.len() < 2 {
+        return false;
+    }
+
+    let sum: u32 = digits
+        .iter()
+        .rev()
+        .enumerate()
+        .map(|(i, &digit)| {
+            if i % 2 == 1 {
+                // Удваиваем каждую вторую цифру справа
+                let doubled = digit * 2;
+                if doubled > 9 { doubled - 9 } else { doubled }
+            } else {
+                digit
+            }
+        })
+        .sum();
+
+    sum % 10 == 0
+}
+
+// ✅ Предупреждайте о подводных камнях
+fn parse_config_file(path: &str) -> Result<Config, String> {
+    // ВАЖНО: Этот парсер не поддерживает вложенные секции
+    // и комментарии в середине строки. Используйте только
+    // простой формат ключ=значение с комментариями на отдельных строках.
+
+    // TODO: Добавить поддержку Unicode escaping последовательностей
+    // при переходе на версию 2.0
+
+    std::fs::read_to_string(path)
+        .map_err(|e| format!("Не удалось прочитать файл: {}", e))
+        .and_then(|content| parse_config_content(&content))
+}
+
+#[derive(Debug)]
+struct Config {
+    database_url: String,
+    port: u16,
+}
+
+fn parse_config_content(content: &str) -> Result<Config, String> {
+    // Заглушка для примера
+    Ok(Config {
+        database_url: "localhost".to_string(),
+        port: 3000,
+    })
+}
+
+// ✅ Используйте стандартные теги для задач
+fn optimize_query(query: &str) -> String {
+    // TODO: Добавить кэширование результатов запросов
+    // FIXME: Запросы с подзапросами работают медленно
+    // HACK: Временное решение для MySQL 5.7 совместимости
+    // NOTE: Этот код должен быть синхронизирован с версией в модуле cache
+    // WARNING: Не использовать для запросов размером более 1MB
+
+    query.to_uppercase()
+}
+
+fn main() {
+    let data = b"hello\x00world\x00!";
+    let processed = process_data(data);
+    println!("Обработанные данные: {:?}", std::str::from_utf8(&processed));
+
+    // Тестируем алгоритм Луна
+    let card_numbers = ["4532015112830366", "1234567890123456", ""];
+    for number in card_numbers {
+        println!("Номер '{}' валиден: {}", number, luhn_check(number));
+    }
+
+    match parse_config_file("config.txt") {
+        Ok(config) => println!("Конфигурация: {:?}", config),
+        Err(e) => println!("Ошибка конфигурации: {}", e),
+    }
+
+    let optimized = optimize_query("select * from users");
+    println!("Оптимизированный запрос: {}", optimized);
+}
+```
+
+</TabItem>
+</Tabs>
+
+### 2. Структура документации проекта
+
+```rust title="Организация документации в проекте"
+//! # My Awesome Library
+//!
+//! Эта библиотека предоставляет инструменты для работы с данными,
+//! включая парсинг, валидацию и трансформацию.
+//!
+//! ## Быстрый старт
+//!
+//! Добавьте в ваш `Cargo.toml`:
+//!
+//! ```toml
+//! [dependencies]
+//! my-awesome-lib = "0.1"
+//! ```
+//!
+//! Основное использование:
+//!
+//! ```
+//! use my_awesome_lib::{Parser, Validator};
+//!
+//! let parser = Parser::new();
+//! let data = parser.parse("some data").unwrap();
+//!
+//! let validator = Validator::new();
+//! assert!(validator.is_valid(&data));
+//! ```
+//!
+//! ## Архитектура
+//!
+//! Библиотека состоит из нескольких основных модулей:
+//!
+//! * [`parser`] - Парсинг различных форматов данных
+//! * [`validator`] - Валидация данных по схемам
+//! * [`transformer`] - Трансформация данных между форматами
+//! * [`error`] - Типы ошибок и их обработка
+//!
+//! ## Возможности
+//!
+//! - ✅ Быстрый парсинг JSON, XML, CSV
+//! - ✅ Гибкая система валидации
+//! - ✅ Трансформация данных между форматами
+//! - ✅ Подробная обработка ошибок
+//! - ✅ Поддержка async/await
+//!
+//! ## Примеры
+//!
+//! Смотрите папку `examples/` для подробных примеров использования.
+
+pub mod parser;
+pub mod validator;
+pub mod transformer;
+pub mod error;
+
+// Реэкспорт основных типов для удобства
+pub use parser::Parser;
+pub use validator::Validator;
+pub use transformer::Transformer;
+pub use error::{LibError, LibResult};
+
+/// Модуль для парсинга различных форматов данных.
+///
+/// Поддерживает JSON, XML, CSV и пользовательские форматы.
+pub mod parser {
+    /// Основной парсер для различных форматов.
+    ///
+    /// # Примеры
+    ///
+    /// ```
+    /// use my_awesome_lib::Parser;
+    ///
+    /// let parser = Parser::new();
+    /// let result = parser.parse_json(r#"{"name": "Alice", "age": 30}"#);
+    /// ```
+    pub struct Parser {
+        strict_mode: bool,
+    }
+
+    impl Parser {
+        /// Создаёт новый парсер с настройками по умолчанию.
+        pub fn new() -> Self {
+            Self { strict_mode: false }
+        }
+
+        /// Включает строгий режим парсинга.
+        ///
+        /// В строгом режиме парсер более требователен к формату входных данных.
+        pub fn with_strict_mode(mut self) -> Self {
+            self.strict_mode = true;
+            self
+        }
+
+        /// Парсит JSON строку.
+        ///
+        /// # Аргументы
+        ///
+        /// * `input` - JSON строка для парсинга
+        ///
+        /// # Ошибки
+        ///
+        /// Возвращает ошибку если JSON некорректен.
+        ///
+        /// # Примеры
+        ///
+        /// ```
+        /// # use my_awesome_lib::Parser;
+        /// let parser = Parser::new();
+        /// let result = parser.parse_json(r#"{"key": "value"}"#);
+        /// assert!(result.is_ok());
+        /// ```
+        pub fn parse_json(&self, input: &str) -> Result<ParsedData, crate::error::LibError> {
+            // Заглушка для примера
+            Ok(ParsedData { content: input.to_string() })
+        }
+    }
+}
+
+/// Модуль для валидации данных по схемам.
+pub mod validator {
+    use crate::parser::ParsedData;
+
+    /// Валидатор данных.
+    ///
+    /// Поддерживает JSON Schema, XML Schema и пользовательские правила.
+    pub struct Validator {
+        schema: Option<String>,
+    }
+
+    impl Validator {
+        /// Создаёт новый валидатор.
+        pub fn new() -> Self {
+            Self { schema: None }
+        }
+
+        /// Устанавливает схему для валидации.
+        ///
+        /// # Примеры
+        ///
+        /// ```
+        /// # use my_awesome_lib::Validator;
+        /// let mut validator = Validator::new();
+        /// validator.set_schema(r#"{"type": "object"}"#);
+        /// ```
+        pub fn set_schema(&mut self, schema: &str) {
+            self.schema = Some(schema.to_string());
+        }
+
+        /// Проверяет, валидны ли данные согласно установленной схеме.
+        ///
+        /// # Примеры
+        ///
+        /// ```
+        /// # use my_awesome_lib::{Validator, parser::ParsedData};
+        /// let validator = Validator::new();
+        /// let data = ParsedData { content: "test".to_string() };
+        /// assert!(validator.is_valid(&data));
+        /// ```
+        pub fn is_valid(&self, data: &ParsedData) -> bool {
+            // Заглушка для примера
+            !data.content.is_empty()
+        }
+    }
+}
+
+/// Модуль для трансформации данных между форматами.
+pub mod transformer {
+    use crate::parser::ParsedData;
+
+    /// Трансформер данных.
+    ///
+    /// Позволяет преобразовывать данные из одного формата в другой.
+    pub struct Transformer {
+        options: TransformOptions,
+    }
+
+    /// Опции трансформации.
+    #[derive(Default)]
+    pub struct TransformOptions {
+        /// Сохранять ли комментарии при трансформации
+        pub preserve_comments: bool,
+        /// Форматировать ли выходные данные
+        pub pretty_print: bool,
+    }
+
+    impl Transformer {
+        /// Создаёт новый трансформер с опциями по умолчанию.
+        pub fn new() -> Self {
+            Self {
+                options: TransformOptions::default(),
+            }
+        }
+
+        /// Устанавливает опции трансформации.
+        pub fn with_options(mut self, options: TransformOptions) -> Self {
+            self.options = options;
+            self
+        }
+
+        /// Трансформирует JSON в XML.
+        ///
+        /// # Примеры
+        ///
+        /// ```
+        /// # use my_awesome_lib::{Transformer, parser::ParsedData};
+        /// let transformer = Transformer::new();
+        /// let json_data = ParsedData { content: r#"{"name": "Alice"}"#.to_string() };
+        /// let xml_result = transformer.json_to_xml(&json_data);
+        /// ```
+        pub fn json_to_xml(&self, data: &ParsedData) -> Result<String, crate::error::LibError> {
+            // Заглушка для примера
+            Ok(format!("<root>{}</root>", data.content))
+        }
+    }
+}
+
+/// Модуль с типами ошибок библиотеки.
+pub mod error {
+    use std::fmt;
+
+    /// Основной тип результата библиотеки.
+    pub type LibResult<T> = Result<T, LibError>;
+
+    /// Типы ошибок библиотеки.
+    #[derive(Debug)]
+    pub enum LibError {
+        /// Ошибка парсинга
+        ParseError(String),
+        /// Ошибка валидации
+        ValidationError(String),
+        /// Ошибка трансформации
+        TransformError(String),
+        /// Ошибка ввода-вывода
+        IoError(std::io::Error),
+    }
+
+    impl fmt::Display for LibError {
+        fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+            match self {
+                LibError::ParseError(msg) => write!(f, "Parse error: {}", msg),
+                LibError::ValidationError(msg) => write!(f, "Validation error: {}", msg),
+                LibError::TransformError(msg) => write!(f, "Transform error: {}", msg),
+                LibError::IoError(err) => write!(f, "IO error: {}", err),
+            }
+        }
+    }
+
+    impl std::error::Error for LibError {}
+
+    impl From<std::io::Error> for LibError {
+        fn from(err: std::io::Error) -> Self {
+            LibError::IoError(err)
+        }
+    }
+}
+
+// Вспомогательные типы, используемые в примерах
+pub use parser::ParsedData;
+
+/// Представляет распарсенные данные.
+pub struct ParsedData {
+    /// Содержимое данных
+    pub content: String,
+}
+
+fn main() {
+    // Демонстрация использования библиотеки
+    println!("=== Демонстрация My Awesome Library ===");
+
+    // Парсинг
+    let parser = Parser::new().with_strict_mode();
+    let json_data = r#"{"name": "Alice", "age": 30, "city": "Moscow"}"#;
+
+    match parser.parse_json(json_data) {
+        Ok(parsed) => {
+            println!("✅ JSON успешно распарсен");
+
+            // Валидация
+            let validator = Validator::new();
+            if validator.is_valid(&parsed) {
+                println!("✅ Данные прошли валидацию");
+
+                // Трансформация
+                let transformer = Transformer::new();
+                match transformer.json_to_xml(&parsed) {
+                    Ok(xml) => println!("✅ Трансформировано в XML: {}", xml),
+                    Err(e) => println!("❌ Ошибка трансформации: {}", e),
+                }
+            } else {
+                println!("❌ Данные не прошли валидацию");
+            }
+        },
+        Err(e) => println!("❌ Ошибка парсинга: {}", e),
+    }
+}
+```
+
+## Специальные комментарии для инструментов
+
+### Атрибуты документации
+
+```rust title="Специальные атрибуты для документации"
+#![doc = "Корневая документация крейта"]
+#![doc(html_root_url = "https://docs.rs/my-crate/")]
+#![doc(html_logo_url = "https://example.com/logo.png")]
+#![doc(html_favicon_url = "https://example.com/favicon.ico")]
+
+/// Функция с настройками отображения документации.
+///
+/// # Примеры
+///
+/// ```
+/// let result = documented_function(42);
+/// assert_eq!(result, 84);
+/// ```
+#[doc = "Альтернативный способ добавления документации"]
+#[doc(alias = "double")]  // Альтернативное имя для поиска
+#[doc(alias = "multiply_by_two")]
+pub fn documented_function(x: i32) -> i32 {
+    x * 2
+}
+
+/// Структура с различными атрибутами документации.
+///
+/// # Примеры
+///
+/// ```
+/// let item = DocumentedStruct::new("test");
+/// assert_eq!(item.name, "test");
+/// ```
+#[doc(alias = "Item")]
+#[doc(alias = "Record")]
+pub struct DocumentedStruct {
+    /// Имя элемента
+    #[doc = "Поле name содержит имя элемента"]
+    pub name: String,
+
+    /// Скрытое поле (не отображается в документации)
+    #[doc(hidden)]
+    pub internal_id: u64,
+}
+
+impl DocumentedStruct {
+    /// Создаёт новый экземпляр.
+    ///
+    /// Скрытый метод не будет отображаться в публичной документации.
+    #[doc(hidden)]
+    pub fn internal_method(&self) -> &str {
+        "internal"
+    }
+
+    /// Публичный конструктор.
+    pub fn new(name: &str) -> Self {
+        Self {
+            name: name.to_string(),
+            internal_id: 12345,
+        }
+    }
+}
+
+/// Модуль с inline документацией.
+#[doc(inline)]
+pub use std::collections::HashMap as MyHashMap;
+
+/// Функция со встроенными примерами.
+///
+/// ```
+/// # fn main() {
+/// let nums = vec![1, 2, 3, 4, 5];
+/// let doubled = example_with_inline_code(&nums);
+/// assert_eq!(doubled, vec![2, 4, 6, 8, 10]);
+/// # }
+/// ```
+pub fn example_with_inline_code(input: &[i32]) -> Vec<i32> {
+    input.iter().map(|x| x * 2).collect()
+}
+
+fn main() {
+    println!("Результат функции: {}", documented_function(21));
+
+    let item = DocumentedStruct::new("Тестовый элемент");
+    println!("Создан элемент: {}", item.name);
+    println!("Внутренний метод: {}", item.internal_method());
+
+    let numbers = vec![1, 2, 3, 4, 5];
+    let doubled = example_with_inline_code(&numbers);
+    println!("Исходные: {:?}", numbers);
+    println!("Удвоенные: {:?}", doubled);
+
+    // Использование переименованного HashMap
+    let mut map = MyHashMap::new();
+    map.insert("key", "value");
+    println!("Map содержит: {:?}", map);
+}
+```
+
+### Условная документация
+
+```rust title="Документация в зависимости от условий компиляции"
+/// Кроссплатформенная файловая утилита.
+///
+/// Поведение зависит от операционной системы:
+///
+#[cfg_attr(target_os = "windows", doc = "На Windows использует WinAPI для работы с файлами.")]
+#[cfg_attr(target_os = "linux", doc = "На Linux использует системные вызовы POSIX.")]
+#[cfg_attr(target_os = "macos", doc = "На macOS использует Cocoa и Core Foundation.")]
+///
+/// # Примеры
+///
+/// ```
+/// let utils = FileUtils::new();
+/// let info = utils.get_file_info("test.txt");
+/// ```
+pub struct FileUtils;
+
+impl FileUtils {
+    /// Создаёт новый экземпляр файловых утилит.
+    pub fn new() -> Self {
+        Self
+    }
+
+    /// Получает информацию о файле.
+    ///
+    /// # Платформенные особенности
+    ///
+    #[cfg_attr(target_os = "windows", doc = "На Windows возвращает атрибуты файла из NTFS.")]
+    #[cfg_attr(not(target_os = "windows"), doc = "На Unix-системах возвращает метаданные из inode.")]
+    ///
+    /// # Примеры
+    ///
+    /// ```no_run
+    /// # use std::path::Path;
+    /// let utils = FileUtils::new();
+    /// if let Some(info) = utils.get_file_info("example.txt") {
+    ///     println!("Размер файла: {} байт", info.size);
+    /// }
+    /// ```
+    pub fn get_file_info(&self, path: &str) -> Option<FileInfo> {
+        // Платформо-специфичная реализация
+        #[cfg(target_os = "windows")]
+        {
+            // Windows-специфичный код
+            Some(FileInfo {
+                size: 0,
+                is_readonly: false,
+                platform_specific: "NTFS".to_string(),
+            })
+        }
+
+        #[cfg(not(target_os = "windows"))]
+        {
+            // Unix-подобные системы
+            Some(FileInfo {
+                size: 0,
+                is_readonly: false,
+                platform_specific: "POSIX".to_string(),
+            })
+        }
+    }
+}
+
+/// Информация о файле.
+///
+/// Содержит базовые метаданные файла, доступные на всех платформах.
+#[derive(Debug)]
+pub struct FileInfo {
+    /// Размер файла в байтах
+    pub size: u64,
+    /// Доступен ли файл только для чтения
+    pub is_readonly: bool,
+    /// Платформо-специфичная информация
+    #[cfg_attr(target_os = "windows", doc = "На Windows содержит тип файловой системы")]
+    #[cfg_attr(not(target_os = "windows"), doc = "На Unix содержит тип inode")]
+    pub platform_specific: String,
+}
+
+/// Функция с документацией только для определённых возможностей.
+///
+#[cfg_attr(feature = "advanced", doc = "В режиме 'advanced' доступны дополнительные возможности оптимизации.")]
+#[cfg_attr(not(feature = "advanced"), doc = "Для получения дополнительных возможностей включите feature 'advanced'.")]
+///
+/// # Примеры
+///
+/// Базовое использование:
+/// ```
+/// let result = feature_dependent_function("test data");
+/// ```
+///
+#[cfg_attr(feature = "advanced", doc = r#"
+С включённой возможностью 'advanced':
+```
+# #[cfg(feature = "advanced")]
+let optimized = feature_dependent_function("large dataset");
+// Будет использован оптимизированный алгоритм
+```
+"#)]
+pub fn feature_dependent_function(input: &str) -> String {
+    #[cfg(feature = "advanced")]
+    {
+        // Оптимизированная версия для feature "advanced"
+        format!("OPTIMIZED: {}", input.to_uppercase())
+    }
+
+    #[cfg(not(feature = "advanced"))]
+    {
+        // Базовая версия
+        format!("BASIC: {}", input)
+    }
+}
+
+fn main() {
+    println!("=== Кроссплатформенные утилиты ===");
+
+    let utils = FileUtils::new();
+    if let Some(info) = utils.get_file_info("Cargo.toml") {
+        println!("Информация о файле: {:?}", info);
+    }
+
+    println!("\n=== Функция с зависимостью от feature ===");
+    let result = feature_dependent_function("hello world");
+    println!("Результат: {}", result);
+
+    // Проверяем, какая операционная система
+    println!("\n=== Информация о платформе ===");
+    println!("ОС: {}", std::env::consts::OS);
+    println!("Архитектура: {}", std::env::consts::ARCH);
+
+    // Проверяем, включены ли определённые feature
+    #[cfg(feature = "advanced")]
+    println!("Feature 'advanced' включён");
+
+    #[cfg(not(feature = "advanced"))]
+    println!("Feature 'advanced' отключён");
+}
+```
+
+## Заключение
+
+В этой главе мы детально изучили систему комментариев в Rust:
+
+✅ **Обычные комментарии** — `//` и `/* */` для пояснений разработчикам
+✅ **Документационные комментарии** — `///` и `/** */` для внешней документации
+✅ **Внутренние комментарии** — `//!` и `/*! */` для документирования модулей
+✅ **Специальные разделы** — стандартизированные секции документации
+✅ **Доктесты** — тестируемые примеры кода в документации
+✅ **Генерацию документации** — команды cargo doc и настройки
+✅ **Лучшие практики** — как писать качественные комментарии
+✅ **Специальные атрибуты** — настройка отображения документации
+
+Хорошая документация — это инвестиция в будущее вашего проекта. Rust предоставляет мощные инструменты для создания профессиональной документации прямо из исходного кода.
+
+:::info Что дальше?
+В следующей главе: **"Условные операторы (if/else)"** — мы изучим управление потоком выполнения программы с помощью условных конструкций.
+:::
+
+---
+
+### Практические задания
+
+1. **Создайте документированную библиотеку** для работы с геометрическими фигурами с полной документацией, включая примеры и доктесты
+
+2. **Напишите модуль** с различными типами комментариев: обычными, документационными и условными для разных платформ
+
+3. **Реализуйте структуру данных** (например, стек или очередь) с подробной документацией всех методов и примерами использования
+
+4. **Создайте проект** с автоматическими доктестами и настройкой генерации документации через Cargo.toml
+
+### Вопросы для самопроверки
+
+1. В чём разница между `///` и `//!` комментариями?
+2. Какие специальные разделы поддерживает документация Rust?
+3. Как работают доктесты и какие у них есть атрибуты?
+4. Когда следует использовать `#[doc(hidden)]`?
+5. Как организовать документацию в большом проекте?
+
+### Полезные ссылки
+
+- [The Rust Book - Comments](https://doc.rust-lang.org/book/ch03-04-comments.html)
+- [rustdoc Book](https://doc.rust-lang.org/rustdoc/) — полное руководство по документации
+- [RFC 1574](https://rust-lang.github.io/rfcs/1574-more-api-documentation-conventions.html) — соглашения о документации API
+- [docs.rs](https://docs.rs/) — автоматическая генерация документации для всех крейтов
