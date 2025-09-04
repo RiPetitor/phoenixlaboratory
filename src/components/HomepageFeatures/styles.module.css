@@ -81,9 +81,14 @@
 
 @media (max-width: 1600px) {
 }
-
 @media (max-width: 1024px) {
     .featureIconLarge {
         width: 14%;
+    }
+}
+@media (max-width: 980px){ /* Адаптация под мобилки, чтобы карточки не слипались */
+    .featureCard {
+        margin: 5px; 
+        height: 95%;
     }
 }
