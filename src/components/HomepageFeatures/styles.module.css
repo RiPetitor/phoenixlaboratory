@@ -87,3 +87,9 @@
         width: 14%;
     }
 }
+@media (max-width: 900px){
+    .FeatureCard {
+        margin: 5px;
+        height: 95%;
+    }
+}
