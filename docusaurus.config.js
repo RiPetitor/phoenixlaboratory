@@ -23,7 +23,7 @@ const config = {
 
   // Конфигурация развертывания страниц GitHub.
   // Если вы не используете страницы GitHub, они вам не нужны.
-  organizationName: "phoenixlab", // Обычно это ваша организация на GitHub/имя пользователя.
+  organizationName: "RiPetitor", // Обычно это ваша организация на GitHub/имя пользователя.
   projectName: "phoenixlaboratory", // Обычно это имя вашего репозитория.
 
   onBrokenLinks: "throw",
