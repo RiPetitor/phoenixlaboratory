@@ -86,10 +86,10 @@
     .featureIconLarge {
         width: 14%;
     }
-}
-@media (max-width: 900px){
-    .FeatureCard {
+    .featureCard {
         margin: 5px;
         height: 95%;
     }
+}
+@media (max-width: 900px) {
 }
