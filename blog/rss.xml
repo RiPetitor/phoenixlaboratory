@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?><?xml-stylesheet type="text/xsl" href="rss.xsl"?>
+<rss version="2.0">
+    <channel>
+        <title>Phoenix Laboratory Blog</title>
+        <link>https://nextgenos.tech/blog</link>
+        <description>Phoenix Laboratory Blog</description>
+        <lastBuildDate>Fri, 22 Aug 2025 22:25:32 GMT</lastBuildDate>
+        <docs>https://validator.w3.org/feed/docs/rss2.html</docs>
+        <generator>https://github.com/jpmonette/feed</generator>
+        <language>ru</language>
+        <item>
+            <title><![CDATA[Блог временно не работает]]></title>
+            <link>https://nextgenos.tech/blog/</link>
+            <guid>https://nextgenos.tech/blog/</guid>
+            <pubDate>Fri, 22 Aug 2025 22:25:32 GMT</pubDate>
+            <description><![CDATA[🚧 Не работает, но временно!]]></description>
+        </item>
+    </channel>
+</rss>
