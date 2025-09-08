@@ -16,7 +16,7 @@ const config = {
   favicon: "img/fawicon.ico",
 
   // Укажите рабочий URL вашего сайта здесь
-  url: "https://nextgenos.tech/",
+  url: "https://nextgenos.tech",
   // Укажите /<baseUrl>/ путь, по которому будет доступен ваш сайт
   // Для развертывания страниц на GitHub часто используется "/<Имя проекта>/"
   baseUrl: "/",
