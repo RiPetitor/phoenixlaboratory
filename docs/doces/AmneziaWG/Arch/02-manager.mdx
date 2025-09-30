@@ -1,0 +1,451 @@
+---
+title: Создание менеджера VPN
+sidebar_position: 2
+---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+import CodeBlock from '@theme/CodeBlock';
+
+# Создание менеджера VPN
+
+## Шаг 1: Установка скрипта управления
+
+Создайте файл `~/awg-manager.sh` со следующим содержимым:
+
+<details>
+<summary>Показать код менеджера VPN</summary>
+
+```bash
+#!/bin/bash
+
+# AmneziaWG VPN Manager
+# Цвета для вывода
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+NC='\033[0m' # No Color
+
+CONFIG_NAME="awg-client"
+
+# Функция для проверки статуса VPN
+check_status() {
+    echo -e "${BLUE}=== Проверка статуса VPN ===${NC}"
+
+    # Проверяем, активен ли интерфейс
+    if sudo awg show "$CONFIG_NAME" &>/dev/null; then
+        echo -e "${GREEN}✓ VPN подключен${NC}"
+
+        # Показываем информацию об интерфейсе
+        echo -e "\n${YELLOW}Информация об интерфейсе:${NC}"
+        sudo awg show "$CONFIG_NAME"
+
+        # Проверяем внешний IP
+        echo -e "\n${YELLOW}Проверка внешнего IP:${NC}"
+        external_ip=$(curl -s --connect-timeout 5 ifconfig.me 2>/dev/null)
+        if [ $? -eq 0 ] && [ -n "$external_ip" ]; then
+            echo "Ваш внешний IP: $external_ip"
+
+            # Проверяем провайдера
+            echo -e "\n${YELLOW}Информация о провайдере:${NC}"
+            provider_info=$(curl -s --connect-timeout 5 "http://ip-api.com/json/$external_ip" 2>/dev/null | jq -r '.org // empty' 2>/dev/null)
+            if [ -n "$provider_info" ]; then
+                echo "Провайдер: $provider_info"
+            else
+                echo "Не удалось определить провайдера"
+            fi
+
+            # Дополнительная информация о местоположении
+            location_info=$(curl -s --connect-timeout 5 "http://ip-api.com/json/$external_ip" 2>/dev/null | jq -r '.country + ", " + .city' 2>/dev/null)
+            if [ -n "$location_info" ] && [ "$location_info" != "null, null" ]; then
+                echo "Местоположение: $location_info"
+            fi
+
+            echo -e "${GREEN}✓ VPN работает! Трафик маршрутизируется через VPN-сервер${NC}"
+        else
+            echo -e "${RED}✗ Не удалось получить внешний IP${NC}"
+        fi
+
+        return 0
+    else
+        echo -e "${RED}✗ VPN отключен${NC}"
+        return 1
+    fi
+}
+
+# Функция для подключения VPN
+connect_vpn() {
+    echo -e "${BLUE}=== Подключение к VPN ===${NC}"
+
+    if sudo awg show "$CONFIG_NAME" &>/dev/null; then
+        echo -e "${YELLOW}VPN уже подключен!${NC}"
+        return 0
+    fi
+
+    echo "Подключаемся..."
+    if sudo awg-quick up "$CONFIG_NAME"; then
+        echo -e "${GREEN}✓ VPN успешно подключен!${NC}"
+        sleep 2
+        check_status
+    else
+        echo -e "${RED}✗ Ошибка подключения VPN${NC}"
+        return 1
+    fi
+}
+
+# Функция для отключения VPN
+disconnect_vpn() {
+    echo -e "${BLUE}=== Отключение VPN ===${NC}"
+
+    if ! sudo awg show "$CONFIG_NAME" &>/dev/null; then
+        echo -e "${YELLOW}VPN уже отключен!${NC}"
+        return 0
+    fi
+
+    echo "Отключаемся..."
+    if sudo awg-quick down "$CONFIG_NAME"; then
+        echo -e "${GREEN}✓ VPN успешно отключен!${NC}"
+    else
+        echo -e "${RED}✗ Ошибка отключения VPN${NC}"
+        return 1
+    fi
+}
+
+# Функция для перезапуска VPN
+restart_vpn() {
+    echo -e "${BLUE}=== Перезапуск VPN ===${NC}"
+    disconnect_vpn
+    sleep 2
+    connect_vpn
+}
+
+# Функция для сравнения IP с VPN и без VPN
+compare_ips() {
+    echo -e "${BLUE}=== Сравнение IP адресов ===${NC}"
+
+    # Проверяем текущее состояние
+    vpn_active=false
+    if sudo awg show "$CONFIG_NAME" &>/dev/null; then
+        vpn_active=true
+        echo -e "${GREEN}VPN сейчас включен${NC}"
+
+        # Получаем IP с VPN
+        echo "Получаем IP с VPN..."
+        vpn_ip=$(curl -s --connect-timeout 10 ifconfig.me 2>/dev/null)
+        if [ -n "$vpn_ip" ]; then
+            echo "IP с VPN: $vpn_ip"
+
+            # Получаем информацию о провайдере с VPN
+            vpn_provider=$(curl -s --connect-timeout 5 "http://ip-api.com/json/$vpn_ip" 2>/dev/null | jq -r '.org + " (" + .country + ", " + .city + ")"' 2>/dev/null)
+            if [ -n "$vpn_provider" ] && [ "$vpn_provider" != "null (null, null)" ]; then
+                echo "Провайдер с VPN: $vpn_provider"
+            fi
+        else
+            echo -e "${RED}Не удалось получить IP с VPN${NC}"
+            return 1
+        fi
+
+        # Временно отключаем VPN
+        echo -e "\n${YELLOW}Временно отключаем VPN для сравнения...${NC}"
+        sudo awg-quick down "$CONFIG_NAME" &>/dev/null
+        sleep 3
+    else
+        echo -e "${YELLOW}VPN сейчас отключен${NC}"
+    fi
+
+    # Получаем реальный IP
+    echo "Получаем реальный IP..."
+    real_ip=$(curl -s --connect-timeout 10 ifconfig.me 2>/dev/null)
+    if [ -n "$real_ip" ]; then
+        echo "Реальный IP: $real_ip"
+
+        # Получаем информацию о реальном провайдере
+        real_provider=$(curl -s --connect-timeout 5 "http://ip-api.com/json/$real_ip" 2>/dev/null | jq -r '.org + " (" + .country + ", " + .city + ")"' 2>/dev/null)
+        if [ -n "$real_provider" ] && [ "$real_provider" != "null (null, null)" ]; then
+            echo "Ваш провайдер: $real_provider"
+        fi
+    else
+        echo -e "${RED}Не удалось получить реальный IP${NC}"
+    fi
+
+    # Восстанавливаем VPN если был включен
+    if [ "$vpn_active" = true ]; then
+        echo -e "\n${YELLOW}Восстанавливаем VPN соединение...${NC}"
+        sudo awg-quick up "$CONFIG_NAME" &>/dev/null
+        if [ $? -eq 0 ]; then
+            echo -e "${GREEN}✓ VPN восстановлен${NC}"
+        else
+            echo -e "${RED}✗ Ошибка восстановления VPN${NC}"
+        fi
+    fi
+
+    # Сравниваем результаты
+    if [ -n "$vpn_ip" ] && [ -n "$real_ip" ] && [ "$vpn_ip" != "$real_ip" ]; then
+        echo -e "\n${GREEN}✓ VPN работает корректно! IP адреса отличаются.${NC}"
+        echo -e "Реальный IP скрыт через VPN-сервер."
+    elif [ -n "$vpn_ip" ] && [ -n "$real_ip" ] && [ "$vpn_ip" = "$real_ip" ]; then
+        echo -e "\n${RED}⚠ Внимание! IP адреса одинаковые. Возможно, VPN не работает.${NC}"
+    fi
+}
+
+# Функция для показа логов
+show_logs() {
+    echo -e "${BLUE}=== Последние логи systemd ===${NC}"
+    sudo journalctl -u "awg-quick@$CONFIG_NAME" --no-pager -n 20
+}
+
+# Функция для управления автозапуском
+manage_autostart() {
+    local service="awg-quick@$CONFIG_NAME"
+
+    if systemctl is-enabled "$service" &>/dev/null; then
+        echo -e "${YELLOW}Автозапуск VPN включен${NC}"
+        echo "1) Отключить автозапуск"
+        echo "2) Назад"
+        read -p "Выберите опцию: " choice
+        case $choice in
+            1)
+                sudo systemctl disable "$service"
+                sudo systemctl stop "$service" 2>/dev/null
+                echo -e "${GREEN}✓ Автозапуск отключен${NC}"
+                ;;
+        esac
+    else
+        echo -e "${YELLOW}Автозапуск VPN отключен${NC}"
+        echo "1) Включить автозапуск"
+        echo "2) Назад"
+        read -p "Выберите опцию: " choice
+        case $choice in
+            1)
+                sudo systemctl enable "$service"
+                echo -e "${GREEN}✓ Автозапуск включен${NC}"
+                ;;
+        esac
+    fi
+}
+
+# Функция для генерации нового конфига
+regenerate_config() {
+    echo -e "${BLUE}=== Генерация нового конфига ===${NC}"
+    echo -e "${YELLOW}Внимание! Это отключит текущее соединение и создаст новый конфиг.${NC}"
+    read -p "Продолжить? (y/N): " confirm
+
+    if [[ $confirm =~ ^[Yy]$ ]]; then
+        # Отключаем VPN если подключен
+        sudo awg-quick down "$CONFIG_NAME" 2>/dev/null
+
+        # Переходим в домашнюю директорию и генерируем новый конфиг
+        cd ~
+        if [ -f "genconf.sh" ]; then
+            echo "Генерируем новый конфиг..."
+            ./genconf.sh
+            if [ -f "awg-client.conf" ]; then
+                sudo mv awg-client.conf "/etc/amnezia/amneziawg/awg-client.conf"
+                echo -e "${GREEN}✓ Новый конфиг создан!${NC}"
+                echo "Хотите сразу подключиться? (y/N): "
+                read connect_now
+                if [[ $connect_now =~ ^[Yy]$ ]]; then
+                    connect_vpn
+                fi
+            else
+                echo -e "${RED}✗ Ошибка создания конфига${NC}"
+            fi
+        else
+            echo -e "${RED}✗ Файл genconf.sh не найден в домашней директории${NC}"
+        fi
+    fi
+}
+
+# Главное меню
+show_menu() {
+    clear
+    echo -e "${BLUE}=====================================${NC}"
+    echo -e "${BLUE}    AmneziaWG VPN Manager v1.0${NC}"
+    echo -e "${BLUE}=====================================${NC}"
+    echo
+    echo "1) 📊 Проверить статус VPN"
+    echo "2) 🔛 Подключить VPN"
+    echo "3) 🔴 Отключить VPN"
+    echo "4) 🔄 Перезапустить VPN"
+    echo "5) 🔍 Сравнить IP (с VPN и без VPN)"
+    echo "6) ⚙️  Управление автозапуском"
+    echo "7) 📝 Показать логи"
+    echo "8) 🆕 Сгенерировать новый конфиг WARP"
+    echo "9) 🚪 Выход"
+    echo
+}
+
+# Основной цикл
+main() {
+    # Проверяем права root для некоторых команд
+    if ! command -v awg &> /dev/null; then
+        echo -e "${RED}✗ AmneziaWG не установлен или не найден в PATH${NC}"
+        exit 1
+    fi
+
+    while true; do
+        show_menu
+        read -p "Выберите опцию (1-9): " choice
+        echo
+
+        case $choice in
+            1) check_status ;;
+            2) connect_vpn ;;
+            3) disconnect_vpn ;;
+            4) restart_vpn ;;
+            5) compare_ips ;;
+            6) manage_autostart ;;
+            7) show_logs ;;
+            8) regenerate_config ;;
+            9)
+                echo -e "${GREEN}До свидания!${NC}"
+                exit 0
+                ;;
+            *)
+                echo -e "${RED}Неверная опция!${NC}"
+                ;;
+        esac
+
+        echo
+        read -p "Нажмите Enter для продолжения..."
+    done
+}
+
+# Если скрипт запущен с параметрами, выполняем соответствующую функцию
+case "$1" in
+    status|check) check_status ;;
+    up|connect|on) connect_vpn ;;
+    down|disconnect|off) disconnect_vpn ;;
+    restart) restart_vpn ;;
+    compare|test) compare_ips ;;
+    logs) show_logs ;;
+    *) main ;;
+esac
+```
+
+</details>
+
+<CodeBlock language="bash">
+{`chmod +x ~/awg-manager.sh
+sudo ln -sf ~/awg-manager.sh /usr/local/bin/awg-manager`}
+</CodeBlock>
+
+### Fish Shell интеграция
+
+Для пользователей Fish Shell:
+
+<CodeBlock language="fish">
+{`# Добавляем в ~/.config/fish/config.fish
+alias vpn='~/awg-manager.sh'
+
+function vpn-status
+    ~/awg-manager.sh status
+end
+
+function vpn-on
+    ~/awg-manager.sh up
+end
+
+function vpn-off
+    ~/awg-manager.sh down
+end`}
+</CodeBlock>
+
+## Интеграция с KDE Plasma
+
+### Создание .desktop файла
+
+<CodeBlock language="bash">
+{`# Создаем файл приложения
+nano ~/.local/share/applications/awg-manager.desktop`}
+</CodeBlock>
+
+<CodeBlock language="ini">
+{`[Desktop Entry]
+Name=AmneziaWG Manager
+Name[ru]=Менеджер AmneziaWG
+Comment=Управление AmneziaWG VPN подключением
+Exec=konsole --title "AmneziaWG VPN Manager" -e fish -c "~/awg-manager.sh; echo 'Нажмите Enter для закрытия...'; read"
+Icon=network-vpn
+Terminal=false
+Type=Application
+Categories=Network;Security;
+Keywords=VPN;AmneziaWG;WireGuard;
+StartupNotify=true`}
+</CodeBlock>
+
+<CodeBlock language="bash">
+{`chmod +x ~/.local/share/applications/awg-manager.desktop
+
+# Обновляем кэш приложений KDE
+kbuildsycoca5 || kbuildsycoca6
+
+# Копируем на рабочий стол (опционально)
+cp ~/.local/share/applications/awg-manager.desktop ~/Desktop/
+gio set ~/Desktop/awg-manager.desktop metadata::trusted true`}
+</CodeBlock>
+
+## Проверка установки
+
+### Тестирование VPN
+
+<CodeBlock language="bash">
+{`# Проверяем загрузку модуля
+lsmod | grep amneziawg
+
+# Подключаемся к VPN
+sudo awg-quick up awg-client
+
+# Проверяем внешний IP
+curl ifconfig.me
+
+# Отключаемся от VPN
+sudo awg-quick down awg-client`}
+</CodeBlock>
+
+## Устранение неполадок
+
+### Частые проблемы и решения
+
+| Проблема | Решение |
+|----------|---------|
+| `gcc: error: unrecognized command-line option '-mretpoline-external-thunk'` | Используйте `make LLVM=1` вместо обычного `make` |
+| `resolvconf: command not found` | `sudo pacman -S openresolv` |
+| `Could not activate remote peer 'org.freedesktop.resolve1'` | `sudo systemctl enable systemd-resolved` |
+| Модуль не загружается после обновления ядра | Пересоберите через DKMS: `sudo dkms install -m amneziawg -v 1.0.0` |
+
+### Логи и диагностика
+
+<CodeBlock language="bash">
+{`# Просмотр логов systemd
+sudo journalctl -u awg-quick@awg-client
+
+# Проверка состояния интерфейса
+ip link show awg-client
+
+# Просмотр таблицы маршрутизации
+ip route show table all | grep awg-client`}
+</CodeBlock>
+
+## Заключение
+
+Поздравляем! Вы успешно установили и настроили AmneziaWG на CachyOS. Теперь у вас есть:
+
+✅ Рабочий AmneziaWG модуль ядра
+✅ Инструменты командной строки
+✅ Графический менеджер VPN
+✅ Интеграция с KDE Plasma
+✅ Автозапуск при необходимости
+
+:::tip Дополнительные ресурсы
+- [Официальный репозиторий AmneziaWG](https://github.com/amnezia-vpn/amneziawg-linux-kernel-module)
+- [AmneziaWG Tools](https://github.com/amnezia-vpn/amneziawg-tools)
+- [Документация WireGuard](https://www.wireguard.com/)
+:::
+
+:::warning Безопасность
+- Регулярно обновляйте систему и модули
+- Используйте надежные VPN конфигурации
+- Не делитесь своими приватными ключами
+:::
