@@ -27,8 +27,12 @@ const config = {
   projectName: "phoenixlaboratory", // Обычно это имя вашего репозитория.
 
   onBrokenLinks: "throw",
-  onBrokenMarkdownLinks: "warn",
-
+  
+  markdown: {
+  hooks: {
+    onBrokenMarkdownLinks: 'warn',
+  },
+},
   // Даже если вы не используете интернационализацию, вы можете использовать это поле для задания
   // полезных метаданных, таких как язык html. Например, если ваш сайт на китайском, вы
   // можете захотеть заменить "en" на "zh-Hans".
