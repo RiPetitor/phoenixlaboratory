@@ -34,7 +34,7 @@ const FeatureList = [
     ),
   },
   {
-    title: "Мы работает для вас!",
+    title: "Мы работаем для вас!",
     Img: require("@site/static/img/ruka.png").default,
     description: (
       <>
